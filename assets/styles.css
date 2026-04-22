@@ -557,21 +557,31 @@ a:hover {
   padding: var(--spacing-lg);
 }
 
-.puzzle-container--multi {
+/* 2 puzzles: stacked column */
+.puzzle-container--two {
+  gap: var(--spacing-xl);
+}
+
+.puzzle-container--two .puzzle-item {
+  width: auto;
+}
+
+/* 4 puzzles: 2x2 grid */
+.puzzle-container--four {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--spacing-xl);
 }
 
-.puzzle-item {
-  text-align: center;
-}
-
-.puzzle-container--multi .puzzle-item {
+.puzzle-container--four .puzzle-item {
   width: calc(50% - var(--spacing-xl));
   max-width: 450px;
   min-width: 280px;
+}
+
+.puzzle-item {
+  text-align: center;
 }
 
 .solution-section {
@@ -581,14 +591,24 @@ a:hover {
   padding: var(--spacing-lg);
 }
 
-.solution-section--multi {
+/* 2 solutions: stacked column */
+.solution-section--two {
+  gap: var(--spacing-xl);
+}
+
+.solution-section--two .puzzle-item {
+  width: auto;
+}
+
+/* 4 solutions: 2x2 grid */
+.solution-section--four {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--spacing-xl);
 }
 
-.solution-section--multi .puzzle-item {
+.solution-section--four .puzzle-item {
   width: calc(50% - var(--spacing-xl));
   max-width: 450px;
   min-width: 280px;
@@ -753,27 +773,41 @@ a:hover {
     margin-top: 20px;
   }
   
-  /* Preserve multi-puzzle grid layout in print */
-  .puzzle-container--multi,
-  .solution-section--multi {
+  /* 2 puzzles: stack vertically, fit on one page */
+  .puzzle-container--two,
+  .solution-section--two {
+    gap: 15px;
+  }
+  
+  .puzzle-container--two .puzzle-item,
+  .solution-section--two .puzzle-item {
+    page-break-inside: avoid;
+  }
+  
+  /* 4 puzzles: 2x2 grid */
+  .puzzle-container--four,
+  .solution-section--four {
     display: flex !important;
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
   }
   
-  .puzzle-container--multi .puzzle-item,
-  .solution-section--multi .puzzle-item {
+  .puzzle-container--four .puzzle-item,
+  .solution-section--four .puzzle-item {
     width: 45%;
     max-width: 350px;
     page-break-inside: avoid;
   }
   
-  /* Smaller grid cells for print */
-  .sudoku-grid td {
-    width: 36px;
-    height: 36px;
-    font-size: 16pt;
+  /* Smaller grid cells for multi-puzzle print */
+  .puzzle-container--two .sudoku-grid td,
+  .solution-section--two .sudoku-grid td,
+  .puzzle-container--four .sudoku-grid td,
+  .solution-section--four .sudoku-grid td {
+    width: 32px;
+    height: 32px;
+    font-size: 14pt;
   }
 }
 

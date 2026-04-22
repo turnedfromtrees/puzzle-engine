@@ -554,11 +554,12 @@
       container.innerHTML = '';
       container.style.display = 'flex';
       
-      // Add multi-puzzle class for layout
-      if (perPage > 1) {
-        container.classList.add('puzzle-container--multi');
-      } else {
-        container.classList.remove('puzzle-container--multi');
+      // Remove all layout classes and add appropriate one
+      container.classList.remove('puzzle-container--two', 'puzzle-container--four');
+      if (perPage === 2) {
+        container.classList.add('puzzle-container--two');
+      } else if (perPage === 4) {
+        container.classList.add('puzzle-container--four');
       }
       
       // Create each puzzle
@@ -591,11 +592,12 @@
       if (solutionsOption === 'separate') {
         solutionSection.style.display = 'block';
         
-        // Add multi class for layout
-        if (perPage > 1) {
-          solutionSection.classList.add('solution-section--multi');
-        } else {
-          solutionSection.classList.remove('solution-section--multi');
+        // Remove all layout classes and add appropriate one
+        solutionSection.classList.remove('solution-section--two', 'solution-section--four');
+        if (perPage === 2) {
+          solutionSection.classList.add('solution-section--two');
+        } else if (perPage === 4) {
+          solutionSection.classList.add('solution-section--four');
         }
         
         solutions.forEach((solution, i) => {

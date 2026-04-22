@@ -821,10 +821,14 @@
       progressContainer.classList.remove('hidden');
       
       const sizeNames = { 4: '4x4', 6: '6x6', 9: '9x9' };
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
       
       const zip = new JSZip();
       const puzzlesFolder = zip.folder('puzzles');
       const solutionsFolder = zip.folder('solutions');
+      
+      // Track puzzle counts per difficulty
+      const diffCounts = { easy: 0, medium: 0, hard: 0, expert: 0 };
       
       const puzzles = [];
       const solutions = [];
@@ -842,19 +846,28 @@
         puzzles.push(puzzle);
         solutions.push(solved);
         puzzleDiffs.push(diff);
+        diffCounts[diff]++;
         
         await new Promise(resolve => setTimeout(resolve, 0));
       }
       
       progressText.textContent = 'Creating puzzle images...';
       
+      // Reset counts for file naming
+      const diffNumbers = { easy: 0, medium: 0, hard: 0, expert: 0 };
+      
       // Generate puzzle PNGs
       for (let i = 0; i < puzzles.length; i++) {
         progressText.textContent = `Creating puzzle ${i + 1} of ${puzzles.length}...`;
-        const canvas = createPuzzleCanvas(puzzles[i], size, i + 1, puzzleDiffs[i]);
+        
+        const diff = puzzleDiffs[i];
+        diffNumbers[diff]++;
+        const puzzleNum = diffNumbers[diff];
+        
+        const canvas = createPuzzleCanvas(puzzles[i], size, puzzleNum, diff);
         const dataUrl = canvas.toDataURL('image/png');
         const base64Data = dataUrl.split(',')[1];
-        puzzlesFolder.file(`${String(i + 1).padStart(3, '0')}-sudoku-${sizeNames[size]}-${puzzleDiffs[i].toLowerCase()}.png`, base64Data, { base64: true });
+        puzzlesFolder.file(`${diffNames[diff].toLowerCase()}-${String(puzzleNum).padStart(3, '0')}.png`, base64Data, { base64: true });
         await new Promise(resolve => setTimeout(resolve, 0));
       }
       
@@ -911,7 +924,7 @@
       ctx.fillStyle = '#1a202c';
       ctx.font = 'bold 14pt Arial';
       ctx.textAlign = 'center';
-      ctx.fillText(`Puzzle ${puzzleNum} - Sudoku ${size}x${size} ${diffNames[difficulty]}`, canvas.width / 2, 18);
+      ctx.fillText(`Puzzle ${puzzleNum} - ${diffNames[difficulty]}`, canvas.width / 2, 18);
       
       const config = GRID_CONFIG[size];
       const offsetY = titleHeight;

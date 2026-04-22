@@ -810,24 +810,24 @@ a:hover {
   /* Print-only page header - shown via JavaScript */
   .print-header {
     display: flex !important;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 15px;
     padding: 10px 0 20px 0;
     margin-bottom: 10px;
   }
   
   .print-header__logo {
-    height: 50px;
+    height: 40px;
     width: auto;
+    margin-bottom: 5px;
   }
   
   .print-header__text {
-    text-align: left;
+    text-align: center;
   }
   
   .print-header__title {
-    font-size: 16pt;
+    font-size: 14pt;
     font-weight: bold;
     margin: 0;
   }

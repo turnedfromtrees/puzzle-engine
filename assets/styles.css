@@ -574,6 +574,26 @@ a:hover {
   min-width: 280px;
 }
 
+.solution-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-lg);
+}
+
+.solution-section--multi {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-xl);
+}
+
+.solution-section--multi .puzzle-item {
+  width: calc(50% - var(--spacing-xl));
+  max-width: 450px;
+  min-width: 280px;
+}
+
 .puzzle-item .puzzle-title,
 .puzzle-item .solution-title {
   margin-bottom: var(--spacing-sm);
@@ -727,6 +747,23 @@ a:hover {
   /* Solution page */
   .solution-section {
     page-break-before: always;
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .solution-section--multi {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .solution-section .puzzle-item {
+    width: 45%;
+    max-width: 350px;
+    page-break-inside: avoid;
   }
   
   .solution-title {

@@ -591,6 +591,13 @@
       if (solutionsOption === 'separate') {
         solutionSection.style.display = 'block';
         
+        // Add multi class for layout
+        if (perPage > 1) {
+          solutionSection.classList.add('solution-section--multi');
+        } else {
+          solutionSection.classList.remove('solution-section--multi');
+        }
+        
         solutions.forEach((solution, i) => {
           const solutionDiv = document.createElement('div');
           solutionDiv.className = 'puzzle-item';

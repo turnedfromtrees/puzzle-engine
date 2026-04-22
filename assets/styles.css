@@ -631,6 +631,7 @@ a:hover {
 
 /* 4 solutions: 2x2 grid */
 .solution-section--four {
+  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;

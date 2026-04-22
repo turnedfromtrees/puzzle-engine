@@ -794,6 +794,24 @@ a:hover {
     padding: 20px;
   }
   
+  /* Style puzzle title for print */
+  .puzzle-title {
+    font-size: 18pt;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  /* Add subtitle after puzzle title */
+  .puzzle-title::after {
+    content: "\A Provided by puzzle-engine.com";
+    font-size: 10pt;
+    font-weight: normal;
+    color: #666;
+    white-space: pre-line;
+    display: block;
+    margin-top: 3px;
+  }
+  
   /* Puzzle grid print optimization */
   .sudoku-grid {
     width: auto;
@@ -813,7 +831,20 @@ a:hover {
   }
   
   .solution-title {
-    margin-top: 20px;
+    font-size: 16pt;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .solution-title::after {
+    content: "\A Provided by puzzle-engine.com";
+    font-size: 10pt;
+    font-weight: normal;
+    color: #666;
+    white-space: pre-line;
+    display: block;
+    margin-top: 3px;
   }
   
   /* 1 puzzle: centered and larger */

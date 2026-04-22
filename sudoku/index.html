@@ -584,6 +584,9 @@
       container.innerHTML = '';
       container.style.display = 'flex';
       
+      // Set print title attribute
+      container.setAttribute('data-print-title', `Sudoku ${sizeNames[currentSize]} ${diffNames[currentDifficulty]}`);
+      
       // Remove all layout classes and add appropriate one
       container.classList.remove('puzzle-container--one', 'puzzle-container--two', 'puzzle-container--four');
       if (perPage === 1) {

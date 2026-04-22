@@ -767,7 +767,14 @@ a:hover {
    Print Styles
    -------------------------------------------------------------------------- */
 @media print {
+  /* Page setup - no headers/footers from browser */
+  @page {
+    margin: 15mm;
+    size: auto;
+  }
+  
   /* Hide all UI chrome */
+  .page-title,
   .header,
   .footer,
   .controls,
@@ -785,44 +792,67 @@ a:hover {
     padding: 0;
   }
   
+  /* Print-only page header - puzzle type centered */
+  .puzzle-container::before {
+    content: attr(data-print-title);
+    display: block;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .puzzle-container::after {
+    content: "puzzle-engine.com";
+    display: block;
+    text-align: center;
+    font-size: 12pt;
+    margin-top: 20px;
+  }
+  
+  .solution-section::before {
+    content: "Solutions";
+    display: block;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .solution-section::after {
+    content: "puzzle-engine.com";
+    display: block;
+    text-align: center;
+    font-size: 12pt;
+    margin-top: 20px;
+  }
+  
   /* Show only puzzle container */
   .main-content {
     padding: 0;
   }
   
   .puzzle-container {
-    padding: 0;
+    padding: 20px 0;
   }
   
-  /* First puzzle title - page header style */
-  .puzzle-item:first-child .puzzle-title {
-    font-size: 18pt;
-    font-weight: bold;
-    margin-bottom: 3px;
-  }
-  
-  .puzzle-item:first-child .puzzle-title::after {
-    content: "\A puzzle-engine.com";
+  /* Puzzle titles - just number for each puzzle */
+  .puzzle-title {
     font-size: 12pt;
-    font-weight: normal;
-    white-space: pre-line;
-    display: block;
-    margin-top: 2px;
-  }
-  
-  /* Subsequent puzzle titles - puzzle number only */
-  .puzzle-item:not(:first-child) .puzzle-title {
-    font-size: 14pt;
     font-weight: bold;
     margin-bottom: 5px;
-    margin-top: 15px;
+    margin-top: 10px;
   }
   
-  /* Solution titles - solution number only */
+  .puzzle-item:first-child .puzzle-title {
+    margin-top: 0;
+  }
+  
+  /* Solution titles - just number for each solution */
   .solution-title {
-    font-size: 14pt;
+    font-size: 12pt;
     font-weight: bold;
-    margin-top: 15px;
+    margin-top: 10px;
     margin-bottom: 5px;
   }
   

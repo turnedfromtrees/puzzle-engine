@@ -6,6 +6,7 @@
   <title>Sudoku Generator — Puzzle Engine</title>
   <meta name="description" content="Generate free printable Sudoku puzzles in 4x4, 6x6, and 9x9 sizes. Multiple difficulty levels, print-ready, commercial license included.">
   <link rel="stylesheet" href="../assets/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     /* Sudoku-page-specific styles */
     .sudoku-wrapper {
@@ -799,124 +800,262 @@
     /**
      * Generate bulk puzzles
      */
-    async function generateBulkPuzzles() {
-      const count = parseInt(document.getElementById('bulk-count').value) || 50;
-      const difficulties = [];
-      if (document.getElementById('diff-easy').checked) difficulties.push('easy');
-      if (document.getElementById('diff-medium').checked) difficulties.push('medium');
-      if (document.getElementById('diff-hard').checked) difficulties.push('hard');
-      if (document.getElementById('diff-expert').checked) difficulties.push('expert');
-      
-      if (difficulties.length === 0) {
-        alert('Please select at least one difficulty level.');
-        return;
-      }
-      
-      const size = parseInt(document.getElementById('size').value);
-      const progressContainer = document.getElementById('bulk-progress');
-      const progressFill = document.getElementById('progress-fill');
-      const progressText = document.getElementById('progress-text');
-      
-      progressContainer.classList.remove('hidden');
-      
-      const puzzles = [];
-      const solutions = [];
-      
-      for (let i = 0; i < count; i++) {
-        // Update progress
-        const percent = Math.round((i + 1) / count * 100);
-        progressFill.style.width = `${percent}%`;
-        progressText.textContent = `Generating puzzle ${i + 1} of ${count}...`;
-        
-        // Generate puzzle
-        const diff = difficulties[i % difficulties.length];
-        const solved = generateSolvedGrid(size);
-        const puzzle = createPuzzle(solved, size, diff);
-        
-        puzzles.push(puzzle);
-        solutions.push(solved);
-        
-        // Yield to browser to prevent freezing
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
-      
-      progressText.textContent = 'Generating printable document...';
-      
-      // Generate HTML for all puzzles
-      generateBulkDocument(puzzles, solutions, size, difficulties);
-      
-      progressContainer.classList.add('hidden');
-    }
+/**
+ * Bulk puzzle generation with ZIP download
+ */
 
-    /**
-     * Generate printable HTML document with all puzzles
-     */
-    function generateBulkDocument(puzzles, solutions, size, difficulties) {
-      const config = GRID_CONFIG[size];
-      const sizeNames = { 4: '4×4', 6: '6×6', 9: '9×9' };
-      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
+/**
+ * Generate bulk puzzles as ZIP download
+ */
+async function generateBulkPuzzles() {
+  const count = parseInt(document.getElementById('bulk-count').value) || 50;
+  const difficulties = [];
+  if (document.getElementById('diff-easy').checked) difficulties.push('easy');
+  if (document.getElementById('diff-medium').checked) difficulties.push('medium');
+  if (document.getElementById('diff-hard').checked) difficulties.push('hard');
+  if (document.getElementById('diff-expert').checked) difficulties.push('expert');
+  
+  if (difficulties.length === 0) {
+    alert('Please select at least one difficulty level.');
+    return;
+  }
+  
+  const size = parseInt(document.getElementById('size').value);
+  const progressContainer = document.getElementById('bulk-progress');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  
+  progressContainer.classList.remove('hidden');
+  
+  const sizeNames = { 4: '4x4', 6: '6x6', 9: '9x9' };
+  
+  const zip = new JSZip();
+  const puzzlesFolder = zip.folder('puzzles');
+  const solutionsFolder = zip.folder('solutions');
+  
+  const puzzles = [];
+  const solutions = [];
+  const puzzleDiffs = [];
+  
+  for (let i = 0; i < count; i++) {
+    // Update progress
+    const percent = Math.round((i + 1) / count * 100);
+    progressFill.style.width = `${percent}%`;
+    progressText.textContent = `Generating puzzle ${i + 1} of ${count}...`;
+    
+    // Generate puzzle
+    const diff = difficulties[i % difficulties.length];
+    const solved = generateSolvedGrid(size);
+    const puzzle = createPuzzle(solved, size, diff);
+    
+    puzzles.push(puzzle);
+    solutions.push(solved);
+    puzzleDiffs.push(diff);
+    
+    // Yield to browser to prevent freezing
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+  
+  progressText.textContent = 'Creating puzzle images...';
+  
+  // Generate puzzle PNGs
+  for (let i = 0; i < puzzles.length; i++) {
+    progressText.textContent = `Creating puzzle ${i + 1} of ${puzzles.length}...`;
+    const canvas = createPuzzleCanvas(puzzles[i], size);
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64Data = dataUrl.split(',')[1];
+    puzzlesFolder.file(`sudoku-${sizeNames[size]}-${puzzleDiffs[i].toLowerCase()}-${String(i + 1).padStart(3, '0')}.png`, base64Data, { base64: true });
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+  
+  progressText.textContent = 'Creating solution pages...';
+  
+  // Collate solutions into pages of 12
+  const solutionsPerPage = 12;
+  const numPages = Math.ceil(solutions.length / solutionsPerPage);
+  
+  for (let page = 0; page < numPages; page++) {
+    progressText.textContent = `Creating solution page ${page + 1} of ${numPages}...`;
+    const startIdx = page * solutionsPerPage;
+    const endIdx = Math.min(startIdx + solutionsPerPage, solutions.length);
+    const pageSolutions = solutions.slice(startIdx, endIdx);
+    
+    const canvas = createSolutionPage(pageSolutions, size, startIdx + 1);
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64Data = dataUrl.split(',')[1];
+    solutionsFolder.file(`solutions-page-${String(page + 1).padStart(3, '0')}.png`, base64Data, { base64: true });
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+  
+  progressText.textContent = 'Creating ZIP file...';
+  
+  // Generate and download ZIP
+  const content = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(content);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `sudoku-${sizeNames[size]}-${count}-puzzles.zip`;
+  link.click();
+  URL.revokeObjectURL(url);
+  
+  progressContainer.classList.add('hidden');
+}
+
+/**
+ * Create a canvas from a puzzle grid
+ */
+function createPuzzleCanvas(grid, size) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const cellSize = size === 4 ? 60 : (size === 6 ? 50 : 45);
+  const gridWidth = size * cellSize;
+  const padding = 20;
+  
+  canvas.width = gridWidth + padding * 2;
+  canvas.height = gridWidth + padding * 2;
+  
+  // White background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  const config = GRID_CONFIG[size];
+  
+  // Draw cells
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `bold ${cellSize * 0.5}px Arial`;
+  
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      const x = padding + col * cellSize;
+      const y = padding + row * cellSize;
+      const value = grid[row][col];
       
-      let html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Sudoku Puzzles - Bulk Export</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; }
-    .puzzle-page { page-break-after: always; }
-    .puzzle-page:last-child { page-break-after: auto; }
-    .puzzle-title { text-align: center; margin-bottom: 10px; }
-    table { border-collapse: collapse; margin: 0 auto; }
-    td { width: ${size === 4 ? 50 : (size === 6 ? 42 : 38)}px; height: ${size === 4 ? 50 : (size === 6 ? 42 : 38)}px; 
-         text-align: center; vertical-align: middle; font-size: ${size === 4 ? 24 : (size === 6 ? 20 : 18)}pt;
-         border: 1px solid #cbd5e0; }
-    td.given { font-weight: bold; background-color: #f7fafc; }
-    @media print {
-      body { padding: 10px; }
-      .puzzle-page { page-break-inside: avoid; }
-    }
-  </style>
-</head>
-<body>`;
-      
-      puzzles.forEach((puzzle, i) => {
-        const diff = difficulties[i % difficulties.length];
-        html += `
-<div class="puzzle-page">
-  <h2 class="puzzle-title">Sudoku Puzzle ${i + 1} (${sizeNames[size]}, ${diffNames[diff]})</h2>
-  <table>
-    ${puzzle.map((row, rowIndex) => 
-      `<tr>${row.map((cell, colIndex) => {
-        const isRightBorder = (colIndex + 1) % config.boxCols === 0 && colIndex < size - 1;
-        const isBottomBorder = (rowIndex + 1) % config.boxRows === 0 && rowIndex < size - 1;
-        let style = '';
-        if (isRightBorder) style += 'border-right-width: 3px;';
-        if (isBottomBorder) style += 'border-bottom-width: 3px;';
-        return `<td${cell ? ' class="given"' : ''}${style ? ` style="${style}"` : ''}>${cell || ''}</td>`;
-      }).join('')}</tr>`
-    ).join('')}
-  </table>
-</div>`;
-      });
-      
-      html += '</body></html>';
-      
-      // Open in new window
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const win = window.open(url, '_blank');
-      
-      if (!win) {
-        alert('Please allow popups to open the bulk export.');
+      // Cell background for givens
+      if (value !== 0) {
+        ctx.fillStyle = '#f7fafc';
+        ctx.fillRect(x, y, cellSize, cellSize);
       }
       
-      // Clean up
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      // Cell border
+      ctx.strokeStyle = '#cbd5e0';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, cellSize, cellSize);
+      
+      // Number
+      if (value !== 0) {
+        ctx.fillStyle = '#1a202c';
+        ctx.fillText(value.toString(), x + cellSize / 2, y + cellSize / 2);
+      }
     }
+  }
+  
+  // Draw thick box borders
+  ctx.strokeStyle = '#1a202c';
+  ctx.lineWidth = 3;
+  
+  for (let boxRow = 0; boxRow < size / config.boxRows; boxRow++) {
+    for (let boxCol = 0; boxCol < size / config.boxCols; boxCol++) {
+      const x = padding + boxCol * config.boxCols * cellSize;
+      const y = padding + boxRow * config.boxRows * cellSize;
+      const w = config.boxCols * cellSize;
+      const h = config.boxRows * cellSize;
+      ctx.strokeRect(x, y, w, h);
+    }
+  }
+  
+  // Outer border
+  ctx.lineWidth = 4;
+  ctx.strokeRect(padding, padding, gridWidth, gridWidth);
+  
+  return canvas;
+}
 
-    /* --------------------------------------------------------------------------
-       Event Listeners & Initialization
-       -------------------------------------------------------------------------- */
+/**
+ * Create a solution page with multiple grids
+ */
+function createSolutionPage(grids, size, startNumber) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const cellSize = size === 4 ? 30 : (size === 6 ? 25 : 22);
+  const gridWidth = size * cellSize;
+  const gridPadding = 10;
+  const titleHeight = 20;
+  const gridTotalHeight = titleHeight + gridWidth + gridPadding;
+  
+  // 12 solutions per page = 3 rows x 4 columns
+  const cols = 4;
+  const rows = 3;
+  const pagePadding = 20;
+  const colGap = 15;
+  const rowGap = 15;
+  
+  canvas.width = pagePadding * 2 + cols * gridWidth + (cols - 1) * colGap;
+  canvas.height = pagePadding * 2 + rows * gridTotalHeight + (rows - 1) * rowGap;
+  
+  // White background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  const config = GRID_CONFIG[size];
+  
+  grids.forEach((grid, idx) => {
+    const col = idx % cols;
+    const row = Math.floor(idx / cols);
+    const baseX = pagePadding + col * (gridWidth + colGap);
+    const baseY = pagePadding + row * (gridTotalHeight + rowGap);
+    
+    // Draw solution number
+    ctx.fillStyle = '#1a202c';
+    ctx.font = 'bold 12pt Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(`Solution ${startNumber + idx}`, baseX, baseY + 12);
+    
+    // Draw grid
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `bold ${cellSize * 0.5}px Arial`;
+    
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const x = baseX + c * cellSize;
+        const y = baseY + titleHeight + r * cellSize;
+        const value = grid[r][c];
+        
+        // Cell border
+        ctx.strokeStyle = '#cbd5e0';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, cellSize, cellSize);
+        
+        // Number
+        if (value !== 0) {
+          ctx.fillStyle = '#1a202c';
+          ctx.fillText(value.toString(), x + cellSize / 2, y + cellSize / 2);
+        }
+      }
+    }
+    
+    // Draw box borders
+    ctx.strokeStyle = '#1a202c';
+    ctx.lineWidth = 2;
+    
+    for (let boxRow = 0; boxRow < size / config.boxRows; boxRow++) {
+      for (let boxCol = 0; boxCol < size / config.boxCols; boxCol++) {
+        const x = baseX + boxCol * config.boxCols * cellSize;
+        const y = baseY + titleHeight + boxRow * config.boxRows * cellSize;
+        const w = config.boxCols * cellSize;
+        const h = config.boxRows * cellSize;
+        ctx.strokeRect(x, y, w, h);
+      }
+    }
+    
+    // Outer border
+    ctx.lineWidth = 3;
+    ctx.strokeRect(baseX, baseY + titleHeight, gridWidth, gridWidth);
+  });
+  
+  return canvas;
+}       -------------------------------------------------------------------------- */
 
     document.addEventListener('DOMContentLoaded', function() {
       // Generate button

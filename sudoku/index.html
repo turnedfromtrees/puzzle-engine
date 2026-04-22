@@ -936,7 +936,7 @@
       ctx.fillStyle = '#1a202c';
       ctx.font = 'bold 14pt Arial';
       ctx.textAlign = 'center';
-      ctx.fillText(`Puzzle ${puzzleNum} - ${diffNames[difficulty]}`, canvas.width / 2, 18);
+      ctx.fillText(`${diffNames[difficulty]} ${puzzleNum}`, canvas.width / 2, 18);
       
       const config = GRID_CONFIG[size];
       const offsetY = titleHeight;

@@ -675,6 +675,12 @@ a:hover {
 .sudoku-grid--4x4 tr:first-child td {
   border-top-width: 3px;
 }
+.sudoku-grid--4x4 td:last-child {
+  border-right-width: 3px;
+}
+.sudoku-grid--4x4 tr:last-child td {
+  border-bottom-width: 3px;
+}
 
 /* 6x6 grid (2x3 boxes) */
 .sudoku-grid--6x6 td:nth-child(3n) {
@@ -689,6 +695,12 @@ a:hover {
 .sudoku-grid--6x6 tr:first-child td {
   border-top-width: 3px;
 }
+.sudoku-grid--6x6 td:last-child {
+  border-right-width: 3px;
+}
+.sudoku-grid--6x6 tr:last-child td {
+  border-bottom-width: 3px;
+}
 
 /* 9x9 grid (3x3 boxes) */
 .sudoku-grid--9x9 td:nth-child(3n) {
@@ -702,6 +714,12 @@ a:hover {
 }
 .sudoku-grid--9x9 tr:first-child td {
   border-top-width: 3px;
+}
+.sudoku-grid--9x9 td:last-child {
+  border-right-width: 3px;
+}
+.sudoku-grid--9x9 tr:last-child td {
+  border-bottom-width: 3px;
 }
 
 

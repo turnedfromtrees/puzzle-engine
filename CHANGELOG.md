@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1-wordsearch] - 2026-04-22
+
+### Features
+- **Word Search Generator** - Complete implementation
+  - Grid sizes: 10×10 (Kids), 12×12 (Junior), 15×15 (Standard), 20×20 (Large)
+  - Difficulty levels: Easy (horizontal/vertical), Medium (all 8 directions), Hard (with backwards)
+  - Custom word list input with text area
+  - Theme presets: Fruits, Animals, Colors, Weather, Sports, Countries
+  - Per page options: 1, 2, 4 puzzles
+  - Print-ready layout with word lists
+  - Solution highlighting
+  - PNG export
+  - Amazon affiliate links for word search books
+
+### Improvements
+- Updated landing page with Word Search as active (not "Coming Soon")
+- Added PUZZLE_ROADMAP.md with future puzzle type planning
+- Enhanced meta keywords for SEO
+
 ## [v1.0-sudoku] - 2026-04-22
 
 ### Features

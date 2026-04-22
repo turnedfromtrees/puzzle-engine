@@ -791,25 +791,38 @@ a:hover {
   }
   
   .puzzle-container {
-    padding: 20px;
+    padding: 0;
   }
   
-  /* Style puzzle title for print */
-  .puzzle-title {
+  /* First puzzle title only - show as page header */
+  .puzzle-item:first-child .puzzle-title {
     font-size: 18pt;
+    font-weight: bold;
+    margin-bottom: 3px;
+  }
+  
+  .puzzle-item:first-child .puzzle-title::after {
+    content: "\A puzzle-engine.com";
+    font-size: 12pt;
+    font-weight: normal;
+    white-space: pre-line;
+    display: block;
+    margin-top: 2px;
+  }
+  
+  /* Subsequent puzzle titles - just show puzzle number */
+  .puzzle-item:not(:first-child) .puzzle-title {
+    font-size: 14pt;
     font-weight: bold;
     margin-bottom: 5px;
   }
   
-  /* Add subtitle after puzzle title */
-  .puzzle-title::after {
-    content: "\A Provided by puzzle-engine.com";
-    font-size: 10pt;
-    font-weight: normal;
-    color: #666;
-    white-space: pre-line;
-    display: block;
-    margin-top: 3px;
+  /* Solution titles - just show solution number */
+  .solution-title {
+    font-size: 14pt;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 5px;
   }
   
   /* Puzzle grid print optimization */
@@ -831,20 +844,10 @@ a:hover {
   }
   
   .solution-title {
-    font-size: 16pt;
+    font-size: 14pt;
     font-weight: bold;
-    margin-top: 10px;
+    margin-top: 15px;
     margin-bottom: 5px;
-  }
-  
-  .solution-title::after {
-    content: "\A Provided by puzzle-engine.com";
-    font-size: 10pt;
-    font-weight: normal;
-    color: #666;
-    white-space: pre-line;
-    display: block;
-    margin-top: 3px;
   }
   
   /* 1 puzzle: centered and larger */

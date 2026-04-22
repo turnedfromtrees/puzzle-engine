@@ -557,16 +557,28 @@ a:hover {
   margin-bottom: var(--spacing-sm);
 }
 
+.affiliate-banner__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
 .affiliate-banner__link {
   display: inline-block;
   color: var(--color-primary);
   font-weight: 500;
+  text-decoration: none;
+}
+
+.affiliate-banner__link:hover {
+  text-decoration: underline;
 }
 
 .affiliate-banner__disclosure {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-  margin-top: var(--spacing-sm);
+  margin: 0;
 }
 
 /* --------------------------------------------------------------------------

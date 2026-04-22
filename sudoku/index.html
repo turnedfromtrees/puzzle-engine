@@ -873,20 +873,32 @@
       
       progressText.textContent = 'Creating solution pages...';
       
+      // Create solution pages grouped by difficulty
       const solutionsPerPage = 12;
-      const numPages = Math.ceil(solutions.length / solutionsPerPage);
       
-      for (let page = 0; page < numPages; page++) {
-        progressText.textContent = `Creating solution page ${page + 1} of ${numPages}...`;
-        const startIdx = page * solutionsPerPage;
-        const endIdx = Math.min(startIdx + solutionsPerPage, solutions.length);
-        const pageSolutions = solutions.slice(startIdx, endIdx);
+      for (const diff of difficulties) {
+        const diffName = diffNames[diff];
+        // Get all puzzles/solutions for this difficulty
+        const diffIndices = puzzleDiffs.map((d, i) => d === diff ? i : -1).filter(i => i >= 0);
+        const diffSolutions = diffIndices.map(i => solutions[i]);
         
-        const canvas = createSolutionPage(pageSolutions, size, startIdx + 1);
-        const dataUrl = canvas.toDataURL('image/png');
-        const base64Data = dataUrl.split(',')[1];
-        solutionsFolder.file(`solutions-page-${String(page + 1).padStart(3, '0')}.png`, base64Data, { base64: true });
-        await new Promise(resolve => setTimeout(resolve, 0));
+        if (diffSolutions.length === 0) continue;
+        
+        const numPages = Math.ceil(diffSolutions.length / solutionsPerPage);
+        
+        for (let page = 0; page < numPages; page++) {
+          progressText.textContent = `Creating ${diffName} solution page ${page + 1} of ${numPages}...`;
+          const startIdx = page * solutionsPerPage;
+          const endIdx = Math.min(startIdx + solutionsPerPage, diffSolutions.length);
+          const pageSolutions = diffSolutions.slice(startIdx, endIdx);
+          const startNumber = startIdx + 1;
+          
+          const canvas = createSolutionPage(pageSolutions, size, startNumber, diffName);
+          const dataUrl = canvas.toDataURL('image/png');
+          const base64Data = dataUrl.split(',')[1];
+          solutionsFolder.file(`${diffName.toLowerCase()}-solutions-${String(page + 1).padStart(3, '0')}.png`, base64Data, { base64: true });
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
       }
       
       progressText.textContent = 'Creating ZIP file...';
@@ -975,7 +987,7 @@
     /**
      * Create solution page with 12 grids
      */
-    function createSolutionPage(grids, size, startNumber) {
+    function createSolutionPage(grids, size, startNumber, difficulty) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const cellSize = size === 4 ? 30 : (size === 6 ? 25 : 22);
@@ -1003,10 +1015,11 @@
         const baseX = pagePadding + col * (gridWidth + colGap);
         const baseY = pagePadding + row * (gridHeight + rowGap);
         
+        // Draw solution number with difficulty
         ctx.fillStyle = '#1a202c';
-        ctx.font = 'bold 12pt Arial';
+        ctx.font = 'bold 11pt Arial';
         ctx.textAlign = 'left';
-        ctx.fillText(`Solution ${startNumber + idx}`, baseX, baseY + 12);
+        ctx.fillText(`${difficulty} ${startNumber + idx}`, baseX, baseY + 12);
         
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';

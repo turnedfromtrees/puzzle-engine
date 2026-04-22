@@ -848,12 +848,13 @@
       
       progressText.textContent = 'Creating puzzle images...';
       
+      // Generate puzzle PNGs
       for (let i = 0; i < puzzles.length; i++) {
         progressText.textContent = `Creating puzzle ${i + 1} of ${puzzles.length}...`;
-        const canvas = createPuzzleCanvas(puzzles[i], size);
+        const canvas = createPuzzleCanvas(puzzles[i], size, i + 1, puzzleDiffs[i]);
         const dataUrl = canvas.toDataURL('image/png');
         const base64Data = dataUrl.split(',')[1];
-        puzzlesFolder.file(`sudoku-${sizeNames[size]}-${puzzleDiffs[i].toLowerCase()}-${String(i + 1).padStart(3, '0')}.png`, base64Data, { base64: true });
+        puzzlesFolder.file(`${String(i + 1).padStart(3, '0')}-sudoku-${sizeNames[size]}-${puzzleDiffs[i].toLowerCase()}.png`, base64Data, { base64: true });
         await new Promise(resolve => setTimeout(resolve, 0));
       }
       
@@ -891,20 +892,29 @@
     /**
      * Create canvas from puzzle grid
      */
-    function createPuzzleCanvas(grid, size) {
+    function createPuzzleCanvas(grid, size, puzzleNum, difficulty) {
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const cellSize = size === 4 ? 60 : (size === 6 ? 50 : 45);
       const gridWidth = size * cellSize;
       const padding = 20;
+      const titleHeight = 30;
       
       canvas.width = gridWidth + padding * 2;
-      canvas.height = gridWidth + padding * 2;
+      canvas.height = gridWidth + padding * 2 + titleHeight;
       
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
+      // Draw puzzle title
+      ctx.fillStyle = '#1a202c';
+      ctx.font = 'bold 14pt Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Puzzle ${puzzleNum} - Sudoku ${size}x${size} ${diffNames[difficulty]}`, canvas.width / 2, 18);
+      
       const config = GRID_CONFIG[size];
+      const offsetY = titleHeight;
       
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -913,7 +923,7 @@
       for (let row = 0; row < size; row++) {
         for (let col = 0; col < size; col++) {
           const x = padding + col * cellSize;
-          const y = padding + row * cellSize;
+          const y = offsetY + padding + row * cellSize;
           const value = grid[row][col];
           
           if (value !== 0) {
@@ -938,13 +948,13 @@
       for (let boxRow = 0; boxRow < size / config.boxRows; boxRow++) {
         for (let boxCol = 0; boxCol < size / config.boxCols; boxCol++) {
           const x = padding + boxCol * config.boxCols * cellSize;
-          const y = padding + boxRow * config.boxRows * cellSize;
+          const y = offsetY + padding + boxRow * config.boxRows * cellSize;
           ctx.strokeRect(x, y, config.boxCols * cellSize, config.boxRows * cellSize);
         }
       }
       
       ctx.lineWidth = 4;
-      ctx.strokeRect(padding, padding, gridWidth, gridWidth);
+      ctx.strokeRect(padding, offsetY + padding, gridWidth, gridWidth);
       
       return canvas;
     }

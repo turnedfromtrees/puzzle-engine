@@ -557,6 +557,22 @@ a:hover {
   padding: var(--spacing-lg);
 }
 
+.puzzle-container--multi {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-xl);
+}
+
+.puzzle-item {
+  text-align: center;
+}
+
+.puzzle-item .puzzle-title,
+.puzzle-item .solution-title {
+  margin-bottom: var(--spacing-sm);
+}
+
 .puzzle-title {
   font-size: var(--font-size-xl);
   margin-bottom: var(--spacing-md);
@@ -703,8 +719,23 @@ a:hover {
   }
   
   /* Solution page */
-  .solution-page {
+  .solution-section {
     page-break-before: always;
+  }
+  
+  .solution-title {
+    margin-top: 20px;
+  }
+  
+  /* Multi-puzzle layout */
+  .puzzle-item {
+    width: 100% !important;
+    margin-bottom: 30px;
+    page-break-inside: avoid;
+  }
+  
+  .puzzle-item:last-child {
+    margin-bottom: 0;
   }
   
   /* Multi-puzzle page breaks */

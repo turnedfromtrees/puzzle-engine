@@ -553,18 +553,18 @@
       const container = document.getElementById('puzzle-container');
       container.innerHTML = '';
       container.style.display = 'flex';
-      container.style.flexWrap = perPage > 1 ? 'wrap' : 'nowrap';
-      container.style.gap = perPage > 1 ? 'var(--spacing-xl)' : '0';
-      container.style.justifyContent = 'center';
+      
+      // Add multi-puzzle class for layout
+      if (perPage > 1) {
+        container.classList.add('puzzle-container--multi');
+      } else {
+        container.classList.remove('puzzle-container--multi');
+      }
       
       // Create each puzzle
       puzzles.forEach((puzzle, i) => {
         const puzzleDiv = document.createElement('div');
         puzzleDiv.className = 'puzzle-item';
-        if (perPage > 1) {
-          puzzleDiv.style.width = perPage === 2 ? '48%' : '48%';
-          puzzleDiv.style.marginBottom = 'var(--spacing-lg)';
-        }
         
         const title = document.createElement('h2');
         title.className = 'puzzle-title';
@@ -594,10 +594,6 @@
         solutions.forEach((solution, i) => {
           const solutionDiv = document.createElement('div');
           solutionDiv.className = 'puzzle-item';
-          if (perPage > 1) {
-            solutionDiv.style.width = perPage === 2 ? '48%' : '48%';
-            solutionDiv.style.marginBottom = 'var(--spacing-lg)';
-          }
           
           const title = document.createElement('h3');
           title.className = 'solution-title';

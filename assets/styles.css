@@ -912,7 +912,8 @@ a:hover {
   .puzzle-container--four,
   .solution-section--four {
     display: flex !important;
-    flex-wrap: wrap;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
     justify-content: center;
     gap: 10px;
   }

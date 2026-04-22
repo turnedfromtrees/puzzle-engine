@@ -733,24 +733,40 @@ a:hover {
     margin-top: 20px;
   }
   
-  /* Multi-puzzle layout */
-  .puzzle-item {
-    width: 100% !important;
-    margin-bottom: 30px;
+  /* Multi-puzzle layout - print 2 per row */
+  .puzzle-container--multi {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .puzzle-container--multi .puzzle-item {
+    width: 45%;
+    max-width: 350px;
     page-break-inside: avoid;
   }
   
-  .puzzle-item:last-child {
-    margin-bottom: 0;
+  .puzzle-item {
+    page-break-inside: avoid;
+    margin-bottom: 20px;
   }
   
-  /* Multi-puzzle page breaks */
-  .puzzle-page {
-    page-break-after: always;
+  /* Smaller grid cells for multi-puzzle print */
+  .puzzle-container--multi .sudoku-grid td {
+    width: 32px;
+    height: 32px;
+    font-size: 14pt;
   }
   
-  .puzzle-page:last-child {
+  /* 2 puzzles: one page, side by side */
+  /* 4 puzzles: two pages, 2x2 each page */
+  .puzzle-container--multi .puzzle-item:nth-child(2n) {
     page-break-after: auto;
+  }
+  
+  .puzzle-container--multi .puzzle-item:nth-child(2n+1):nth-last-child(2n) {
+    page-break-after: always;
   }
 }
 

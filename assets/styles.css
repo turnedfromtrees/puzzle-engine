@@ -809,14 +809,25 @@ a:hover {
   
   /* Print-only page header - shown via JavaScript */
   .print-header {
-    display: block !important;
-    text-align: center;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
     padding: 10px 0 20px 0;
     margin-bottom: 10px;
   }
   
+  .print-header__logo {
+    height: 50px;
+    width: auto;
+  }
+  
+  .print-header__text {
+    text-align: left;
+  }
+  
   .print-header__title {
-    font-size: 18pt;
+    font-size: 16pt;
     font-weight: bold;
     margin: 0;
   }

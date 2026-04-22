@@ -792,14 +792,21 @@ a:hover {
     padding: 0;
   }
   
-  /* Print-only page header - puzzle type centered */
+  /* Print-only page header - puzzle type centered at top */
+  .puzzle-container {
+    position: relative;
+    padding-top: 50px;
+  }
+  
   .puzzle-container::before {
     content: attr(data-print-title);
-    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     text-align: center;
     font-size: 20pt;
     font-weight: bold;
-    margin-bottom: 10px;
   }
   
   .puzzle-container::after {
@@ -913,14 +920,15 @@ a:hover {
     display: flex !important;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
+    gap: 10px;
   }
   
   .puzzle-container--four .puzzle-item,
   .solution-section--four .puzzle-item {
     width: 45%;
-    max-width: 350px;
+    max-width: 320px;
     page-break-inside: avoid;
+    margin: 0;
   }
   
   /* Smaller grid cells for multi-puzzle print */
@@ -928,9 +936,9 @@ a:hover {
   .solution-section--two .sudoku-grid td,
   .puzzle-container--four .sudoku-grid td,
   .solution-section--four .sudoku-grid td {
-    width: 32px;
-    height: 32px;
-    font-size: 14pt;
+    width: 28px;
+    height: 28px;
+    font-size: 12pt;
   }
 }
 

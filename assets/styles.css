@@ -785,6 +785,25 @@ a:hover {
     display: none !important;
   }
   
+  /* Print-only page header - shown via JavaScript */
+  .print-header {
+    display: block !important;
+    text-align: center;
+    padding: 0 0 10px 0;
+  }
+  
+  .print-header__title {
+    font-size: 18pt;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .print-header__url {
+    font-size: 10pt;
+    margin: 3px 0 0 0;
+    color: #666;
+  }
+  
   /* Reset body for print */
   body {
     background: white;
@@ -792,55 +811,20 @@ a:hover {
     padding: 0;
   }
   
-  /* Print-only page header - puzzle type centered at top */
   .puzzle-container {
-    position: relative;
-    padding-top: 50px;
+    padding: 0 !important;
   }
   
-  .puzzle-container::before {
-    content: attr(data-print-title);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 20pt;
-    font-weight: bold;
-  }
-  
-  .puzzle-container::after {
-    content: "puzzle-engine.com";
-    display: block;
-    text-align: center;
-    font-size: 12pt;
-    margin-top: 20px;
-  }
-  
-  .solution-section::before {
-    content: "Solutions";
-    display: block;
-    text-align: center;
-    font-size: 20pt;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  
+  .puzzle-container::before,
+  .puzzle-container::after,
+  .solution-section::before,
   .solution-section::after {
-    content: "puzzle-engine.com";
-    display: block;
-    text-align: center;
-    font-size: 12pt;
-    margin-top: 20px;
+    display: none !important;
   }
   
   /* Show only puzzle container */
   .main-content {
     padding: 0;
-  }
-  
-  .puzzle-container {
-    padding: 20px 0;
   }
   
   /* Puzzle titles - just number for each puzzle */

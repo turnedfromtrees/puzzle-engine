@@ -747,12 +747,14 @@ a:hover {
   /* Solution page */
   .solution-section {
     page-break-before: always;
-    display: flex !important;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
   }
   
+  .solution-title {
+    margin-top: 20px;
+  }
+  
+  /* Preserve multi-puzzle grid layout in print */
+  .puzzle-container--multi,
   .solution-section--multi {
     display: flex !important;
     flex-wrap: wrap;
@@ -760,50 +762,18 @@ a:hover {
     gap: 20px;
   }
   
-  .solution-section .puzzle-item {
+  .puzzle-container--multi .puzzle-item,
+  .solution-section--multi .puzzle-item {
     width: 45%;
     max-width: 350px;
     page-break-inside: avoid;
   }
   
-  .solution-title {
-    margin-top: 20px;
-  }
-  
-  /* Multi-puzzle layout - print 2 per row */
-  .puzzle-container--multi {
-    display: flex !important;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-  }
-  
-  .puzzle-container--multi .puzzle-item {
-    width: 45%;
-    max-width: 350px;
-    page-break-inside: avoid;
-  }
-  
-  .puzzle-item {
-    page-break-inside: avoid;
-    margin-bottom: 20px;
-  }
-  
-  /* Smaller grid cells for multi-puzzle print */
-  .puzzle-container--multi .sudoku-grid td {
-    width: 32px;
-    height: 32px;
-    font-size: 14pt;
-  }
-  
-  /* 2 puzzles: one page, side by side */
-  /* 4 puzzles: two pages, 2x2 each page */
-  .puzzle-container--multi .puzzle-item:nth-child(2n) {
-    page-break-after: auto;
-  }
-  
-  .puzzle-container--multi .puzzle-item:nth-child(2n+1):nth-last-child(2n) {
-    page-break-after: always;
+  /* Smaller grid cells for print */
+  .sudoku-grid td {
+    width: 36px;
+    height: 36px;
+    font-size: 16pt;
   }
 }
 

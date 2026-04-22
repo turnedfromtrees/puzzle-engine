@@ -601,9 +601,18 @@
         
         const title = document.createElement('h2');
         title.className = 'puzzle-title';
-        title.textContent = perPage > 1 
-          ? `Sudoku Puzzle ${i + 1} (${sizeNames[currentSize]}, ${diffNames[currentDifficulty]})`
-          : `Sudoku Puzzle (${sizeNames[currentSize]}, ${diffNames[currentDifficulty]})`;
+        
+        if (perPage === 1) {
+          // Single puzzle: show full type
+          title.textContent = `Sudoku ${sizeNames[currentSize]} ${diffNames[currentDifficulty]}`;
+        } else {
+          // Multiple puzzles: first shows type, others just number
+          if (i === 0) {
+            title.textContent = `Sudoku ${sizeNames[currentSize]} ${diffNames[currentDifficulty]}`;
+          } else {
+            title.textContent = `Puzzle ${i + 1}`;
+          }
+        }
         puzzleDiv.appendChild(title);
         
         const table = document.createElement('table');

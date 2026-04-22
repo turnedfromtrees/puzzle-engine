@@ -794,7 +794,7 @@ a:hover {
     padding: 0;
   }
   
-  /* First puzzle title only - show as page header */
+  /* First puzzle title - page header style */
   .puzzle-item:first-child .puzzle-title {
     font-size: 18pt;
     font-weight: bold;
@@ -810,14 +810,15 @@ a:hover {
     margin-top: 2px;
   }
   
-  /* Subsequent puzzle titles - just show puzzle number */
+  /* Subsequent puzzle titles - puzzle number only */
   .puzzle-item:not(:first-child) .puzzle-title {
     font-size: 14pt;
     font-weight: bold;
     margin-bottom: 5px;
+    margin-top: 15px;
   }
   
-  /* Solution titles - just show solution number */
+  /* Solution titles - solution number only */
   .solution-title {
     font-size: 14pt;
     font-weight: bold;

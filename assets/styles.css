@@ -554,7 +554,14 @@ a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  min-height: 70vh;
   padding: var(--spacing-lg);
+}
+
+/* 1 puzzle: large and centered vertically */
+.puzzle-container--one {
+  justify-content: center;
 }
 
 /* 2 puzzles: stacked column */
@@ -771,6 +778,21 @@ a:hover {
   
   .solution-title {
     margin-top: 20px;
+  }
+  
+  /* 1 puzzle: centered and larger */
+  .puzzle-container--one,
+  .solution-section--one {
+    min-height: auto;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  
+  .puzzle-container--one .sudoku-grid td,
+  .solution-section--one .sudoku-grid td {
+    width: 48px;
+    height: 48px;
+    font-size: 20pt;
   }
   
   /* 2 puzzles: stack vertically, fit on one page */

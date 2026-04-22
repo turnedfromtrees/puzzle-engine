@@ -58,6 +58,43 @@
       font-size: var(--font-size-xl);
     }
     
+    /* Larger grids for single puzzle view */
+    .puzzle-container--one .sudoku-grid--4x4 td {
+      width: 72px;
+      height: 72px;
+      font-size: var(--font-size-3xl);
+    }
+    
+    .puzzle-container--one .sudoku-grid--6x6 td {
+      width: 60px;
+      height: 60px;
+      font-size: var(--font-size-2xl);
+    }
+    
+    .puzzle-container--one .sudoku-grid--9x9 td {
+      width: 52px;
+      height: 52px;
+      font-size: var(--font-size-2xl);
+    }
+    
+    .solution-section--one .sudoku-grid--4x4 td {
+      width: 72px;
+      height: 72px;
+      font-size: var(--font-size-3xl);
+    }
+    
+    .solution-section--one .sudoku-grid--6x6 td {
+      width: 60px;
+      height: 60px;
+      font-size: var(--font-size-2xl);
+    }
+    
+    .solution-section--one .sudoku-grid--9x9 td {
+      width: 52px;
+      height: 52px;
+      font-size: var(--font-size-2xl);
+    }
+    
     /* KDP section styling */
     .kdp-section {
       background-color: var(--color-bg);
@@ -555,8 +592,10 @@
       container.style.display = 'flex';
       
       // Remove all layout classes and add appropriate one
-      container.classList.remove('puzzle-container--two', 'puzzle-container--four');
-      if (perPage === 2) {
+      container.classList.remove('puzzle-container--one', 'puzzle-container--two', 'puzzle-container--four');
+      if (perPage === 1) {
+        container.classList.add('puzzle-container--one');
+      } else if (perPage === 2) {
         container.classList.add('puzzle-container--two');
       } else if (perPage === 4) {
         container.classList.add('puzzle-container--four');
@@ -593,8 +632,10 @@
         solutionSection.style.display = 'block';
         
         // Remove all layout classes and add appropriate one
-        solutionSection.classList.remove('solution-section--two', 'solution-section--four');
-        if (perPage === 2) {
+        solutionSection.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four');
+        if (perPage === 1) {
+          solutionSection.classList.add('solution-section--one');
+        } else if (perPage === 2) {
           solutionSection.classList.add('solution-section--two');
         } else if (perPage === 4) {
           solutionSection.classList.add('solution-section--four');

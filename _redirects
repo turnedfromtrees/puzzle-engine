@@ -1,0 +1,4 @@
+# Cloudflare Redirects for puzzle-engine.com
+
+# Redirect www to non-www
+www.puzzle-engine.com/* https://puzzle-engine.com/:splat 301

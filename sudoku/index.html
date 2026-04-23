@@ -405,7 +405,7 @@
      * Generate a complete solved grid
      */
     function generateSolvedGrid(size) {
-      const grid = createEmptyGrid(size);
+      const grid = createEmptyGrid(size, 0);  // Sudoku needs 0, not ''
       fillGrid(grid, size);
       return grid;
     }

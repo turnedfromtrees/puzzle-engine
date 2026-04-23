@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Word Search Generator — Puzzle Engine</title>
-  <meta name="description" content="Generate free printable Word Search puzzles for teachers, parents, seniors, and KDP creators. Multiple sizes and difficulty levels. Print-ready, commercial license included.">
+  <meta name="description" content="Generate free printable Word Search puzzles for teachers, parents, seniors, and KDP creators. Multiple sizes and difficulty levels. Print-ready PDFs, commercial license included.">
   <meta name="keywords" content="printable word search, word search for kids, word search for seniors, large print word search, brain games, word search generator, KDP puzzles, activity books, worksheets, care home activities, teacher resources">
   <link rel="stylesheet" href="../assets/styles.css">
   <style>
-    /* Word Search specific styles */
+    /* Word Search page-specific styles */
     .wordsearch-wrapper {
       min-height: 100vh;
       display: flex;
@@ -30,72 +30,37 @@
       margin: 0;
     }
     
-    /* Grid container */
-    .grid-container {
-      display: inline-block;
-      margin: var(--spacing-md) 0;
-    }
-    
+    /* Grid styling */
     .wordsearch-grid {
       border-collapse: collapse;
-      border: 2px solid var(--color-border);
-      background: var(--color-bg);
+      border: 2px solid var(--color-border-dark);
+      margin: var(--spacing-md) auto;
+      background: var(--color-bg-white);
     }
     
     .wordsearch-grid td {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       text-align: center;
       font-size: var(--font-size-lg);
       font-family: var(--font-mono);
-      font-weight: var(--font-weight-bold);
-      border: 1px solid var(--color-border-light);
+      font-weight: 600;
+      border: 1px solid var(--color-border);
       text-transform: uppercase;
     }
     
-    /* Larger grids for smaller sizes */
-    .wordsearch-grid--8x8 td {
-      width: 44px;
-      height: 44px;
-      font-size: var(--font-size-xl);
-    }
-    
-    .wordsearch-grid--10x10 td {
-      width: 38px;
-      height: 38px;
-      font-size: var(--font-size-xl);
-    }
-    
-    .wordsearch-grid--15x15 td {
-      width: 32px;
-      height: 32px;
-      font-size: var(--font-size-lg);
-    }
-    
-    .wordsearch-grid--20x20 td {
-      width: 28px;
-      height: 28px;
-      font-size: var(--font-size-md);
-    }
-    
-    /* Single puzzle view - larger cells */
-    .puzzle-container--one .wordsearch-grid--8x8 td {
-      width: 56px;
-      height: 56px;
-      font-size: var(--font-size-2xl);
-    }
-    
-    .puzzle-container--one .wordsearch-grid--10x10 td {
-      width: 48px;
-      height: 48px;
-      font-size: var(--font-size-xl);
-    }
+    /* Size variants */
+    .wordsearch-grid--8x8 td { width: 48px; height: 48px; font-size: var(--font-size-xl); }
+    .wordsearch-grid--10x10 td { width: 42px; height: 42px; font-size: var(--font-size-xl); }
+    .wordsearch-grid--15x15 td { width: 36px; height: 36px; font-size: var(--font-size-lg); }
+    .wordsearch-grid--20x20 td { width: 30px; height: 30px; font-size: var(--font-size-md); }
     
     /* Word list */
     .word-list {
       display: flex;
       flex-wrap: wrap;
       gap: var(--spacing-sm) var(--spacing-md);
+      justify-content: center;
       margin: var(--spacing-md) 0;
       padding: var(--spacing-md);
       background: var(--color-bg-alt);
@@ -106,82 +71,9 @@
       font-family: var(--font-mono);
       font-size: var(--font-size-md);
       padding: var(--spacing-xs) var(--spacing-sm);
-      background: var(--color-bg);
+      background: var(--color-bg-white);
       border-radius: var(--radius-sm);
       text-transform: uppercase;
-    }
-    
-    /* Theme selector */
-    .theme-selector {
-      margin-bottom: var(--spacing-md);
-    }
-    
-    /* KDP section styling */
-    .kdp-section {
-      background: var(--color-bg-alt);
-      border: 2px dashed var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-lg);
-      margin-top: var(--spacing-xl);
-    }
-    
-    .kdp-section h3 {
-      margin-top: 0;
-      color: var(--color-text);
-    }
-    
-    .kdp-options {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: var(--spacing-md);
-      margin: var(--spacing-md) 0;
-    }
-    
-    .kdp-option {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xs);
-    }
-    
-    .kdp-option label {
-      font-weight: var(--font-weight-bold);
-      font-size: var(--font-size-sm);
-    }
-    
-    .kdp-section__title {
-      font-size: var(--font-size-lg);
-      font-weight: var(--font-weight-semibold);
-      margin-bottom: var(--spacing-sm);
-    }
-    
-    .bulk-progress {
-      margin-top: var(--spacing-md);
-    }
-    
-    .bulk-progress progress {
-      width: 100%;
-      height: 24px;
-    }
-    
-    .bulk-progress__text {
-      text-align: center;
-      font-size: var(--font-size-sm);
-      color: var(--color-text-light);
-      margin-top: var(--spacing-xs);
-    }
-    
-    /* Multi-puzzle print layout */
-    .puzzle-item {
-      text-align: center;
-      page-break-after: always;
-    }
-    
-    .puzzle-item:last-child {
-      page-break-after: auto;
-    }
-    
-    .puzzle-item .puzzle-title {
-      margin-bottom: var(--spacing-md);
     }
     
     /* Solution section */
@@ -191,27 +83,9 @@
       border-top: 2px dashed var(--color-border);
     }
     
-    .solution-section h3 {
-      margin-bottom: var(--spacing-md);
-    }
-    
-    .solution-grid {
-      border-collapse: collapse;
-      border: 2px solid var(--color-border);
-    }
-    
-    .solution-grid td {
-      width: 32px;
-      height: 32px;
-      text-align: center;
-      font-size: var(--font-size-md);
-      border: 1px solid var(--color-border-light);
-      text-transform: uppercase;
-    }
-    
     .solution-grid td.highlighted {
-      background: rgba(0, 123, 255, 0.2);
-      font-weight: var(--font-weight-bold);
+      background: rgba(107, 70, 193, 0.15);
+      font-weight: 700;
     }
     
     /* Print styles */
@@ -219,7 +93,9 @@
       .header,
       .controls,
       .affiliate-banner,
-      .kdp-section,
+      .advanced-toggle,
+      .advanced-options,
+      .footer,
       .no-print {
         display: none !important;
       }
@@ -239,6 +115,10 @@
         border-color: #ccc;
       }
       
+      .solution-grid td.highlighted {
+        background: rgba(0, 0, 0, 0.1);
+      }
+      
       .puzzle-item {
         page-break-after: always;
       }
@@ -254,130 +134,196 @@
   </style>
 </head>
 <body>
-  <div class="wordsearch-wrapper">
-    <!-- Header -->
-    <header class="header">
-      <a href="../index.html" class="header__back">← Back to Puzzle Engine</a>
-      <h1 class="header__title">Word Search Generator</h1>
-      <p class="header__tagline">Create printable word search puzzles — Free for teachers, parents, and KDP creators</p>
-    </header>
-    
-    <!-- Affiliate Banner -->
-    <div class="affiliate-banner">
-      <p>📚 Create puzzle books for Amazon KDP — <a href="#" target="_blank" rel="noopener">Commercial License Included</a></p>
+  <!-- Header -->
+  <header class="header">
+    <div class="header__content">
+      <h1 class="header__logo"><a href="../index.html"><img src="../assets/logo.png" alt="Puzzle Engine" class="header__logo-img"></a></h1>
+      <div class="header__branding">
+        <h2 class="header__title">Puzzle Engine</h2>
+        <p class="header__tagline">Free printable puzzles</p>
+      </div>
     </div>
-    
-    <!-- Controls -->
-    <main class="controls">
-      <div class="controls__group">
-        <label for="size" class="controls__label">Grid Size:</label>
-        <select id="size" class="controls__select">
-          <option value="8">8×8 (Kids)</option>
-          <option value="10">10×10 (Junior)</option>
-          <option value="15" selected>15×15 (Standard)</option>
-          <option value="20">20×20 (Challenge)</option>
-        </select>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <div class="page-title">
+        <h1>Word Search Generator</h1>
+        <p>Generate printable Word Search puzzles in multiple sizes and difficulty levels</p>
       </div>
-      
-      <div class="controls__group">
-        <label for="difficulty" class="controls__label">Difficulty:</label>
-        <select id="difficulty" class="controls__select">
-          <option value="easy">Easy (words left→right, up→down)</option>
-          <option value="medium" selected>Medium (+ diagonal ↘)</option>
-          <option value="hard">Hard (+ diagonal ↗, backwards)</option>
-          <option value="expert">Expert (all directions + backwards)</option>
-        </select>
-      </div>
-      
-      <div class="controls__group theme-selector">
-        <label for="theme" class="controls__label">Word Theme:</label>
-        <select id="theme" class="controls__select">
-          <option value="animals">Animals</option>
-          <option value="colors">Colors</option>
-          <option value="food">Food</option>
-          <option value="nature">Nature</option>
-          <option value="sports">Sports</option>
-          <option value="weather">Weather</option>
-          <option value="random">Random Mix</option>
-        </select>
-      </div>
-      
-      <div class="controls__buttons">
-        <button id="generateBtn" class="btn btn--primary">Generate Puzzle</button>
-        <button id="printBtn" class="btn btn--secondary">Print Puzzle</button>
-        <button id="exportBtn" class="btn btn--secondary">Export PNG</button>
-      </div>
-    </main>
-    
-    <!-- Puzzle Display -->
-    <section id="puzzleDisplay" class="puzzle-container puzzle-container--one" style="display: none;">
-      <h2 class="puzzle-title">Word Search Puzzle</h2>
-      
-      <div class="grid-container">
-        <table id="grid" class="wordsearch-grid"></table>
-      </div>
-      
-      <h3>Find These Words:</h3>
-      <div id="wordList" class="word-list"></div>
-      
-      <div id="solutionSection" class="solution-section" style="display: none;">
-        <h3>Solution</h3>
-        <table id="solutionGrid" class="solution-grid"></table>
-      </div>
-    </section>
-    
-    <!-- KDP Tools Toggle -->
-    <div class="advanced-section">
-      <button class="advanced-toggle" id="advanced-toggle" aria-expanded="false" aria-controls="advanced-options">
-        <span class="advanced-toggle__icon">▼</span>
-        <span>KDP Tools</span>
-      </button>
-      
-      <div id="advanced-options" class="advanced-options">
-        <div class="kdp-section">
-          <h4 class="kdp-section__title">KDP Creator Tools — Bulk Generation</h4>
-          <p>Generate multiple puzzles for activity books, worksheets, or print-on-demand products.</p>
-          
-          <div class="kdp-options">
-            <div class="kdp-option">
-              <label for="bulkCount">Number of Puzzles:</label>
-              <input type="number" id="bulkCount" value="10" min="1" max="100" class="controls__input">
-            </div>
-            
-            <div class="kdp-option">
-              <label>Difficulty Mix:</label>
-              <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
-                <label><input type="checkbox" id="diffEasy" checked> Easy</label>
-                <label><input type="checkbox" id="diffMedium" checked> Medium</label>
-                <label><input type="checkbox" id="diffHard"> Hard</label>
-                <label><input type="checkbox" id="diffExpert"> Expert</label>
+
+      <!-- Controls -->
+      <div class="controls" id="controls">
+        <div class="controls__row">
+          <div class="controls__field">
+            <label class="form-label" for="size">Size</label>
+            <select class="form-select" id="size">
+              <option value="8">8×8 (Kids)</option>
+              <option value="10">10×10 (Junior)</option>
+              <option value="15" selected>15×15 (Standard)</option>
+              <option value="20">20×20 (Challenge)</option>
+            </select>
+          </div>
+          <div class="controls__field">
+            <label class="form-label" for="difficulty">Difficulty</label>
+            <select class="form-select" id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+          <div class="controls__field">
+            <label class="form-label" for="theme">Theme</label>
+            <select class="form-select" id="theme">
+              <option value="animals">Animals</option>
+              <option value="colors">Colors</option>
+              <option value="food">Food</option>
+              <option value="nature">Nature</option>
+              <option value="sports">Sports</option>
+              <option value="weather">Weather</option>
+              <option value="random">Random</option>
+            </select>
+          </div>
+          <div class="controls__field">
+            <label class="form-label" for="solutions">Solutions</label>
+            <select class="form-select" id="solutions">
+              <option value="none" selected>None</option>
+              <option value="separate">Separate page</option>
+            </select>
+          </div>
+        </div>
+        <div class="controls__actions">
+          <button class="btn btn--primary btn--large" id="generate-btn">
+            Generate Puzzle
+          </button>
+          <button class="btn btn--secondary" id="print-btn" disabled>
+            Print Puzzle
+          </button>
+          <button class="btn btn--secondary" id="export-btn" disabled>
+            Export PNG
+          </button>
+        </div>
+
+        <!-- Advanced Options Toggle -->
+        <button class="advanced-toggle" id="advanced-toggle" aria-expanded="false" aria-controls="advanced-options">
+          <span class="advanced-toggle__icon">▼</span>
+          <span>KDP Tools</span>
+        </button>
+
+        <!-- Advanced Options -->
+        <div class="advanced-options" id="advanced-options">
+          <!-- KDP Creator Tools -->
+          <div class="kdp-section">
+            <h4 class="kdp-section__title">KDP Creator Tools</h4>
+            <div class="controls__row">
+              <div class="controls__field">
+                <label class="form-label" for="bulk-count">Bulk Generate</label>
+                <input type="number" class="form-input" id="bulk-count" value="50" min="1" max="100">
+                <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">puzzles</span>
               </div>
             </div>
+            <div class="form-group">
+              <label class="form-label">Difficulties</label>
+              <div class="form-checkbox-group">
+                <label class="form-checkbox">
+                  <input type="checkbox" id="diff-easy" checked> Easy
+                </label>
+                <label class="form-checkbox">
+                  <input type="checkbox" id="diff-medium" checked> Medium
+                </label>
+                <label class="form-checkbox">
+                  <input type="checkbox" id="diff-hard"> Hard
+                </label>
+                <label class="form-checkbox">
+                  <input type="checkbox" id="diff-expert"> Expert
+                </label>
+              </div>
+            </div>
+            <div class="controls__actions" style="margin-top: var(--spacing-md);">
+              <button class="btn btn--secondary" id="bulk-generate-btn">
+                Generate Bundle
+              </button>
+            </div>
+            <div class="progress-container hidden" id="bulk-progress">
+              <div class="progress-bar">
+                <div class="progress-bar__fill" id="progress-fill" style="width: 0%"></div>
+              </div>
+              <p class="progress-text" id="progress-text">Generating puzzles...</p>
+            </div>
           </div>
-          
-          <div class="controls__buttons">
-            <button id="bulkBtn" class="btn btn--primary">Generate Bulk Puzzles</button>
-          </div>
-          
-          <div id="bulkProgress" class="bulk-progress" style="display: none;">
-            <progress id="bulkProgressBar" value="0" max="100"></progress>
-            <p class="bulk-progress__text"><span id="bulkProgressText">Generating puzzles...</span></p>
-          </div>
-          
-          <p style="margin-top: var(--spacing-md); font-size: var(--font-size-sm); color: var(--color-text-light);">
+
+          <div class="license-notice">
             ✓ Commercial License: Free to use in your KDP books. No attribution required.
-          </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Affiliate Banner -->
+      <div class="affiliate-banner" id="affiliate-banner" style="display: none;">
+        <p class="affiliate-banner__title">📚 Recommended Word Search Books</p>
+        <div class="affiliate-banner__links">
+          <a href="https://www.amazon.com/s?k=word+search+large+print&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Large Print Word Search</a>
+          <a href="https://www.amazon.com/s?k=word+search+for+kids&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Kids Word Search</a>
+          <a href="https://www.amazon.com/s?k=word+search+seniors&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Word Search for Seniors</a>
+          <a href="https://www.amazon.com/s?k=brain+games+word+search&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Brain Games</a>
+        </div>
+        <p class="affiliate-banner__disclosure">As an Amazon Associate, we earn from qualifying purchases.</p>
+      </div>
+
+      <!-- Puzzle Container -->
+      <!-- Print-only header (hidden on screen, shown on print) -->
+      <div class="print-header" id="print-header" style="display: none;">
+        <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
+        <div class="print-header__text">
+          <h1 class="print-header__title" id="print-header-title"></h1>
+          <p class="print-header__url">puzzle-engine.com</p>
+        </div>
+      </div>
+      
+      <div class="puzzle-container" id="puzzle-container" style="display: none;">
+        <!-- Puzzles will be generated by JavaScript -->
+      </div>
+
+      <!-- Solution Container (for separate page option) -->
+      <div class="solution-section" id="solution-section" style="display: none;">
+        <!-- Print header for solutions page -->
+        <div class="print-header" id="print-header-solutions" style="display: none;">
+          <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
+          <div class="print-header__text">
+            <h1 class="print-header__title">Solutions</h1>
+            <p class="print-header__url">puzzle-engine.com</p>
+          </div>
+        </div>
+        <!-- Solutions will be generated by JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__content">
+        <nav class="footer__nav" aria-label="Footer">
+          <a href="../index.html">← Back to Home</a>
+          <a href="#about">About</a>
+          <a href="#license">License</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <div class="footer__license">
+          <p class="footer__license-title">✓ Free Commercial Use License</p>
+          <p class="footer__license-text">All puzzles generated on Puzzle Engine are free for personal and commercial use. Use them in your KDP books, activity books, worksheets, and more. No attribution required.</p>
         </div>
       </div>
     </div>
-  </div>
-  
+  </footer>
+
   <script>
-    // ============================================
-    // WORD SEARCH GENERATOR
-    // Clean implementation based on Sudoku patterns
-    // ============================================
-    
+    /* ==========================================================================
+       Word Search Generator - Core Logic
+       ========================================================================== */
+
     // Word themes
     const WORD_THEMES = {
       animals: ['cat', 'dog', 'bird', 'fish', 'bear', 'lion', 'tiger', 'zebra', 'elephant', 'monkey', 'rabbit', 'turtle', 'dolphin', 'eagle', 'shark', 'whale', 'panda', 'koala', 'snake', 'horse'],
@@ -388,76 +334,31 @@
       weather: ['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'foggy', 'humid', 'cold', 'warm', 'hot', 'freeze', 'thunder', 'lightning', 'tornado', 'hurricane', 'blizzard', 'drought', 'flood', 'hail'],
       random: ['house', 'school', 'book', 'music', 'dance', 'travel', 'beach', 'garden', 'family', 'friend', 'water', 'earth', 'fire', 'light', 'dark', 'fast', 'slow', 'happy', 'smile', 'dream']
     };
-    
+
     // Direction vectors: [row_delta, col_delta]
     const DIRECTIONS = {
-      easy: [
-        [0, 1],   // right
-        [1, 0]    // down
-      ],
-      medium: [
-        [0, 1],   // right
-        [1, 0],   // down
-        [1, 1]    // diagonal down-right
-      ],
-      hard: [
-        [0, 1],   // right
-        [1, 0],   // down
-        [1, 1],   // diagonal down-right
-        [1, -1],  // diagonal down-left
-        [0, -1],  // left (backwards)
-        [-1, 0]   // up (backwards)
-      ],
-      expert: [
-        [0, 1],   // right
-        [1, 0],   // down
-        [1, 1],   // diagonal down-right
-        [1, -1],  // diagonal down-left
-        [0, -1],  // left
-        [-1, 0],  // up
-        [-1, 1],  // diagonal up-right
-        [-1, -1]  // diagonal up-left
-      ]
+      easy: [[0, 1], [1, 0]],  // right, down
+      medium: [[0, 1], [1, 0], [1, 1]],  // + diagonal down-right
+      hard: [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0]],  // + diagonal down-left, backwards
+      expert: [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, 1], [-1, -1]]  // all 8 directions
     };
-    
-    // State
-    let currentGrid = [];
-    let currentSolution = [];
-    let currentWords = [];
+
+    // Current puzzle state
+    let currentGrid = null;
+    let currentWords = null;
+    let currentPositions = null;
     let currentSize = 15;
     let currentDifficulty = 'medium';
     let currentTheme = 'animals';
-    
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      // Event listeners
-      document.getElementById('generateBtn').addEventListener('click', generatePuzzle);
-      document.getElementById('printBtn').addEventListener('click', printPuzzle);
-      document.getElementById('exportBtn').addEventListener('click', exportPuzzle);
-      document.getElementById('bulkBtn').addEventListener('click', generateBulk);
-      
-      // Advanced options toggle
-      const advancedToggle = document.getElementById('advanced-toggle');
-      const advancedOptions = document.getElementById('advanced-options');
-      
-      advancedToggle.addEventListener('click', function() {
-        const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
-        advancedToggle.setAttribute('aria-expanded', !isExpanded);
-        advancedOptions.classList.toggle('is-visible');
-      });
-      
-      // Generate initial puzzle
-      generatePuzzle();
-    });
-    
-    // ============================================
-    // WORD PLACEMENT ALGORITHM
-    // ============================================
-    
+
+    /* --------------------------------------------------------------------------
+       Word Placement Algorithm
+       -------------------------------------------------------------------------- */
+
     function createEmptyGrid(size) {
       return Array(size).fill(null).map(() => Array(size).fill(''));
     }
-    
+
     function canPlaceWord(grid, word, startRow, startCol, direction) {
       const [dRow, dCol] = direction;
       const size = grid.length;
@@ -466,21 +367,15 @@
         const row = startRow + i * dRow;
         const col = startCol + i * dCol;
         
-        // Check bounds
-        if (row < 0 || row >= size || col < 0 || col >= size) {
-          return false;
-        }
+        if (row < 0 || row >= size || col < 0 || col >= size) return false;
         
-        // Check if cell is empty or has same letter
         const cell = grid[row][col];
-        if (cell !== '' && cell !== word[i]) {
-          return false;
-        }
+        if (cell !== '' && cell !== word[i]) return false;
       }
       
       return true;
     }
-    
+
     function placeWord(grid, word, startRow, startCol, direction) {
       const [dRow, dCol] = direction;
       
@@ -490,7 +385,7 @@
         grid[row][col] = word[i];
       }
     }
-    
+
     function shuffleArray(array) {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -499,7 +394,7 @@
       }
       return arr;
     }
-    
+
     function tryPlaceWord(grid, word, directions) {
       const size = grid.length;
       const shuffledDirections = shuffleArray(directions);
@@ -507,7 +402,6 @@
       for (const direction of shuffledDirections) {
         const [dRow, dCol] = direction;
         
-        // Calculate valid starting positions for this direction
         let startRows, startCols;
         
         if (dRow === 0) {
@@ -515,7 +409,6 @@
         } else if (dRow > 0) {
           startRows = [...Array(size - word.length + 1).keys()];
         } else {
-          // Negative row direction: start from word.length-1 to size-1
           startRows = [...Array(size - word.length + 1).keys()].map(x => x + word.length - 1);
         }
         
@@ -524,7 +417,6 @@
         } else if (dCol > 0) {
           startCols = [...Array(size - word.length + 1).keys()];
         } else {
-          // Negative col direction: start from word.length-1 to size-1
           startCols = [...Array(size - word.length + 1).keys()].map(x => x + word.length - 1);
         }
         
@@ -543,7 +435,7 @@
       
       return { placed: false };
     }
-    
+
     function fillEmptyCells(grid) {
       const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const size = grid.length;
@@ -556,32 +448,29 @@
         }
       }
     }
-    
-    // ============================================
-    // PUZZLE GENERATION
-    // ============================================
-    
+
+    /* --------------------------------------------------------------------------
+       Puzzle Generation
+       -------------------------------------------------------------------------- */
+
     function generateWordSearch(size, difficulty, theme) {
       const grid = createEmptyGrid(size);
       const directions = DIRECTIONS[difficulty];
       const allWords = WORD_THEMES[theme] || WORD_THEMES.random;
       
-      // Select words that fit the grid
       const maxWordLength = size - 1;
       const suitableWords = allWords.filter(w => w.length <= maxWordLength);
       const shuffledWords = shuffleArray(suitableWords);
       
-      // Calculate number of words based on grid size
       const wordCount = Math.min(
-        Math.floor((size * size) / 12), // Don't overpack
+        Math.floor((size * size) / 12),
         shuffledWords.length,
-        8 + Math.floor(size / 3) // Scale with size
+        8 + Math.floor(size / 3)
       );
       
       const placedWords = [];
       const wordPositions = [];
       
-      // Place words
       for (let i = 0; i < shuffledWords.length && placedWords.length < wordCount; i++) {
         const word = shuffledWords[i].toUpperCase();
         const result = tryPlaceWord(grid, word, directions);
@@ -597,7 +486,6 @@
         }
       }
       
-      // Fill empty cells with random letters
       fillEmptyCells(grid);
       
       return {
@@ -606,66 +494,77 @@
         positions: wordPositions
       };
     }
-    
-    function generatePuzzle() {
-      // Get settings
-      currentSize = parseInt(document.getElementById('size').value);
-      currentDifficulty = document.getElementById('difficulty').value;
-      currentTheme = document.getElementById('theme').value;
+
+    /* --------------------------------------------------------------------------
+       Rendering
+       -------------------------------------------------------------------------- */
+
+    function renderPuzzle() {
+      const puzzleContainer = document.getElementById('puzzle-container');
+      const printHeader = document.getElementById('print-header');
+      const printHeaderTitle = document.getElementById('print-header-title');
+      const solutionsOption = document.getElementById('solutions').value;
       
-      // Generate puzzle
-      const result = generateWordSearch(currentSize, currentDifficulty, currentTheme);
-      currentGrid = result.grid;
-      currentWords = result.words;
-      currentSolution = result.positions;
+      // Show print header
+      printHeader.style.display = 'block';
+      printHeaderTitle.textContent = `Word Search (${currentSize}×${currentSize} - ${currentDifficulty})`;
       
-      // Render
-      renderGridToTable(currentGrid);
-      renderWordList(currentWords);
+      // Build puzzle HTML
+      let html = `
+        <div class="puzzle-item">
+          <h2 class="puzzle-title">Word Search</h2>
+          <p style="margin-bottom: var(--spacing-md); color: var(--color-text-light);">
+            Find the hidden words in the grid below.
+          </p>
+          <table class="wordsearch-grid wordsearch-grid--${currentSize}x${currentSize}">
+      `;
       
-      // Show puzzle container
-      document.getElementById('puzzleDisplay').style.display = 'block';
-    }
-    
-    // ============================================
-    // RENDERING
-    // ============================================
-    
-    function renderGridToTable(grid) {
-      const table = document.getElementById('grid');
-      const size = grid.length;
-      
-      // Set grid size class
-      table.className = `wordsearch-grid wordsearch-grid--${size}x${size}`;
-      
-      let html = '';
-      for (let row = 0; row < size; row++) {
+      for (let row = 0; row < currentSize; row++) {
         html += '<tr>';
-        for (let col = 0; col < size; col++) {
-          html += `<td>${grid[row][col]}</td>`;
+        for (let col = 0; col < currentSize; col++) {
+          html += `<td>${currentGrid[row][col]}</td>`;
         }
         html += '</tr>';
       }
       
-      table.innerHTML = html;
-    }
-    
-    function renderWordList(words) {
-      const container = document.getElementById('wordList');
-      container.innerHTML = words.map(word => 
-        `<span class="word-list__item">${word}</span>`
-      ).join('');
-    }
-    
-    function renderSolutionGrid(grid, positions) {
-      const table = document.getElementById('solutionGrid');
-      const size = grid.length;
+      html += `</table>
+          <div class="word-list">
+            ${currentWords.map(word => `<span class="word-list__item">${word}</span>`).join('')}
+          </div>
+        </div>
+      `;
       
-      // Create a copy for highlighting
-      const highlightGrid = Array(size).fill(null).map(() => Array(size).fill(false));
+      puzzleContainer.innerHTML = html;
+      puzzleContainer.style.display = 'block';
       
-      // Mark word positions
-      for (const pos of positions) {
+      // Handle solutions
+      const solutionSection = document.getElementById('solution-section');
+      const printHeaderSolutions = document.getElementById('print-header-solutions');
+      
+      if (solutionsOption === 'separate') {
+        solutionSection.style.display = 'block';
+        printHeaderSolutions.style.display = 'block';
+        renderSolution();
+      } else {
+        solutionSection.style.display = 'none';
+        printHeaderSolutions.style.display = 'none';
+      }
+      
+      // Enable buttons
+      document.getElementById('print-btn').disabled = false;
+      document.getElementById('export-btn').disabled = false;
+      
+      // Show affiliate banner
+      document.getElementById('affiliate-banner').style.display = 'block';
+    }
+
+    function renderSolution() {
+      const solutionSection = document.getElementById('solution-section');
+      
+      // Create highlight grid
+      const highlightGrid = Array(currentSize).fill(null).map(() => Array(currentSize).fill(false));
+      
+      for (const pos of currentPositions) {
         const [dRow, dCol] = pos.direction;
         for (let i = 0; i < pos.word.length; i++) {
           const row = pos.startRow + i * dRow;
@@ -674,41 +573,70 @@
         }
       }
       
-      // Render table
-      table.className = `solution-grid wordsearch-grid--${size}x${size}`;
+      // Build solution HTML
+      let html = `
+        <div class="puzzle-item">
+          <h2 class="solution-title">Solution</h2>
+          <table class="wordsearch-grid solution-grid wordsearch-grid--${currentSize}x${currentSize}">
+      `;
       
-      let html = '';
-      for (let row = 0; row < size; row++) {
+      for (let row = 0; row < currentSize; row++) {
         html += '<tr>';
-        for (let col = 0; col < size; col++) {
-          const highlightClass = highlightGrid[row][col] ? ' highlighted' : '';
-          html += `<td class="${highlightClass}">${grid[row][col]}</td>`;
+        for (let col = 0; col < currentSize; col++) {
+          const highlightClass = highlightGrid[row][col] ? 'highlighted' : '';
+          html += `<td class="${highlightClass}">${currentGrid[row][col]}</td>`;
         }
         html += '</tr>';
       }
       
-      table.innerHTML = html;
+      html += '</table></div>';
+      
+      // Append to solution section (after the print header)
+      const existingSolution = solutionSection.querySelector('.puzzle-item');
+      if (existingSolution) {
+        existingSolution.remove();
+      }
+      solutionSection.insertAdjacentHTML('beforeend', html);
     }
-    
-    // ============================================
-    // EXPORT FUNCTIONS
-    // ============================================
-    
+
+    /* --------------------------------------------------------------------------
+       Actions
+       -------------------------------------------------------------------------- */
+
+    function generatePuzzle() {
+      currentSize = parseInt(document.getElementById('size').value);
+      currentDifficulty = document.getElementById('difficulty').value;
+      currentTheme = document.getElementById('theme').value;
+      
+      const result = generateWordSearch(currentSize, currentDifficulty, currentTheme);
+      currentGrid = result.grid;
+      currentWords = result.words;
+      currentPositions = result.positions;
+      
+      renderPuzzle();
+    }
+
     function printPuzzle() {
-      // Show solution before print
-      const solutionSection = document.getElementById('solutionSection');
-      solutionSection.style.display = 'block';
-      renderSolutionGrid(currentGrid, currentSolution);
-      
-      // Print
-      window.print();
-      
-      // Hide solution after print
-      setTimeout(() => {
-        solutionSection.style.display = 'none';
-      }, 100);
+      // Show solution for print
+      const solutionsOption = document.getElementById('solutions').value;
+      if (solutionsOption === 'none') {
+        const solutionSection = document.getElementById('solution-section');
+        const printHeaderSolutions = document.getElementById('print-header-solutions');
+        solutionSection.style.display = 'block';
+        printHeaderSolutions.style.display = 'block';
+        renderSolution();
+        
+        window.print();
+        
+        setTimeout(() => {
+          solutionSection.style.display = 'none';
+          printHeaderSolutions.style.display = 'none';
+        }, 100);
+      } else {
+        window.print();
+      }
     }
-    
+
     function exportPuzzle() {
       // Create canvas for PNG export
       const canvas = document.createElement('canvas');
@@ -734,22 +662,19 @@
           const x = padding + col * cellSize;
           const y = padding + row * cellSize;
           
-          // Cell background
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(x, y, cellSize, cellSize);
           
-          // Cell border
           ctx.strokeStyle = '#cbd5e0';
           ctx.lineWidth = 1;
           ctx.strokeRect(x, y, cellSize, cellSize);
           
-          // Letter
           ctx.fillStyle = '#1a202c';
           ctx.fillText(currentGrid[row][col], x + cellSize / 2, y + cellSize / 2);
         }
       }
       
-      // Draw grid border
+      // Grid border
       ctx.strokeStyle = '#1a202c';
       ctx.lineWidth = 2;
       ctx.strokeRect(padding, padding, gridWidth, gridWidth);
@@ -760,52 +685,45 @@
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
-    
-    // ============================================
-    // BULK GENERATION
-    // ============================================
-    
-    async function generateBulk() {
-      const count = parseInt(document.getElementById('bulkCount').value);
+
+    async function generateBulkPuzzles() {
+      const count = parseInt(document.getElementById('bulk-count').value);
       const difficulties = [];
       
-      if (document.getElementById('diffEasy').checked) difficulties.push('easy');
-      if (document.getElementById('diffMedium').checked) difficulties.push('medium');
-      if (document.getElementById('diffHard').checked) difficulties.push('hard');
-      if (document.getElementById('diffExpert').checked) difficulties.push('expert');
+      if (document.getElementById('diff-easy').checked) difficulties.push('easy');
+      if (document.getElementById('diff-medium').checked) difficulties.push('medium');
+      if (document.getElementById('diff-hard').checked) difficulties.push('hard');
+      if (document.getElementById('diff-expert').checked) difficulties.push('expert');
       
       if (difficulties.length === 0) {
         alert('Please select at least one difficulty level.');
         return;
       }
       
-      // Show progress
-      const progressDiv = document.getElementById('bulkProgress');
-      const progressBar = document.getElementById('bulkProgressBar');
-      const progressText = document.getElementById('bulkProgressText');
-      progressDiv.style.display = 'block';
+      const progressContainer = document.getElementById('bulk-progress');
+      const progressFill = document.getElementById('progress-fill');
+      const progressText = document.getElementById('progress-text');
+      const bulkBtn = document.getElementById('bulk-generate-btn');
       
-      // Generate puzzles
+      progressContainer.classList.remove('hidden');
+      bulkBtn.disabled = true;
+      
       const puzzles = [];
       
       for (let i = 0; i < count; i++) {
-        // Update progress
-        progressBar.value = ((i + 1) / count) * 100;
+        progressFill.style.width = `${((i + 1) / count) * 100}%`;
         progressText.textContent = `Generating puzzle ${i + 1} of ${count}...`;
         
-        // Pick random difficulty
         const difficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
+        const result = generateWordSearch(currentSize, difficulty, currentTheme);
         
-        // Generate puzzle
-        const puzzle = generateWordSearch(currentSize, difficulty, currentTheme);
         puzzles.push({
-          grid: puzzle.grid,
-          words: puzzle.words,
-          positions: puzzle.positions,
+          grid: result.grid,
+          words: result.words,
+          positions: result.positions,
           difficulty: difficulty
         });
         
-        // Small delay to prevent UI freeze
         await new Promise(resolve => setTimeout(resolve, 10));
       }
       
@@ -816,12 +734,12 @@
       printWindow.document.write(generateBulkHtml(puzzles));
       printWindow.document.close();
       
-      // Hide progress after short delay
       setTimeout(() => {
-        progressDiv.style.display = 'none';
+        progressContainer.classList.add('hidden');
+        bulkBtn.disabled = false;
       }, 2000);
     }
-    
+
     function generateBulkHtml(puzzles) {
       let html = `<!DOCTYPE html>
 <html lang="en">
@@ -829,7 +747,7 @@
   <meta charset="UTF-8">
   <title>Word Search Puzzles — Bulk Export</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
     h1 { text-align: center; margin-bottom: 30px; }
     .puzzle-item { page-break-after: always; text-align: center; }
     .puzzle-item:last-child { page-break-after: auto; }
@@ -838,10 +756,9 @@
     .word-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
     .word-list span { font-family: monospace; padding: 4px 8px; background: #f0f0f0; border-radius: 4px; }
     .solution-section { page-break-before: always; }
-    .highlighted { background: rgba(0, 123, 255, 0.2); }
-    @media print {
-      body { padding: 0; }
-    }
+    .highlighted { background: rgba(107, 70, 193, 0.15); font-weight: bold; }
+    h2 { margin-top: 0; }
+    @media print { body { padding: 0; } }
   </style>
 </head>
 <body>
@@ -851,7 +768,7 @@
       puzzles.forEach((puzzle, index) => {
         html += `<div class="puzzle-item">
   <h2>Puzzle ${index + 1} (${puzzle.difficulty})</h2>
-  <table class="wordsearch-grid">
+  <table>
 `;
         for (let row = 0; row < puzzle.grid.length; row++) {
           html += '<tr>';
@@ -862,19 +779,15 @@
         }
         html += `  </table>
   <div class="word-list">
-`;
-        puzzle.words.forEach(word => {
-          html += `<span>${word}</span>`;
-        });
-        html += `  </div>
+    ${puzzle.words.map(word => `<span>${word}</span>`).join('')}
+  </div>
 </div>
 
 <div class="solution-section">
-  <h2>Solutions ${index + 1}</h2>
-  <table class="solution-grid">
+  <h2>Solution ${index + 1}</h2>
+  <table>
 `;
         
-        // Create highlight grid
         const highlightGrid = Array(puzzle.grid.length).fill(null).map(() => Array(puzzle.grid.length).fill(false));
         for (const pos of puzzle.positions) {
           const [dRow, dCol] = pos.direction;
@@ -901,13 +814,38 @@
       
       html += `
   <p style="text-align: center; font-size: 12px; color: #666;">
-    ✅ Commercial license included — Puzzle Engine
+    ✓ Commercial license included — Puzzle Engine
   </p>
 </body>
 </html>`;
       
       return html;
     }
+
+    /* --------------------------------------------------------------------------
+       Event Listeners
+       -------------------------------------------------------------------------- */
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Main buttons
+      document.getElementById('generate-btn').addEventListener('click', generatePuzzle);
+      document.getElementById('print-btn').addEventListener('click', printPuzzle);
+      document.getElementById('export-btn').addEventListener('click', exportPuzzle);
+      document.getElementById('bulk-generate-btn').addEventListener('click', generateBulkPuzzles);
+      
+      // Advanced options toggle
+      const advancedToggle = document.getElementById('advanced-toggle');
+      const advancedOptions = document.getElementById('advanced-options');
+      
+      advancedToggle.addEventListener('click', function() {
+        const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
+        advancedToggle.setAttribute('aria-expanded', !isExpanded);
+        advancedOptions.classList.toggle('is-visible');
+      });
+      
+      // Generate initial puzzle
+      generatePuzzle();
+    });
   </script>
 </body>
 </html>

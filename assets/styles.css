@@ -1227,7 +1227,7 @@ a:hover {
 }
 
 /* Hide ads on mobile (too narrow) */
-@media (max-width: 1400px) {
+@media (max-width: 768px) {
   .ad-slot--sidebar-left,
   .ad-slot--sidebar-right {
     display: none !important;

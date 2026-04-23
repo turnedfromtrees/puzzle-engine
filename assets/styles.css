@@ -1179,7 +1179,10 @@ a:hover {
 
 /* Vertical sidebar ads - left and right margins */
 .ad-slot {
-  display: none; /* Hidden until AdSense activated */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 160px;
   min-height: 300px;
   background-color: var(--color-bg-alt);
@@ -1208,6 +1211,8 @@ a:hover {
   top: 50%;
   transform: translateY(-50%);
   z-index: 100;
+  background-color: var(--color-bg-alt);
+  border: 2px dashed var(--color-border);
 }
 
 /* Right sidebar ad */
@@ -1217,6 +1222,8 @@ a:hover {
   top: 50%;
   transform: translateY(-50%);
   z-index: 100;
+  background-color: var(--color-bg-alt);
+  border: 2px dashed var(--color-border);
 }
 
 /* Hide ads on mobile (too narrow) */

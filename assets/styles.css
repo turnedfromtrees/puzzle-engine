@@ -193,7 +193,7 @@ a:hover {
   background: none;
   border: none;
   font-size: var(--font-size-xl);
-  color: var(--color-primary);
+  color: white;
   cursor: pointer;
   padding: var(--spacing-sm);
   border-radius: var(--radius-sm);
@@ -201,7 +201,7 @@ a:hover {
 }
 
 .header__nav-toggle:hover {
-  background-color: var(--color-bg-alt);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .header__nav-menu {

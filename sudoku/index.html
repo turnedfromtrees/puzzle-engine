@@ -7,6 +7,8 @@
   <meta name="description" content="Generate free printable Sudoku puzzles for teachers, parents, seniors, and KDP creators. 4x4, 6x6, and 9x9 grids with multiple difficulty levels. Print-ready PDFs, commercial license included.">
   <meta name="keywords" content="printable sudoku, sudoku for kids, sudoku for seniors, large print sudoku, brain games, sudoku generator, KDP puzzles, activity books, worksheets, care home activities, teacher resources">
   <link rel="stylesheet" href="../assets/styles.css">
+  <script src="../assets/puzzle-core.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     /* Sudoku-page-specific styles */
@@ -112,41 +114,6 @@
       letter-spacing: 0.05em;
       color: var(--color-text-light);
       margin-bottom: var(--spacing-md);
-    }
-    
-    .license-notice {
-      background-color: #c6f6d5;
-      border: 1px solid var(--color-success);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: var(--font-size-sm);
-      color: #22543d;
-      margin-top: var(--spacing-md);
-    }
-    
-    /* Bulk generation progress */
-    .progress-container {
-      margin-top: var(--spacing-md);
-    }
-    
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background-color: var(--color-border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-    }
-    
-    .progress-bar__fill {
-      height: 100%;
-      background-color: var(--color-primary);
-      transition: width var(--transition-base);
-    }
-    
-    .progress-text {
-      font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
-      margin-top: var(--spacing-xs);
     }
     
     /* Solution styling */
@@ -367,13 +334,6 @@
        -------------------------------------------------------------------------- */
 
     /**
-     * Create an empty grid of given size
-     */
-    function createEmptyGrid(size) {
-      return Array(size).fill(null).map(() => Array(size).fill(0));
-    }
-
-    /**
      * Check if a number is valid in a given position
      */
     function isValid(grid, row, col, num, size) {
@@ -400,18 +360,6 @@
       }
       
       return true;
-    }
-
-    /**
-     * Shuffle an array using Fisher-Yates algorithm
-     */
-    function shuffleArray(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
     }
 
     /**

@@ -7,6 +7,8 @@
   <meta name="description" content="Generate free printable Word Search puzzles for teachers, parents, seniors, and KDP creators. Multiple sizes and difficulty levels. Print-ready PDFs, commercial license included.">
   <meta name="keywords" content="printable word search, word search for kids, word search for seniors, large print word search, brain games, word search generator, KDP puzzles, activity books, worksheets, care home activities, teacher resources">
   <link rel="stylesheet" href="../assets/styles.css">
+  <script src="../assets/puzzle-core.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     /* Word Search page-specific styles */
@@ -46,41 +48,6 @@
       letter-spacing: 0.05em;
       color: var(--color-text-light);
       margin-bottom: var(--spacing-md);
-    }
-    
-    .license-notice {
-      background-color: #c6f6d5;
-      border: 1px solid var(--color-success);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: var(--font-size-sm);
-      color: #22543d;
-      margin-top: var(--spacing-md);
-    }
-    
-    /* Bulk generation progress */
-    .progress-container {
-      margin-top: var(--spacing-md);
-    }
-    
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background-color: var(--color-border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-    }
-    
-    .progress-bar__fill {
-      height: 100%;
-      background-color: var(--color-primary);
-      transition: width var(--transition-base);
-    }
-    
-    .progress-text {
-      font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
-      margin-top: var(--spacing-xs);
     }
     
     /* Grid styling */
@@ -426,10 +393,9 @@
        Word Placement Algorithm
        -------------------------------------------------------------------------- */
 
-    function createEmptyGrid(size) {
-      return Array(size).fill(null).map(() => Array(size).fill(''));
-    }
-
+    /**
+     * Word placement algorithm
+     */
     function canPlaceWord(grid, word, startRow, startCol, direction) {
       const [dRow, dCol] = direction;
       const size = grid.length;
@@ -455,15 +421,6 @@
         const col = startCol + i * dCol;
         grid[row][col] = word[i];
       }
-    }
-
-    function shuffleArray(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
     }
 
     function tryPlaceWord(grid, word, directions) {

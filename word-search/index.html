@@ -100,6 +100,18 @@
         display: none !important;
       }
       
+      /* Show print headers during print */
+      .print-header {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .print-header__logo {
+        height: 40px;
+        width: auto;
+      }
+      
       body {
         background: white;
         color: black;
@@ -134,7 +146,6 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
   <!-- Header -->
   <header class="header">
     <div class="container">
@@ -519,8 +530,8 @@
       const printHeaderTitle = document.getElementById('print-header-title');
       const solutionsOption = document.getElementById('solutions').value;
       
-      // Show print header
-      printHeader.style.display = 'block';
+      // Print header is controlled by CSS @media print
+      // Don't show it on screen
       printHeaderTitle.textContent = `Word Search (${currentSize}×${currentSize} - ${currentDifficulty})`;
       
       // Build puzzle HTML
@@ -551,17 +562,14 @@
       puzzleContainer.innerHTML = html;
       puzzleContainer.style.display = 'block';
       
-      // Handle solutions
+      // Handle solutions - controlled by CSS @media print
       const solutionSection = document.getElementById('solution-section');
-      const printHeaderSolutions = document.getElementById('print-header-solutions');
       
       if (solutionsOption === 'separate') {
         solutionSection.style.display = 'block';
-        printHeaderSolutions.style.display = 'block';
         renderSolution();
       } else {
         solutionSection.style.display = 'none';
-        printHeaderSolutions.style.display = 'none';
       }
       
       // Enable buttons
@@ -646,24 +654,8 @@
     }
 
     function printPuzzle() {
-      // Show solution for print
-      const solutionsOption = document.getElementById('solutions').value;
-      if (solutionsOption === 'none') {
-        const solutionSection = document.getElementById('solution-section');
-        const printHeaderSolutions = document.getElementById('print-header-solutions');
-        solutionSection.style.display = 'block';
-        printHeaderSolutions.style.display = 'block';
-        renderSolution();
-        
-        window.print();
-        
-        setTimeout(() => {
-          solutionSection.style.display = 'none';
-          printHeaderSolutions.style.display = 'none';
-        }, 100);
-      } else {
-        window.print();
-      }
+      // Solution visibility is controlled by CSS @media print
+      window.print();
     }
 
     function exportPuzzle() {

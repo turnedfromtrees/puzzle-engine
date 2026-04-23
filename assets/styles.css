@@ -1221,9 +1221,9 @@ a:hover {
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 100;
-  background-color: var(--color-bg-alt);
-  border: 2px dashed var(--color-border);
+  z-index: 9999;
+  background-color: #ff0000;
+  border: 5px solid #000;
 }
 
 /* Hide ads on mobile (too narrow) */

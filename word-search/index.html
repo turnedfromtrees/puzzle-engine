@@ -135,8 +135,9 @@
 </head>
 <body>
   <!-- Header -->
+  <!-- Header -->
   <header class="header">
-    <div class="header__content">
+    <div class="container">
       <h1 class="header__logo"><a href="../index.html"><img src="../assets/logo.png" alt="Puzzle Engine" class="header__logo-img"></a></h1>
       <div class="header__branding">
         <h2 class="header__title">Puzzle Engine</h2>
@@ -184,7 +185,13 @@
               <option value="sports">Sports</option>
               <option value="weather">Weather</option>
               <option value="random">Random</option>
+              <option value="custom">Custom words...</option>
             </select>
+          </div>
+          <div class="controls__field" id="custom-words-field" style="display: none;">
+            <label class="form-label" for="custom-words">Custom Words</label>
+            <textarea class="form-input" id="custom-words" rows="3" placeholder="Enter words separated by commas or new lines"></textarea>
+            <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">one word per line or comma-separated</span>
           </div>
           <div class="controls__field">
             <label class="form-label" for="solutions">Solutions</label>
@@ -453,10 +460,17 @@
        Puzzle Generation
        -------------------------------------------------------------------------- */
 
-    function generateWordSearch(size, difficulty, theme) {
+    function generateWordSearch(size, difficulty, theme, customWords) {
       const grid = createEmptyGrid(size);
       const directions = DIRECTIONS[difficulty];
-      const allWords = WORD_THEMES[theme] || WORD_THEMES.random;
+      
+      // Use custom words or theme words
+      let allWords;
+      if (customWords && customWords.length > 0) {
+        allWords = customWords;
+      } else {
+        allWords = WORD_THEMES[theme] || WORD_THEMES.random;
+      }
       
       const maxWordLength = size - 1;
       const suitableWords = allWords.filter(w => w.length <= maxWordLength);
@@ -608,7 +622,22 @@
       currentDifficulty = document.getElementById('difficulty').value;
       currentTheme = document.getElementById('theme').value;
       
-      const result = generateWordSearch(currentSize, currentDifficulty, currentTheme);
+      // Handle custom words
+      let words = null;
+      if (currentTheme === 'custom') {
+        const customWordsInput = document.getElementById('custom-words').value;
+        words = customWordsInput
+          .split(/[\n,]+/)
+          .map(w => w.trim().toUpperCase())
+          .filter(w => w.length > 0);
+        
+        if (words.length < 3) {
+          alert('Please enter at least 3 words for custom word list.');
+          return;
+        }
+      }
+      
+      const result = generateWordSearch(currentSize, currentDifficulty, currentTheme, words);
       currentGrid = result.grid;
       currentWords = result.words;
       currentPositions = result.positions;
@@ -832,6 +861,18 @@
       document.getElementById('print-btn').addEventListener('click', printPuzzle);
       document.getElementById('export-btn').addEventListener('click', exportPuzzle);
       document.getElementById('bulk-generate-btn').addEventListener('click', generateBulkPuzzles);
+      
+      // Theme selector - show/hide custom words field
+      const themeSelect = document.getElementById('theme');
+      const customWordsField = document.getElementById('custom-words-field');
+      
+      themeSelect.addEventListener('change', function() {
+        if (themeSelect.value === 'custom') {
+          customWordsField.style.display = 'block';
+        } else {
+          customWordsField.style.display = 'none';
+        }
+      });
       
       // Advanced options toggle
       const advancedToggle = document.getElementById('advanced-toggle');

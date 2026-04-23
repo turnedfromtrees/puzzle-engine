@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maze Generator — Puzzle Engine</title>
+  <meta name="description" content="Generate free printable maze puzzles for teachers, parents, seniors, and KDP creators. Multiple sizes and difficulty levels. Print-ready PDFs, commercial license included.">
+  <meta name="keywords" content="printable mazes, maze for kids, maze puzzles, maze generator, brain games, KDP puzzles, activity books, worksheets, care home activities, teacher resources">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script src="../assets/puzzle-core.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    /* Maze-page-specific styles */
+    .maze-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .page-title {
+      text-align: center;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .page-title h1 {
+      font-size: var(--font-size-2xl);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .page-title p {
+      color: var(--color-text-light);
+      margin: 0;
+    }
+    
+    /* Maze display */
+    .maze-canvas-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-lg);
+    }
+    
+    .maze-canvas-container canvas {
+      border: 2px solid var(--color-border-dark);
+      background: white;
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .maze-grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .maze-item {
+      text-align: center;
+    }
+    
+    .maze-item .maze-title {
+      font-size: var(--font-size-xl);
+      margin-bottom: var(--spacing-md);
+      color: var(--color-text);
+    }
+    
+    /* Layout classes for multi-puzzle */
+    .maze-container--one {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+    }
+    
+    .maze-container--two {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .maze-container--four {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .maze-container--four .maze-item {
+      width: calc(50% - var(--spacing-xl));
+      max-width: 400px;
+    }
+    
+    /* Solution section */
+    .solution-section {
+      margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-lg);
+      border-top: 2px dashed var(--color-border);
+    }
+    
+    .solution-section--one {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 60vh;
+    }
+    
+    .solution-section--two {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--four {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--four .maze-item {
+      width: calc(50% - var(--spacing-xl));
+      max-width: 400px;
+    }
+    
+    .solution-title {
+      text-align: center;
+      font-size: var(--font-size-lg);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    /* KDP section */
+    .kdp-section {
+      background-color: var(--color-bg);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-top: var(--spacing-md);
+    }
+    
+    .kdp-section__title {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-light);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    /* Difficulty info */
+    .difficulty-info {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin-top: var(--spacing-xs);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <h1 class="header__logo"><a href="../index.html"><img src="../assets/logo.png" alt="Puzzle Engine" class="header__logo-img"></a></h1>
+      <div class="header__branding">
+        <h2 class="header__title">Puzzle Engine</h2>
+        <p class="header__tagline">Free printable puzzles</p>
+      </div>
+      <button class="header__nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <nav class="header__nav">
+        <div class="header__nav-menu" id="nav-menu">
+          <a href="../index.html" class="header__nav-link">Home</a>
+          <a href="../sudoku/index.html" class="header__nav-link">Sudoku</a>
+          <a href="../word-search/index.html" class="header__nav-link">Word Search</a>
+          <a href="index.html" class="header__nav-link header__nav-link--active">Mazes</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Ad Slots (Sidebar) -->
+  <div class="ad-slot ad-slot--sidebar-left" id="ad-left" data-ad-slot="left-sidebar">
+    <span>Ad Space</span>
+  </div>
+  <div class="ad-slot ad-slot--sidebar-right" id="ad-right" data-ad-slot="right-sidebar">
+    <span>Ad Space</span>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <div class="page-title">
+        <h1>Maze Generator</h1>
+        <p>Generate printable mazes in multiple sizes and difficulty levels</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls" id="controls">
+        <div class="controls__row">
+          <div class="controls__field">
+            <label class="form-label" for="size">Size</label>
+            <select class="form-select" id="size">
+              <option value="15">Small (15×15)</option>
+              <option value="25" selected>Medium (25×25)</option>
+              <option value="40">Large (40×40)</option>
+            </select>
+          </div>
+          <div class="controls__field">
+            <label class="form-label" for="difficulty">Difficulty</label>
+            <select class="form-select" id="difficulty">
+              <option value="easy">Easy (wide paths)</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard (many dead-ends)</option>
+            </select>
+            <p class="difficulty-info">Affects path width &amp; dead-end density</p>
+          </div>
+          <div class="controls__field">
+            <label class="form-label" for="per-page">Per Page</label>
+            <select class="form-select" id="per-page">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div class="controls__field">
+            <label class="form-label" for="solutions">Solutions</label>
+            <select class="form-select" id="solutions">
+              <option value="none" selected>None</option>
+              <option value="separate">Separate page</option>
+            </select>
+          </div>
+        </div>
+        <div class="controls__actions">
+          <button class="btn btn--primary btn--large" id="generate-btn">
+            Generate Maze
+          </button>
+          <button class="btn btn--secondary" id="print-btn" disabled>
+            Print Maze
+          </button>
+          <button class="btn btn--secondary" id="export-btn" disabled>
+            Export PNG
+          </button>
+        </div>
+
+        <!-- Advanced Options Toggle -->
+        <button class="advanced-toggle" id="advanced-toggle" aria-expanded="false" aria-controls="advanced-options">
+          <span class="advanced-toggle__icon">▼</span>
+          <span>KDP Tools</span>
+        </button>
+
+        <!-- Advanced Options -->
+        <div class="advanced-options" id="advanced-options">
+          <!-- KDP Creator Tools -->
+          <div class="kdp-section">
+            <h4 class="kdp-section__title">KDP Creator Tools</h4>
+            <div class="controls__row">
+              <div class="controls__field">
+                <label class="form-label" for="bulk-count">Bulk Generate</label>
+                <input type="number" class="form-input" id="bulk-count" value="50" min="1" max="100">
+                <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">mazes</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sizes</label>
+              <div class="form-checkbox-group">
+                <label class="form-checkbox">
+                  <input type="checkbox" id="size-small" checked> Small (15×15)
+                </label>
+                <label class="form-checkbox">
+                  <input type="checkbox" id="size-medium" checked> Medium (25×25)
+                </label>
+                <label class="form-checkbox">
+                  <input type="checkbox" id="size-large"> Large (40×40)
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Difficulties</label>
+              <div class="form-checkbox-group">
+                <label class="form-checkbox">
+                  <input type="checkbox" id="diff-easy" checked> Easy
+                </label>
+                <label class="form-checkbox">
+                  <input type="checkbox" id="diff-medium" checked> Medium
+                </label>
+                <label class="form-checkbox">
+                  <input type="checkbox" id="diff-hard"> Hard
+                </label>
+              </div>
+            </div>
+            <div class="controls__actions" style="margin-top: var(--spacing-md);">
+              <button class="btn btn--secondary" id="bulk-generate-btn">
+                Generate Bundle
+              </button>
+            </div>
+            <div class="progress-container hidden" id="bulk-progress">
+              <div class="progress-bar">
+                <div class="progress-bar__fill" id="progress-fill" style="width: 0%"></div>
+              </div>
+              <p class="progress-text" id="progress-text">Generating mazes...</p>
+            </div>
+          </div>
+
+          <div class="license-notice">
+            ✓ Commercial License: Free to use in your KDP books. No attribution required.
+          </div>
+        </div>
+      </div>
+
+      <!-- Affiliate Banner -->
+      <div class="affiliate-banner" id="affiliate-banner" style="display: none;">
+        <p class="affiliate-banner__title">📚 Recommended Maze Books</p>
+        <div class="affiliate-banner__links">
+          <a href="https://www.amazon.com/s?k=maze+books+for+kids&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Maze Books for Kids</a>
+          <a href="https://www.amazon.com/s?k=activity+book+mazes&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Activity Books</a>
+          <a href="https://www.amazon.com/s?k=large+print+mazes+seniors&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Large Print Mazes</a>
+          <a href="https://www.amazon.com/s?k=brain+games+mazes&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Brain Games</a>
+        </div>
+        <p class="affiliate-banner__disclosure">As an Amazon Associate, we earn from qualifying purchases.</p>
+      </div>
+
+      <!-- Puzzle Container -->
+      <!-- Print-only header (hidden on screen, shown on print) -->
+      <div class="print-header" id="print-header" style="display: none;">
+        <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
+        <div class="print-header__text">
+          <h1 class="print-header__title" id="print-header-title"></h1>
+          <p class="print-header__url">puzzle-engine.com</p>
+        </div>
+      </div>
+      
+      <div class="maze-container maze-container--one" id="maze-container" style="display: none;">
+        <!-- Mazes will be generated by JavaScript -->
+      </div>
+
+      <!-- Solution Container (for separate page option) -->
+      <div class="solution-section" id="solution-section" style="display: none;">
+        <!-- Print header for solutions page -->
+        <div class="print-header" id="print-header-solutions" style="display: none;">
+          <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
+          <div class="print-header__text">
+            <h1 class="print-header__title">Solutions</h1>
+            <p class="print-header__url">puzzle-engine.com</p>
+          </div>
+        </div>
+        <!-- Solutions will be generated by JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__content">
+        <nav class="footer__nav" aria-label="Footer">
+          <a href="../index.html">← Back to Home</a>
+          <a href="#about">About</a>
+          <a href="#license">License</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <div class="footer__license">
+          <p class="footer__license-title">✓ Free Commercial Use License</p>
+          <p class="footer__license-text">All puzzles generated on Puzzle Engine are free for personal and commercial use. Use them in your KDP books, activity books, worksheets, and more. No attribution required.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ==========================================================================
+       Maze Generator - Core Logic
+       ========================================================================== */
+
+    // Configuration for different sizes
+    const MAZE_CONFIG = {
+      15: { cellSize: 24, name: 'Small' },
+      25: { cellSize: 18, name: 'Medium' },
+      40: { cellSize: 12, name: 'Large' }
+    };
+
+    // Difficulty settings affect wall removal and dead-end creation
+    const DIFFICULTY_CONFIG = {
+      easy: { deadEndRate: 0.1, pathWidth: 'normal' },
+      medium: { deadEndRate: 0.25, pathWidth: 'normal' },
+      hard: { deadEndRate: 0.4, pathWidth: 'normal' }
+    };
+
+    // Current maze state
+    let currentMazes = [];
+    let currentSolutions = [];
+    let currentSize = 25;
+    let currentDifficulty = 'medium';
+
+    /* --------------------------------------------------------------------------
+       Maze Generation using Recursive Backtracking
+       -------------------------------------------------------------------------- */
+
+    /**
+     * Create a maze grid with all walls
+     * Each cell has walls: { top, right, bottom, left }
+     */
+    function createMazeGrid(size) {
+      const grid = [];
+      for (let row = 0; row < size; row++) {
+        grid[row] = [];
+        for (let col = 0; col < size; col++) {
+          grid[row][col] = {
+            visited: false,
+            walls: { top: true, right: true, bottom: true, left: true }
+          };
+        }
+      }
+      return grid;
+    }
+
+    /**
+     * Get neighbors for a cell
+     */
+    function getNeighbors(row, col, size) {
+      const neighbors = [];
+      if (row > 0) neighbors.push({ row: row - 1, col: col, dir: 'top' });
+      if (col < size - 1) neighbors.push({ row: row, col: col + 1, dir: 'right' });
+      if (row < size - 1) neighbors.push({ row: row + 1, col: col, dir: 'bottom' });
+      if (col > 0) neighbors.push({ row: row, col: col - 1, dir: 'left' });
+      return neighbors;
+    }
+
+    /**
+     * Remove wall between two cells
+     */
+    function removeWall(grid, row1, col1, row2, col2) {
+      // Determine direction from cell 1 to cell 2
+      if (row2 < row1) {
+        // Cell 2 is above
+        grid[row1][col1].walls.top = false;
+        grid[row2][col2].walls.bottom = false;
+      } else if (row2 > row1) {
+        // Cell 2 is below
+        grid[row1][col1].walls.bottom = false;
+        grid[row2][col2].walls.top = false;
+      } else if (col2 < col1) {
+        // Cell 2 is left
+        grid[row1][col1].walls.left = false;
+        grid[row2][col2].walls.right = false;
+      } else if (col2 > col1) {
+        // Cell 2 is right
+        grid[row1][col1].walls.right = false;
+        grid[row2][col2].walls.left = false;
+      }
+    }
+
+    /**
+     * Generate maze using recursive backtracking
+     */
+    function generateMaze(size, difficulty) {
+      const grid = createMazeGrid(size);
+      const stack = [];
+      
+      // Start from top-left
+      let currentRow = 0;
+      let currentCol = 0;
+      grid[currentRow][currentCol].visited = true;
+      stack.push({ row: currentRow, col: currentCol });
+      
+      while (stack.length > 0) {
+        const current = stack[stack.length - 1];
+        const neighbors = getNeighbors(current.row, current.col, size)
+          .filter(n => !grid[n.row][n.col].visited);
+        
+        if (neighbors.length === 0) {
+          stack.pop();
+        } else {
+          // Shuffle neighbors for randomness
+          const shuffled = shuffleArray(neighbors);
+          const next = shuffled[0];
+          
+          // Remove walls between current and next
+          removeWall(grid, current.row, current.col, next.row, next.col);
+          
+          // Mark next as visited and push to stack
+          grid[next.row][next.col].visited = true;
+          stack.push({ row: next.row, col: next.col });
+        }
+      }
+      
+      // Add extra dead-ends based on difficulty
+      addDeadEnds(grid, size, difficulty);
+      
+      return grid;
+    }
+
+    /**
+     * Add additional dead-ends to increase difficulty
+     */
+    function addDeadEnds(grid, size, difficulty) {
+      const config = DIFFICULTY_CONFIG[difficulty];
+      const deadEndRate = config.deadEndRate;
+      
+      // For harder mazes, remove some additional walls to create more paths
+      // This actually creates more dead-ends due to the complex structure
+      for (let row = 1; row < size - 1; row++) {
+        for (let col = 1; col < size - 1; col++) {
+          if (Math.random() < deadEndRate * 0.1) {
+            // Randomly open a wall to create alternative paths
+            const directions = ['top', 'right', 'bottom', 'left'];
+            const dir = directions[Math.floor(Math.random() * 4)];
+            
+            if (dir === 'top' && row > 0) {
+              grid[row][col].walls.top = false;
+              grid[row - 1][col].walls.bottom = false;
+            } else if (dir === 'right' && col < size - 1) {
+              grid[row][col].walls.right = false;
+              grid[row][col + 1].walls.left = false;
+            } else if (dir === 'bottom' && row < size - 1) {
+              grid[row][col].walls.bottom = false;
+              grid[row + 1][col].walls.top = false;
+            } else if (dir === 'left' && col > 0) {
+              grid[row][col].walls.left = false;
+              grid[row][col - 1].walls.right = false;
+            }
+          }
+        }
+      }
+    }
+
+    /**
+     * Solve the maze using BFS to find the solution path
+     */
+    function solveMaze(grid, size) {
+      const visited = Array(size).fill(null).map(() => Array(size).fill(false));
+      const parent = Array(size).fill(null).map(() => Array(size).fill(null));
+      const queue = [{ row: 0, col: 0 }];
+      visited[0][0] = true;
+      
+      // BFS to find shortest path
+      while (queue.length > 0) {
+        const current = queue.shift();
+        
+        if (current.row === size - 1 && current.col === size - 1) {
+          break;
+        }
+        
+        const cell = grid[current.row][current.col];
+        const moves = [
+          { row: current.row - 1, col: current.col, wall: 'top' },
+          { row: current.row, col: current.col + 1, wall: 'right' },
+          { row: current.row + 1, col: current.col, wall: 'bottom' },
+          { row: current.row, col: current.col - 1, wall: 'left' }
+        ];
+        
+        for (const move of moves) {
+          if (move.row >= 0 && move.row < size && 
+              move.col >= 0 && move.col < size &&
+              !cell.walls[move.wall] && !visited[move.row][move.col]) {
+            visited[move.row][move.col] = true;
+            parent[move.row][move.col] = { row: current.row, col: current.col };
+            queue.push({ row: move.row, col: move.col });
+          }
+        }
+      }
+      
+      // Reconstruct path
+      const path = [];
+      let row = size - 1;
+      let col = size - 1;
+      
+      while (row !== 0 || col !== 0) {
+        path.push({ row, col });
+        const p = parent[row][col];
+        if (!p) break;
+        row = p.row;
+        col = p.col;
+      }
+      path.push({ row: 0, col: 0 });
+      path.reverse();
+      
+      return path;
+    }
+
+    /* --------------------------------------------------------------------------
+       Rendering
+       -------------------------------------------------------------------------- */
+
+    /**
+     * Draw maze on canvas
+     */
+    function drawMaze(canvas, grid, size, showSolution = false, solutionPath = null) {
+      const ctx = canvas.getContext('2d');
+      const cellSize = MAZE_CONFIG[size].cellSize;
+      const wallWidth = 2;
+      const padding = 20;
+      
+      const mazeSize = size * cellSize;
+      canvas.width = mazeSize + padding * 2;
+      canvas.height = mazeSize + padding * 2;
+      
+      // Clear canvas
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw solution path if provided
+      if (showSolution && solutionPath) {
+        ctx.strokeStyle = 'rgba(107, 70, 193, 0.4)';
+        ctx.lineWidth = cellSize * 0.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        ctx.beginPath();
+        const startX = padding + solutionPath[0].col * cellSize + cellSize / 2;
+        const startY = padding + solutionPath[0].row * cellSize + cellSize / 2;
+        ctx.moveTo(startX, startY);
+        
+        for (let i = 1; i < solutionPath.length; i++) {
+          const x = padding + solutionPath[i].col * cellSize + cellSize / 2;
+          const y = padding + solutionPath[i].row * cellSize + cellSize / 2;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      
+      // Draw walls
+      ctx.strokeStyle = '#1a202c';
+      ctx.lineWidth = wallWidth;
+      
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          const cell = grid[row][col];
+          const x = padding + col * cellSize;
+          const y = padding + row * cellSize;
+          
+          // Draw walls for this cell
+          ctx.beginPath();
+          
+          if (cell.walls.top) {
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + cellSize, y);
+          }
+          
+          if (cell.walls.right) {
+            ctx.moveTo(x + cellSize, y);
+            ctx.lineTo(x + cellSize, y + cellSize);
+          }
+          
+          if (cell.walls.bottom) {
+            ctx.moveTo(x, y + cellSize);
+            ctx.lineTo(x + cellSize, y + cellSize);
+          }
+          
+          if (cell.walls.left) {
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + cellSize);
+          }
+          
+          ctx.stroke();
+        }
+      }
+      
+      // Draw outer border
+      ctx.strokeStyle = '#1a202c';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(padding, padding, mazeSize, mazeSize);
+      
+      // Draw start (top-left) and end (bottom-right) markers
+      ctx.fillStyle = '#38a169';
+      ctx.beginPath();
+      ctx.arc(padding + cellSize / 2, padding + cellSize / 2, cellSize * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = '#e53e3e';
+      ctx.beginPath();
+      ctx.arc(padding + (size - 0.5) * cellSize, padding + (size - 0.5) * cellSize, cellSize * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    /**
+     * Create canvas element with maze
+     */
+    function createMazeCanvas(grid, size, mazeNum, difficulty, showSolution = false, solutionPath = null) {
+      const config = MAZE_CONFIG[size];
+      const cellSize = config.cellSize;
+      const padding = 20;
+      const titleHeight = 30;
+      
+      const mazeSize = size * cellSize;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = mazeSize + padding * 2;
+      canvas.height = mazeSize + padding * 2 + titleHeight;
+      
+      // White background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Title
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+      ctx.fillStyle = '#1a202c';
+      ctx.font = 'bold 14pt Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${diffNames[difficulty]} ${mazeNum}`, canvas.width / 2, 18);
+      
+      // Draw maze offset by titleHeight
+      const offsetY = titleHeight;
+      
+      // Draw solution path if provided
+      if (showSolution && solutionPath) {
+        ctx.strokeStyle = 'rgba(107, 70, 193, 0.4)';
+        ctx.lineWidth = cellSize * 0.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        ctx.beginPath();
+        const startX = padding + solutionPath[0].col * cellSize;
+        const startY = offsetY + padding + solutionPath[0].row * cellSize;
+        ctx.moveTo(startX + cellSize / 2, startY + cellSize / 2);
+        
+        for (let i = 1; i < solutionPath.length; i++) {
+          const x = padding + solutionPath[i].col * cellSize;
+          const y = offsetY + padding + solutionPath[i].row * cellSize;
+          ctx.lineTo(x + cellSize / 2, y + cellSize / 2);
+        }
+        ctx.stroke();
+      }
+      
+      // Draw walls
+      ctx.strokeStyle = '#1a202c';
+      ctx.lineWidth = 2;
+      
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          const cell = grid[row][col];
+          const x = padding + col * cellSize;
+          const y = offsetY + padding + row * cellSize;
+          
+          ctx.beginPath();
+          
+          if (cell.walls.top) {
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + cellSize, y);
+          }
+          
+          if (cell.walls.right) {
+            ctx.moveTo(x + cellSize, y);
+            ctx.lineTo(x + cellSize, y + cellSize);
+          }
+          
+          if (cell.walls.bottom) {
+            ctx.moveTo(x, y + cellSize);
+            ctx.lineTo(x + cellSize, y + cellSize);
+          }
+          
+          if (cell.walls.left) {
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + cellSize);
+          }
+          
+          ctx.stroke();
+        }
+      }
+      
+      // Draw outer border
+      ctx.strokeStyle = '#1a202c';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(padding, offsetY + padding, mazeSize, mazeSize);
+      
+      // Draw start marker
+      ctx.fillStyle = '#38a169';
+      ctx.beginPath();
+      ctx.arc(padding + cellSize / 2, offsetY + padding + cellSize / 2, cellSize * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw end marker
+      ctx.fillStyle = '#e53e3e';
+      ctx.beginPath();
+      ctx.arc(padding + (size - 0.5) * cellSize, offsetY + padding + (size - 0.5) * cellSize, cellSize * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      
+      return canvas;
+    }
+
+    /**
+     * Create solution page with multiple small mazes
+     */
+    function createSolutionPage(grids, paths, size, startNumber, difficulty, pageNumber) {
+      const config = MAZE_CONFIG[size];
+      const cellSize = Math.max(8, config.cellSize * 0.6);
+      const padding = 10;
+      const titleHeight = 20;
+      const mazeSize = size * cellSize;
+      
+      const cols = 4;
+      const rows = 3;
+      const perPage = cols * rows;
+      const pageWidth = padding * 2 + cols * (mazeSize + 15);
+      const pageHeight = padding * 2 + rows * (mazeSize + titleHeight + 15);
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = pageWidth;
+      canvas.height = pageHeight;
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+      
+      grids.forEach((grid, idx) => {
+        const col = idx % cols;
+        const row = Math.floor(idx / cols);
+        const baseX = padding + col * (mazeSize + 15);
+        const baseY = padding + row * (mazeSize + titleHeight + 15);
+        
+        // Draw title
+        ctx.fillStyle = '#1a202c';
+        ctx.font = 'bold 10pt Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${diffNames[difficulty]} ${startNumber + idx}`, baseX, baseY + 12);
+        
+        const path = paths[idx];
+        
+        // Draw solution path
+        if (path) {
+          ctx.strokeStyle = 'rgba(107, 70, 193, 0.5)';
+          ctx.lineWidth = Math.max(2, cellSize * 0.4);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          
+          ctx.beginPath();
+          ctx.moveTo(baseX + path[0].col * cellSize + cellSize / 2, baseY + titleHeight + path[0].row * cellSize + cellSize / 2);
+          for (let i = 1; i < path.length; i++) {
+            ctx.lineTo(baseX + path[i].col * cellSize + cellSize / 2, baseY + titleHeight + path[i].row * cellSize + cellSize / 2);
+          }
+          ctx.stroke();
+        }
+        
+        // Draw walls
+        ctx.strokeStyle = '#1a202c';
+        ctx.lineWidth = 1;
+        
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            const cell = grid[r][c];
+            const x = baseX + c * cellSize;
+            const y = baseY + titleHeight + r * cellSize;
+            
+            ctx.beginPath();
+            
+            if (cell.walls.top) {
+              ctx.moveTo(x, y);
+              ctx.lineTo(x + cellSize, y);
+            }
+            if (cell.walls.right) {
+              ctx.moveTo(x + cellSize, y);
+              ctx.lineTo(x + cellSize, y + cellSize);
+            }
+            if (cell.walls.bottom) {
+              ctx.moveTo(x, y + cellSize);
+              ctx.lineTo(x + cellSize, y + cellSize);
+            }
+            if (cell.walls.left) {
+              ctx.moveTo(x, y);
+              ctx.lineTo(x, y + cellSize);
+            }
+            
+            ctx.stroke();
+          }
+        }
+        
+        // Draw border
+        ctx.lineWidth = 2;
+        ctx.strokeRect(baseX, baseY + titleHeight, mazeSize, mazeSize);
+        
+        // Start marker
+        ctx.fillStyle = '#38a169';
+        ctx.beginPath();
+        ctx.arc(baseX + cellSize / 2, baseY + titleHeight + cellSize / 2, Math.max(2, cellSize * 0.25), 0, Math.PI * 2);
+        ctx.fill();
+        
+        // End marker
+        ctx.fillStyle = '#e53e3e';
+        ctx.beginPath();
+        ctx.arc(baseX + (size - 0.5) * cellSize, baseY + titleHeight + (size - 0.5) * cellSize, Math.max(2, cellSize * 0.25), 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      return canvas;
+    }
+
+    /* --------------------------------------------------------------------------
+       Main Actions
+       -------------------------------------------------------------------------- */
+
+    /**
+     * Generate mazes based on current settings
+     */
+    function generateMazes() {
+      currentSize = parseInt(document.getElementById('size').value);
+      currentDifficulty = document.getElementById('difficulty').value;
+      const perPage = parseInt(document.getElementById('per-page').value);
+      const solutionsOption = document.getElementById('solutions').value;
+      
+      const sizeNames = { 15: '15×15', 25: '25×25', 40: '40×40' };
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+      
+      // Generate mazes
+      currentMazes = [];
+      currentSolutions = [];
+      
+      for (let i = 0; i < perPage; i++) {
+        const maze = generateMaze(currentSize, currentDifficulty);
+        const solution = solveMaze(maze, currentSize);
+        currentMazes.push(maze);
+        currentSolutions.push(solution);
+      }
+      
+      // Render mazes container
+      const container = document.getElementById('maze-container');
+      container.innerHTML = '';
+      container.style.display = 'flex';
+      
+      // Set print header title
+      const printHeaderTitle = document.getElementById('print-header-title');
+      printHeaderTitle.textContent = `Maze ${sizeNames[currentSize]} ${diffNames[currentDifficulty]}`;
+      
+      // Remove all layout classes and add appropriate one
+      container.classList.remove('maze-container--one', 'maze-container--two', 'maze-container--four');
+      if (perPage === 1) {
+        container.classList.add('maze-container--one');
+      } else if (perPage === 2) {
+        container.classList.add('maze-container--two');
+      } else if (perPage === 4) {
+        container.classList.add('maze-container--four');
+      }
+      
+      // Create each maze
+      currentMazes.forEach((maze, i) => {
+        const mazeDiv = document.createElement('div');
+        mazeDiv.className = 'maze-item';
+        
+        const title = document.createElement('h2');
+        title.className = 'maze-title';
+        title.textContent = `Maze ${i + 1}`;
+        mazeDiv.appendChild(title);
+        
+        const canvas = createMazeCanvas(maze, currentSize, i + 1, currentDifficulty, false, null);
+        mazeDiv.appendChild(canvas);
+        
+        container.appendChild(mazeDiv);
+      });
+      
+      // Handle solutions
+      const solutionSection = document.getElementById('solution-section');
+      solutionSection.innerHTML = '';
+      
+      if (solutionsOption === 'separate') {
+        solutionSection.style.display = '';
+        
+        // Remove all layout classes and add appropriate one
+        solutionSection.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four');
+        if (perPage === 1) {
+          solutionSection.classList.add('solution-section--one');
+        } else if (perPage === 2) {
+          solutionSection.classList.add('solution-section--two');
+        } else if (perPage === 4) {
+          solutionSection.classList.add('solution-section--four');
+        }
+        
+        // Add print header for solutions
+        const solutionsHeader = document.createElement('div');
+        solutionsHeader.className = 'print-header';
+        solutionsHeader.id = 'print-header-solutions';
+        solutionsHeader.style.display = 'none';
+        solutionsHeader.innerHTML = `
+          <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
+          <div class="print-header__text">
+            <h1 class="print-header__title">Solutions</h1>
+            <p class="print-header__url">puzzle-engine.com</p>
+          </div>
+        `;
+        solutionSection.appendChild(solutionsHeader);
+        
+        currentMazes.forEach((maze, i) => {
+          const solutionDiv = document.createElement('div');
+          solutionDiv.className = 'maze-item';
+          
+          const title = document.createElement('h3');
+          title.className = 'solution-title';
+          title.textContent = perPage > 1 ? `Solution ${i + 1}` : 'Solution';
+          solutionDiv.appendChild(title);
+          
+          const canvas = createMazeCanvas(maze, currentSize, i + 1, currentDifficulty, true, currentSolutions[i]);
+          solutionDiv.appendChild(canvas);
+          
+          solutionSection.appendChild(solutionDiv);
+        });
+      } else {
+        solutionSection.style.display = 'none';
+      }
+      
+      // Update UI
+      document.getElementById('affiliate-banner').style.display = 'block';
+      document.getElementById('print-btn').disabled = false;
+      document.getElementById('export-btn').disabled = false;
+    }
+
+    /**
+     * Print the maze
+     */
+    function printMaze() {
+      window.print();
+    }
+
+    /**
+     * Export maze as PNG
+     */
+    function exportMaze() {
+      if (currentMazes.length === 0) return;
+      
+      const canvas = createMazeCanvas(currentMazes[0], currentSize, 1, currentDifficulty, false, null);
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+      const sizeNames = { 15: '15x15', 25: '25x25', 40: '40x40' };
+      
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+      const filename = `maze-${sizeNames[currentSize]}-${currentDifficulty}-${timestamp}.png`;
+      
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    /**
+     * Generate bulk mazes as ZIP download
+     */
+    async function generateBulkMazes() {
+      const count = parseInt(document.getElementById('bulk-count').value) || 50;
+      const sizes = [];
+      if (document.getElementById('size-small').checked) sizes.push(15);
+      if (document.getElementById('size-medium').checked) sizes.push(25);
+      if (document.getElementById('size-large').checked) sizes.push(40);
+      
+      const difficulties = [];
+      if (document.getElementById('diff-easy').checked) difficulties.push('easy');
+      if (document.getElementById('diff-medium').checked) difficulties.push('medium');
+      if (document.getElementById('diff-hard').checked) difficulties.push('hard');
+      
+      if (sizes.length === 0) {
+        alert('Please select at least one size.');
+        return;
+      }
+      if (difficulties.length === 0) {
+        alert('Please select at least one difficulty level.');
+        return;
+      }
+      
+      const progressContainer = document.getElementById('bulk-progress');
+      const progressFill = document.getElementById('progress-fill');
+      const progressText = document.getElementById('progress-text');
+      
+      progressContainer.classList.remove('hidden');
+      
+      const sizeNames = { 15: '15x15', 25: '25x25', 40: '40x40' };
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+      
+      const zip = new JSZip();
+      const puzzlesFolder = zip.folder('mazes');
+      const solutionsFolder = zip.folder('solutions');
+      
+      // Track puzzle counts
+      const puzzleCounts = {};
+      const solutionCounts = {};
+      
+      sizes.forEach(size => {
+        difficulties.forEach(diff => {
+          const key = `${size}-${diff}`;
+          puzzleCounts[key] = 0;
+          solutionCounts[key] = 0;
+        });
+      });
+      
+      const allMazes = [];
+      
+      for (let i = 0; i < count; i++) {
+        const percent = Math.round((i + 1) / count * 100);
+        progressFill.style.width = `${percent}%`;
+        progressText.textContent = `Generating maze ${i + 1} of ${count}...`;
+        
+        // Distribute across selected sizes/difficulties
+        const sizeIdx = i % sizes.length;
+        const diffIdx = i % difficulties.length;
+        const size = sizes[sizeIdx];
+        const diff = difficulties[diffIdx];
+        
+        const maze = generateMaze(size, diff);
+        const solution = solveMaze(maze, size);
+        
+        allMazes.push({ maze, solution, size, diff });
+        
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      
+      progressText.textContent = 'Creating maze images...';
+      
+      // Generate puzzle PNGs
+      for (let i = 0; i < allMazes.length; i++) {
+        const { maze, solution, size, diff } = allMazes[i];
+        const key = `${size}-${diff}`;
+        puzzleCounts[key]++;
+        const puzzleNum = puzzleCounts[key];
+        
+        progressText.textContent = `Creating maze ${i + 1} of ${allMazes.length}...`;
+        
+        const canvas = createMazeCanvas(maze, size, puzzleNum, diff, false, null);
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64Data = dataUrl.split(',')[1];
+        
+        const folder = `${sizeNames[size]}/${diffNames[diff]}`;
+        puzzlesFolder.folder(folder).file(`${diffNames[diff].toLowerCase()}-${String(puzzleNum).padStart(3, '0')}.png`, base64Data, { base64: true });
+        
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      
+      progressText.textContent = 'Creating solution pages...';
+      
+      // Create solution pages (12 per page) for each size/difficulty
+      const solutionsPerPage = 12;
+      
+      for (const size of sizes) {
+        for (const diff of difficulties) {
+          const key = `${size}-${diff}`;
+          const matchingMazes = allMazes.filter(m => m.size === size && m.diff === diff);
+          
+          if (matchingMazes.length === 0) continue;
+          
+          const numPages = Math.ceil(matchingMazes.length / solutionsPerPage);
+          
+          for (let page = 0; page < numPages; page++) {
+            progressText.textContent = `Creating ${diffNames[diff]} ${sizeNames[size]} solution page ${page + 1} of ${numPages}...`;
+            
+            const startIdx = page * solutionsPerPage;
+            const endIdx = Math.min(startIdx + solutionsPerPage, matchingMazes.length);
+            const pageMazes = matchingMazes.slice(startIdx, endIdx);
+            const pageGrids = pageMazes.map(m => m.maze);
+            const pagePaths = pageMazes.map(m => m.solution);
+            
+            const canvas = createSolutionPage(pageGrids, pagePaths, size, startIdx + 1, diff, page + 1);
+            const dataUrl = canvas.toDataURL('image/png');
+            const base64Data = dataUrl.split(',')[1];
+            
+            const folder = `${sizeNames[size]}/${diffNames[diff]}`;
+            solutionsFolder.folder(folder).file(`${diffNames[diff].toLowerCase()}-solutions-${String(page + 1).padStart(3, '0')}.png`, base64Data, { base64: true });
+            
+            await new Promise(resolve => setTimeout(resolve, 0));
+          }
+        }
+      }
+      
+      progressText.textContent = 'Creating ZIP file...';
+      
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      const sizeStr = sizes.length === 1 ? sizeNames[sizes[0]] : 'mixed';
+      const diffStr = difficulties.length === 1 ? difficulties[0] : 'mixed';
+      link.download = `mazes-${sizeStr}-${count}-puzzles.zip`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      progressContainer.classList.add('hidden');
+    }
+
+    /* --------------------------------------------------------------------------
+       Event Listeners & Initialization
+       -------------------------------------------------------------------------- */
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Generate button
+      document.getElementById('generate-btn').addEventListener('click', generateMazes);
+      
+      // Print button
+      document.getElementById('print-btn').addEventListener('click', printMaze);
+      
+      // Export button
+      document.getElementById('export-btn').addEventListener('click', exportMaze);
+      
+      // Bulk generate button
+      document.getElementById('bulk-generate-btn').addEventListener('click', generateBulkMazes);
+      
+      // Advanced options toggle
+      const advancedToggle = document.getElementById('advanced-toggle');
+      const advancedOptions = document.getElementById('advanced-options');
+      
+      advancedToggle.addEventListener('click', function() {
+        const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
+        advancedToggle.setAttribute('aria-expanded', !isExpanded);
+        advancedOptions.classList.toggle('is-visible');
+      });
+      
+      // Generate initial maze
+      generateMazes();
+    });
+  </script>
+</body>
+</html>

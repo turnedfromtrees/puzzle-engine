@@ -138,6 +138,23 @@ function downloadCanvas(canvas, filename) {
   link.click();
 }
 
+/**
+ * Initialize mobile navigation toggle
+ */
+function initMobileNav() {
+  const navToggle = document.getElementById('nav-toggle');
+  const navMenu = document.getElementById('nav-menu');
+  
+  if (navToggle && navMenu) {
+    navToggle.addEventListener('click', () => {
+      navMenu.classList.toggle('is-visible');
+    });
+  }
+}
+
+// Initialize mobile nav on DOM ready
+document.addEventListener('DOMContentLoaded', initMobileNav);
+
 // Export for use in puzzle files
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {

@@ -7,6 +7,7 @@
   <meta name="description" content="Generate free printable Word Search puzzles for teachers, parents, seniors, and KDP creators. Multiple sizes and difficulty levels. Print-ready PDFs, commercial license included.">
   <meta name="keywords" content="printable word search, word search for kids, word search for seniors, large print word search, brain games, word search generator, KDP puzzles, activity books, worksheets, care home activities, teacher resources">
   <link rel="stylesheet" href="../assets/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     /* Word Search page-specific styles */
     .wordsearch-wrapper {
@@ -708,7 +709,7 @@
     }
 
     async function generateBulkPuzzles() {
-      const count = parseInt(document.getElementById('bulk-count').value);
+      const count = parseInt(document.getElementById('bulk-count').value) || 50;
       const difficulties = [];
       
       if (document.getElementById('diff-easy').checked) difficulties.push('easy');
@@ -729,118 +730,263 @@
       progressContainer.classList.remove('hidden');
       bulkBtn.disabled = true;
       
-      const puzzles = [];
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
+      const sizeName = `${currentSize}x${currentSize}`;
       
+      const zip = new JSZip();
+      const puzzlesFolder = zip.folder('puzzles');
+      const solutionsFolder = zip.folder('solutions');
+      
+      const puzzles = [];
+      const puzzleDiffs = [];
+      const diffCounts = { easy: 0, medium: 0, hard: 0, expert: 0 };
+      
+      // Generate all puzzles
       for (let i = 0; i < count; i++) {
-        progressFill.style.width = `${((i + 1) / count) * 100}%`;
+        const percent = Math.round((i + 1) / count * 100);
+        progressFill.style.width = `${percent}%`;
         progressText.textContent = `Generating puzzle ${i + 1} of ${count}...`;
         
-        const difficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
-        const result = generateWordSearch(currentSize, difficulty, currentTheme);
+        const diff = difficulties[i % difficulties.length];
+        const result = generateWordSearch(currentSize, diff, currentTheme);
         
-        puzzles.push({
-          grid: result.grid,
-          words: result.words,
-          positions: result.positions,
-          difficulty: difficulty
-        });
+        puzzles.push(result);
+        puzzleDiffs.push(diff);
+        diffCounts[diff]++;
         
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise(resolve => setTimeout(resolve, 0));
       }
       
-      progressText.textContent = `Generated ${count} puzzles! Opening print view...`;
+      progressText.textContent = 'Creating puzzle images...';
       
-      // Create printable document
-      const printWindow = window.open('', '_blank');
-      printWindow.document.write(generateBulkHtml(puzzles));
-      printWindow.document.close();
+      // Reset counts for file naming
+      const diffNumbers = { easy: 0, medium: 0, hard: 0, expert: 0 };
       
-      setTimeout(() => {
-        progressContainer.classList.add('hidden');
-        bulkBtn.disabled = false;
-      }, 2000);
+      // Generate puzzle PNGs
+      for (let i = 0; i < puzzles.length; i++) {
+        progressText.textContent = `Creating puzzle ${i + 1} of ${puzzles.length}...`;
+        
+        const diff = puzzleDiffs[i];
+        diffNumbers[diff]++;
+        const puzzleNum = diffNumbers[diff];
+        
+        const canvas = createPuzzleCanvas(puzzles[i], puzzleNum, diff);
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64Data = dataUrl.split(',')[1];
+        puzzlesFolder.file(`${diffNames[diff].toLowerCase()}-${String(puzzleNum).padStart(3, '0')}.png`, base64Data, { base64: true });
+        
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      
+      progressText.textContent = 'Creating solution pages...';
+      
+      // Create solution pages grouped by difficulty
+      const solutionsPerPage = 12;
+      
+      for (const diff of difficulties) {
+        const diffName = diffNames[diff];
+        const diffIndices = puzzleDiffs.map((d, i) => d === diff ? i : -1).filter(i => i >= 0);
+        const diffPuzzles = diffIndices.map(i => puzzles[i]);
+        
+        if (diffPuzzles.length === 0) continue;
+        
+        const numPages = Math.ceil(diffPuzzles.length / solutionsPerPage);
+        
+        for (let page = 0; page < numPages; page++) {
+          progressText.textContent = `Creating ${diffName} solution page ${page + 1} of ${numPages}...`;
+          const startIdx = page * solutionsPerPage;
+          const endIdx = Math.min(startIdx + solutionsPerPage, diffPuzzles.length);
+          const pagePuzzles = diffPuzzles.slice(startIdx, endIdx);
+          const startNumber = startIdx + 1;
+          
+          const canvas = createSolutionPage(pagePuzzles, startNumber, diffName);
+          const dataUrl = canvas.toDataURL('image/png');
+          const base64Data = dataUrl.split(',')[1];
+          solutionsFolder.file(`${diffName.toLowerCase()}-solutions-${String(page + 1).padStart(3, '0')}.png`, base64Data, { base64: true });
+          
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+      
+      progressText.textContent = 'Creating ZIP file...';
+      
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `wordsearch-${sizeName}-${count}-puzzles.zip`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      progressContainer.classList.add('hidden');
+      bulkBtn.disabled = false;
     }
 
-    function generateBulkHtml(puzzles) {
-      let html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Word Search Puzzles — Bulk Export</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
-    h1 { text-align: center; margin-bottom: 30px; }
-    .puzzle-item { page-break-after: always; text-align: center; }
-    .puzzle-item:last-child { page-break-after: auto; }
-    table { border-collapse: collapse; margin: 20px auto; }
-    td { width: 28px; height: 28px; text-align: center; border: 1px solid #ccc; font-family: monospace; font-size: 14px; text-transform: uppercase; }
-    .word-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
-    .word-list span { font-family: monospace; padding: 4px 8px; background: #f0f0f0; border-radius: 4px; }
-    .solution-section { page-break-before: always; }
-    .highlighted { background: rgba(107, 70, 193, 0.15); font-weight: bold; }
-    h2 { margin-top: 0; }
-    @media print { body { padding: 0; } }
-  </style>
-</head>
-<body>
-  <h1>Word Search Puzzles</h1>
-`;
+    function createPuzzleCanvas(puzzle, puzzleNum, difficulty) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const size = puzzle.grid.length;
+      const cellSize = size <= 10 ? 40 : (size <= 15 ? 32 : 26);
+      const gridWidth = size * cellSize;
+      const padding = 40;
+      const headerHeight = 80;
+      const wordListHeight = Math.ceil(puzzle.words.length / 5) * 30 + 40;
       
-      puzzles.forEach((puzzle, index) => {
-        html += `<div class="puzzle-item">
-  <h2>Puzzle ${index + 1} (${puzzle.difficulty})</h2>
-  <table>
-`;
-        for (let row = 0; row < puzzle.grid.length; row++) {
-          html += '<tr>';
-          for (let col = 0; col < puzzle.grid[row].length; col++) {
-            html += `<td>${puzzle.grid[row][col]}</td>`;
-          }
-          html += '</tr>';
+      canvas.width = gridWidth + padding * 2;
+      canvas.height = gridWidth + padding * 2 + headerHeight + wordListHeight;
+      
+      // White background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Header
+      ctx.fillStyle = '#1a202c';
+      ctx.font = 'bold 20px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Word Search - Puzzle ${puzzleNum}`, canvas.width / 2, 30);
+      ctx.font = '14px Arial';
+      ctx.fillStyle = '#4a5568';
+      ctx.fillText(`${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} - ${size}x${size}`, canvas.width / 2, 55);
+      
+      // Draw grid
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `bold ${cellSize * 0.5}px Arial`;
+      
+      const gridTop = headerHeight + padding;
+      
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          const x = padding + col * cellSize;
+          const y = gridTop + row * cellSize;
+          
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x, y, cellSize, cellSize);
+          
+          ctx.strokeStyle = '#cbd5e0';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x, y, cellSize, cellSize);
+          
+          ctx.fillStyle = '#1a202c';
+          ctx.fillText(puzzle.grid[row][col], x + cellSize / 2, y + cellSize / 2);
         }
-        html += `  </table>
-  <div class="word-list">
-    ${puzzle.words.map(word => `<span>${word}</span>`).join('')}
-  </div>
-</div>
-
-<div class="solution-section">
-  <h2>Solution ${index + 1}</h2>
-  <table>
-`;
-        
-        const highlightGrid = Array(puzzle.grid.length).fill(null).map(() => Array(puzzle.grid.length).fill(false));
-        for (const pos of puzzle.positions) {
-          const [dRow, dCol] = pos.direction;
-          for (let i = 0; i < pos.word.length; i++) {
-            const row = pos.startRow + i * dRow;
-            const col = pos.startCol + i * dCol;
-            highlightGrid[row][col] = true;
-          }
-        }
-        
-        for (let row = 0; row < puzzle.grid.length; row++) {
-          html += '<tr>';
-          for (let col = 0; col < puzzle.grid[row].length; col++) {
-            const highlightClass = highlightGrid[row][col] ? 'highlighted' : '';
-            html += `<td class="${highlightClass}">${puzzle.grid[row][col]}</td>`;
-          }
-          html += '</tr>';
-        }
-        
-        html += `  </table>
-</div>
-`;
+      }
+      
+      // Grid border
+      ctx.strokeStyle = '#1a202c';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(padding, gridTop, gridWidth, gridWidth);
+      
+      // Word list
+      const wordListTop = gridTop + gridWidth + 20;
+      ctx.fillStyle = '#1a202c';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText('Find:', padding, wordListTop);
+      
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'left';
+      const colWidth = (canvas.width - padding * 2) / 5;
+      puzzle.words.forEach((word, i) => {
+        const col = i % 5;
+        const row = Math.floor(i / 5);
+        ctx.fillText(word.toUpperCase(), padding + col * colWidth, wordListTop + 20 + row * 25);
       });
       
-      html += `
-  <p style="text-align: center; font-size: 12px; color: #666;">
-    ✓ Commercial license included — Puzzle Engine
-  </p>
-</body>
-</html>`;
+      // Footer
+      ctx.fillStyle = '#718096';
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('puzzle-engine.com', canvas.width / 2, canvas.height - 10);
       
-      return html;
+      return canvas;
+    }
+
+    function createSolutionPage(puzzles, startNumber, difficulty) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const solutionsPerRow = 4;
+      const cellSize = 18;
+      const gridSize = puzzles[0].grid.length * cellSize;
+      const boxWidth = gridSize + 20;
+      const boxHeight = gridSize + 50;
+      const cols = solutionsPerRow;
+      const rows = Math.ceil(puzzles.length / cols);
+      
+      canvas.width = cols * boxWidth + 40;
+      canvas.height = rows * boxHeight + 80;
+      
+      // White background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Header
+      ctx.fillStyle = '#1a202c';
+      ctx.font = 'bold 18px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${difficulty} Solutions`, canvas.width / 2, 30);
+      
+      // Draw each solution
+      puzzles.forEach((puzzle, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const x = 20 + col * boxWidth + 10;
+        const y = 60 + row * boxHeight;
+        const size = puzzle.grid.length;
+        
+        // Puzzle number
+        ctx.fillStyle = '#4a5568';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`#${startNumber + i}`, x + gridSize / 2, y - 5);
+        
+        // Create highlight grid
+        const highlightGrid = Array(size).fill(null).map(() => Array(size).fill(false));
+        for (const pos of puzzle.positions) {
+          const [dRow, dCol] = pos.direction;
+          for (let j = 0; j < pos.word.length; j++) {
+            const r = pos.startRow + j * dRow;
+            const c = pos.startCol + j * dCol;
+            if (r >= 0 && r < size && c >= 0 && c < size) {
+              highlightGrid[r][c] = true;
+            }
+          }
+        }
+        
+        // Draw grid
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = `bold ${cellSize * 0.6}px Arial`;
+        
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            const px = x + c * cellSize;
+            const py = y + c * cellSize + r * cellSize - c * cellSize + c * cellSize;
+            const cellX = x + c * cellSize;
+            const cellY = y + r * cellSize;
+            
+            if (highlightGrid[r][c]) {
+              ctx.fillStyle = 'rgba(107, 70, 193, 0.2)';
+              ctx.fillRect(cellX, cellY, cellSize, cellSize);
+            }
+            
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(cellX, cellY, cellSize, cellSize);
+            
+            ctx.fillStyle = '#1a202c';
+            ctx.fillText(puzzle.grid[r][c], cellX + cellSize / 2, cellY + cellSize / 2);
+          }
+        }
+      });
+      
+      // Footer
+      ctx.fillStyle = '#718096';
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('puzzle-engine.com', canvas.width / 2, canvas.height - 10);
+      
+      return canvas;
     }
 
     /* --------------------------------------------------------------------------

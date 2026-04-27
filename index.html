@@ -112,6 +112,30 @@
         <a href="kenken/index.html" class="header__nav-link">KenKen</a>
         <a href="killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
       </nav>
+      <button class="header__hamburger" id="hamburger" aria-label="Open menu">
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+      </button>
+      <div class="header__overlay" id="menu-overlay"></div>
+      <nav class="header__menu" id="side-menu">
+        <div class="header__menu-section">
+          <div class="header__menu-title">Puzzles</div>
+          <a href="sudoku/index.html" class="header__menu-link">🔢 Sudoku</a>
+          <a href="word-search/index.html" class="header__menu-link">🔤 Word Search</a>
+          <a href="mazes/index.html" class="header__menu-link">🌀 Mazes</a>
+          <a href="number-search/index.html" class="header__menu-link">🔍 Number Search</a>
+          <a href="word-scramble/index.html" class="header__menu-link">🔀 Word Scramble</a>
+          <a href="kenken/index.html" class="header__menu-link">➕ KenKen</a>
+          <a href="killer-sudoku/index.html" class="header__menu-link">💀 Killer Sudoku</a>
+        </div>
+        <div class="header__menu-section">
+          <div class="header__menu-title">Legal</div>
+          <a href="privacy.html" class="header__menu-link">🔒 Privacy Policy</a>
+          <a href="terms.html" class="header__menu-link">📄 Terms of Service</a>
+          <a href="mailto:support@puzzle-engine.com" class="header__menu-link">✉️ Contact</a>
+        </div>
+      </nav>
     </div>
   </header>
   
@@ -222,5 +246,33 @@
       <p class="footer__license">Commercial license included for KDP creators.</p>
     </div>
   </footer>
+
+<script>
+// Hamburger menu toggle
+const hamburger = document.getElementById('hamburger');
+const sideMenu = document.getElementById('side-menu');
+const menuOverlay = document.getElementById('menu-overlay');
+
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  sideMenu.classList.toggle('open');
+  menuOverlay.classList.toggle('open');
+});
+
+menuOverlay.addEventListener('click', () => {
+  hamburger.classList.remove('open');
+  sideMenu.classList.remove('open');
+  menuOverlay.classList.remove('open');
+});
+
+// Close menu on link click
+sideMenu.querySelectorAll('.header__menu-link').forEach(link => {
+  link.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    sideMenu.classList.remove('open');
+    menuOverlay.classList.remove('open');
+  });
+});
+</script>
 </body>
 </html>

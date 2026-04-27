@@ -85,17 +85,34 @@
     }
     
     /* Solution display */
-    .solution-section {
-      margin-top: var(--spacing-xl);
-      padding-top: var(--spacing-xl);
-      border-top: 2px dashed var(--color-border);
-      width: 100%;
+    .solution-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      padding: var(--spacing-lg);
     }
     
-    .solution-section h2 {
-      text-align: center;
-      color: var(--color-text-light);
-      margin-bottom: var(--spacing-lg);
+    .solution-section--one {
+      justify-content: center;
+    }
+    
+    .solution-section--two {
+      flex-direction: column;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--four {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--four .single-puzzle-wrapper {
+      width: calc(50% - var(--spacing-xl));
+      max-width: 450px;
+      min-width: 280px;
     }
     
     .solution-list {
@@ -173,31 +190,23 @@
       margin-top: 12px;
     }
     
-    /* Improved Large print mode */
+    /* Large print mode */
     .large-print-mode .scramble-item {
       padding: var(--spacing-md) var(--spacing-lg);
-      gap: var(--spacing-lg);
-    }
-    
-    .large-print-mode .scramble-item__number {
-      font-size: 18pt;
-      font-weight: 700;
     }
     
     .large-print-mode .scramble-item__scrambled {
-      font-size: 18pt;
-      font-weight: 700;
-      letter-spacing: 6px;
+      font-size: 1.4rem;
+      letter-spacing: 4px;
     }
     
     .large-print-mode .scramble-item__hint {
-      font-size: 14pt;
-      font-weight: 600;
+      font-size: 1rem;
     }
     
     .large-print-mode .scramble-item__blank {
-      min-width: 180px;
-      border-bottom-width: 4px;
+      min-width: 150px;
+      border-bottom-width: 3px;
     }
     
     /* Theme selector */
@@ -307,11 +316,20 @@
       background: var(--color-bg);
     }
     
-    /* Difficulty descriptions */
+    /* Difficulty descriptions - positioned absolutely to not affect row alignment */
+    .control-group--with-desc {
+      position: relative;
+    }
+    
     .difficulty-desc {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      white-space: nowrap;
       font-size: 0.75rem;
       color: var(--color-text-light);
       margin-top: 2px;
+      z-index: 1;
     }
   </style>
 </head>
@@ -330,6 +348,30 @@
         <a href="../word-scramble/index.html" class="header__nav-link active">Word Scramble</a>
         <a href="../kenken/index.html" class="header__nav-link">KenKen</a>
         <a href="../killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
+      </nav>
+      <button class="header__hamburger" id="hamburger" aria-label="Open menu">
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+      </button>
+      <div class="header__overlay" id="menu-overlay"></div>
+      <nav class="header__menu" id="side-menu">
+        <div class="header__menu-section">
+          <div class="header__menu-title">Puzzles</div>
+          <a href="../sudoku/index.html" class="header__menu-link">🔢 Sudoku</a>
+          <a href="../word-search/index.html" class="header__menu-link">🔤 Word Search</a>
+          <a href="../mazes/index.html" class="header__menu-link">🌀 Mazes</a>
+          <a href="../number-search/index.html" class="header__menu-link">🔍 Number Search</a>
+          <a href="../word-scramble/index.html" class="header__menu-link active">🔀 Word Scramble</a>
+          <a href="../kenken/index.html" class="header__menu-link">➕ KenKen</a>
+          <a href="../killer-sudoku/index.html" class="header__menu-link">💀 Killer Sudoku</a>
+        </div>
+        <div class="header__menu-section">
+          <div class="header__menu-title">Legal</div>
+          <a href="../privacy.html" class="header__menu-link">🔒 Privacy Policy</a>
+          <a href="../terms.html" class="header__menu-link">📄 Terms of Service</a>
+          <a href="mailto:support@puzzle-engine.com" class="header__menu-link">✉️ Contact</a>
+        </div>
       </nav>
     </div>
   </header>
@@ -353,7 +395,7 @@
             </select>
           </div>
           
-          <div class="control-group">
+          <div class="control-group control-group--with-desc">
             <label for="difficulty">Difficulty:</label>
             <select id="difficulty">
               <option value="easy">Easy</option>
@@ -505,12 +547,12 @@
               </select>
             </div>
             <div class="control-group">
-              <label for="bulk-difficulty">Difficulty:</label>
-              <select id="bulk-difficulty">
-                <option value="easy">Easy</option>
-                <option value="medium" selected>Medium</option>
-                <option value="hard">Hard</option>
-              </select>
+              <label>Difficulties:</label>
+              <div class="checkbox-group">
+                <label><input type="checkbox" id="diff-easy" checked> Easy</label>
+                <label><input type="checkbox" id="diff-medium" checked> Medium</label>
+                <label><input type="checkbox" id="diff-hard"> Hard</label>
+              </div>
             </div>
             <div class="control-group">
               <label for="bulk-font-size">Font Size:</label>
@@ -542,7 +584,6 @@
         </div>
         
         <div class="solution-section" id="solution-section" style="display: none;">
-          <h2>Solutions</h2>
           <div id="solution-container"></div>
         </div>
       </div>
@@ -830,6 +871,20 @@
       container.innerHTML = '';
       solutionContainer.innerHTML = '';
       
+      // Remove old layout classes and add new one
+      solutionContainer.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four', 'large-print-mode');
+      
+      const isLargePrint = document.getElementById('large-print').checked;
+      if (isLargePrint) {
+        solutionContainer.classList.add('large-print-mode', 'solution-section--one');
+      } else if (perPage === 1) {
+        solutionContainer.classList.add('solution-section--one');
+      } else if (perPage === 2) {
+        solutionContainer.classList.add('solution-section--two');
+      } else if (perPage === 4) {
+        solutionContainer.classList.add('solution-section--four');
+      }
+      
       // Render puzzles
       const puzzlesWrapper = document.createElement('div');
       puzzlesWrapper.className = 'puzzles-page';
@@ -855,10 +910,6 @@
       if (showSolutions && puzzlesData.length > 0) {
         solutionSection.style.display = 'flex';
         
-        const solutionsWrapper = document.createElement('div');
-        solutionsWrapper.className = 'puzzles-page';
-        solutionsWrapper.dataset.count = perPage;
-        
         puzzlesData.forEach((puzzleData, i) => {
           const wrapper = document.createElement('div');
           wrapper.className = 'single-puzzle-wrapper';
@@ -871,10 +922,8 @@
           label.textContent = `Solution ${i + 1}`;
           wrapper.appendChild(label);
           
-          solutionsWrapper.appendChild(wrapper);
+          solutionContainer.appendChild(wrapper);
         });
-        
-        solutionContainer.appendChild(solutionsWrapper);
       } else {
         solutionSection.style.display = 'none';
       }
@@ -1056,7 +1105,6 @@
      */
     async function generateBulkPuzzles() {
       const wordCount = parseInt(document.getElementById('word-count').value);
-      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
       const fontSize = parseInt(document.getElementById('bulk-font-size').value);
       const isLargePrint = document.getElementById('bulk-large-print').checked;
@@ -1067,6 +1115,17 @@
         ? document.getElementById('hidden-message').value.trim() 
         : null;
       
+      // Get selected difficulties
+      const difficulties = [];
+      if (document.getElementById('diff-easy').checked) difficulties.push('easy');
+      if (document.getElementById('diff-medium').checked) difficulties.push('medium');
+      if (document.getElementById('diff-hard').checked) difficulties.push('hard');
+      
+      if (difficulties.length === 0) {
+        alert('Please select at least one difficulty level');
+        return;
+      }
+      
       const progressContainer = document.getElementById('bulk-progress');
       progressContainer.style.display = 'block';
       
@@ -1074,32 +1133,39 @@
       const puzzlesFolder = zip.folder('puzzles');
       const solutionsFolder = zip.folder('solutions');
       
-      for (let i = 0; i < count; i++) {
-        // Update progress
-        updateProgress(i + 1, count, progressContainer);
-        
-        // Get words for this puzzle
-        const words = getWordsForTheme(theme, customWords);
-        
-        // Generate puzzle
-        const puzzleData = generateWordScramble(words, difficulty, wordCount, hiddenMessage);
-        
-        // Create canvas and add to ZIP - pass fontSize and isLargePrint
-        const puzzleCanvas = createScrambleCanvas(puzzleData, 300, fontSize, isLargePrint);
-        const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
-        const puzzleBase64 = puzzleDataUrl.split(',')[1];
-        puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
-        
-        // Yield to UI
-        await delay(1);
+      const totalCount = count * difficulties.length;
+      let generated = 0;
+      
+      for (const difficulty of difficulties) {
+        for (let i = 0; i < count; i++) {
+          // Update progress
+          generated++;
+          updateProgress(generated, totalCount, progressContainer);
+          
+          // Get words for this puzzle
+          const words = getWordsForTheme(theme, customWords);
+          
+          // Generate puzzle
+          const puzzleData = generateWordScramble(words, difficulty, wordCount, hiddenMessage);
+          
+          // Create canvas and add to ZIP - pass fontSize and isLargePrint
+          const puzzleCanvas = createScrambleCanvas(puzzleData, 300, fontSize, isLargePrint);
+          const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
+          const puzzleBase64 = puzzleDataUrl.split(',')[1];
+          puzzlesFolder.file(`${difficulty}-puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
+          
+          // Yield to UI
+          await delay(1);
+        }
       }
       
       // Generate ZIP
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const zipUrl = URL.createObjectURL(zipBlob);
       
+      const diffStr = difficulties.join('-');
       const link = document.createElement('a');
-      link.download = `word-scramble-${wordCount}-words-${difficulty}-${count}-puzzles.zip`;
+      link.download = `word-scramble-${wordCount}-words-${diffStr}-${count}-puzzles.zip`;
       link.href = zipUrl;
       link.click();
       
@@ -1236,6 +1302,33 @@
     document.addEventListener('DOMContentLoaded', async () => {
       await loadWordLists();
       document.getElementById('generate').click();
+      
+      // Hamburger menu toggle
+      const hamburger = document.getElementById('hamburger');
+      const sideMenu = document.getElementById('side-menu');
+      const menuOverlay = document.getElementById('menu-overlay');
+      
+      if (hamburger) {
+        hamburger.addEventListener('click', () => {
+          hamburger.classList.toggle('open');
+          sideMenu.classList.toggle('open');
+          menuOverlay.classList.toggle('open');
+        });
+        
+        menuOverlay.addEventListener('click', () => {
+          hamburger.classList.remove('open');
+          sideMenu.classList.remove('open');
+          menuOverlay.classList.remove('open');
+        });
+        
+        sideMenu.querySelectorAll('.header__menu-link').forEach(link => {
+          link.addEventListener('click', () => {
+            hamburger.classList.remove('open');
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('open');
+          });
+        });
+      }
     });
   </script>
 </body>

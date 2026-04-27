@@ -62,27 +62,96 @@
       background: white;
     }
     
-    /* Multi-puzzle layout */
-    .puzzles-page {
-      display: grid;
-      gap: 20px;
-      margin: 20px 0;
-    }
-    
-    .puzzles-page[data-count="2"] {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .puzzles-page[data-count="4"] {
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-    }
-    
-    .single-puzzle-wrapper {
+    /* Puzzle layout - V1 style */
+    .puzzle-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px;
+      min-height: 50vh;
+      padding: var(--spacing-lg);
+    }
+    
+    .puzzle-item {
+      text-align: center;
+    }
+    
+    .puzzle-title {
+      font-size: var(--font-size-xl);
+      margin-bottom: var(--spacing-md);
+      color: var(--color-text);
+    }
+    
+    .solution-title {
+      font-size: var(--font-size-lg);
+      margin-bottom: var(--spacing-sm);
+      color: var(--color-text);
+    }
+    
+    /* Per-page layout classes */
+    .puzzle-container--one {
+      justify-content: center;
+    }
+    
+    .puzzle-container--two {
+      gap: var(--spacing-xl);
+    }
+    
+    .puzzle-container--two .puzzle-item {
+      width: auto;
+    }
+    
+    .puzzle-container--four {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .puzzle-container--four .puzzle-item {
+      width: calc(50% - var(--spacing-xl));
+      max-width: 450px;
+      min-width: 280px;
+    }
+    
+    /* Solution section */
+    .solution-section {
+      margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-lg);
+      border-top: 2px dashed var(--color-border);
+    }
+:    
+    .solution-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      padding: var(--spacing-lg);
+    }
+    
+    .solution-section--one {
+      justify-content: center;
+    }
+    
+    .solution-section--two {
+      flex-direction: column;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--two .puzzle-item {
+      width: auto;
+    }
+    
+    .solution-section--four {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--four .puzzle-item {
+      width: calc(50% - var(--spacing-xl));
+      max-width: 450px;
+      min-width: 280px;
     }
     
     .puzzle-label {
@@ -138,6 +207,30 @@
         <a href="../word-scramble/index.html" class="header__nav-link">Word Scramble</a>
         <a href="../kenken/index.html" class="header__nav-link">KenKen</a>
         <a href="../killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
+      </nav>
+      <button class="header__hamburger" id="hamburger" aria-label="Open menu">
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+      </button>
+      <div class="header__overlay" id="menu-overlay"></div>
+      <nav class="header__menu" id="side-menu">
+        <div class="header__menu-section">
+          <div class="header__menu-title">Puzzles</div>
+          <a href="../sudoku/index.html" class="header__menu-link active">🔢 Sudoku</a>
+          <a href="../word-search/index.html" class="header__menu-link">🔤 Word Search</a>
+          <a href="../mazes/index.html" class="header__menu-link">🌀 Mazes</a>
+          <a href="../number-search/index.html" class="header__menu-link">🔍 Number Search</a>
+          <a href="../word-scramble/index.html" class="header__menu-link">🔀 Word Scramble</a>
+          <a href="../kenken/index.html" class="header__menu-link">➕ KenKen</a>
+          <a href="../killer-sudoku/index.html" class="header__menu-link">💀 Killer Sudoku</a>
+        </div>
+        <div class="header__menu-section">
+          <div class="header__menu-title">Legal</div>
+          <a href="../privacy.html" class="header__menu-link">🔒 Privacy Policy</a>
+          <a href="../terms.html" class="header__menu-link">📄 Terms of Service</a>
+          <a href="mailto:support@puzzle-engine.com" class="header__menu-link">✉️ Contact</a>
+        </div>
       </nav>
     </div>
   </header>
@@ -220,13 +313,13 @@
               </select>
             </div>
             <div class="control-group">
-              <label for="bulk-difficulty">Difficulty:</label>
-              <select id="bulk-difficulty">
-                <option value="easy">Easy</option>
-                <option value="medium" selected>Medium</option>
-                <option value="hard">Hard</option>
-                <option value="expert">Expert</option>
-              </select>
+              <label>Difficulties:</label>
+              <div class="checkbox-group">
+                <label><input type="checkbox" id="diff-easy" checked> Easy</label>
+                <label><input type="checkbox" id="diff-medium" checked> Medium</label>
+                <label><input type="checkbox" id="diff-hard"> Hard</label>
+                <label><input type="checkbox" id="diff-expert"> Expert</label>
+              </div>
             </div>
             <div class="control-group">
               <label for="bulk-font-size">Font Size:</label>
@@ -258,7 +351,6 @@
         </div>
         
         <div class="solution-section" id="solution-section" style="display: none;">
-          <h2>Solution</h2>
           <div id="solution-container"></div>
         </div>
       </div>
@@ -520,52 +612,67 @@
       container.innerHTML = '';
       solutionContainer.innerHTML = '';
       
-      // Render puzzles
-      const puzzlesWrapper = document.createElement('div');
-      puzzlesWrapper.className = 'puzzles-page';
-      puzzlesWrapper.dataset.count = perPage;
+      // Remove old layout classes and add new one
+      container.classList.remove('puzzle-container--one', 'puzzle-container--two', 'puzzle-container--four', 'large-print-mode');
       
+      const isLargePrint = document.getElementById('large-print').checked;
+      if (isLargePrint) {
+        container.classList.add('large-print-mode', 'puzzle-container--one');
+      } else if (perPage === 1) {
+        container.classList.add('puzzle-container--one');
+      } else if (perPage === 2) {
+        container.classList.add('puzzle-container--two');
+      } else if (perPage === 4) {
+        container.classList.add('puzzle-container--four');
+      }
+      
+      // Render puzzles
       puzzles.forEach((puzzle, i) => {
         const wrapper = document.createElement('div');
-        wrapper.className = 'single-puzzle-wrapper';
+        wrapper.className = 'puzzle-item';
+        
+        const title = document.createElement('h2');
+        title.className = 'puzzle-title';
+        title.textContent = `Puzzle ${i + 1}`;
+        wrapper.appendChild(title);
         
         const size = puzzle.length;
         wrapper.appendChild(renderSudokuGrid(puzzle, size, i + 1));
         
-        const label = document.createElement('div');
-        label.className = 'puzzle-label';
-        label.textContent = `Puzzle ${i + 1}`;
-        wrapper.appendChild(label);
-        
-        puzzlesWrapper.appendChild(wrapper);
+        container.appendChild(wrapper);
       });
-      
-      container.appendChild(puzzlesWrapper);
       
       // Render solutions if enabled
       if (showSolutions && solutions.length > 0) {
         solutionSection.style.display = 'flex';
         
-        const solutionsWrapper = document.createElement('div');
-        solutionsWrapper.className = 'puzzles-page';
-        solutionsWrapper.dataset.count = perPage;
+        // Remove old layout classes and add new one
+        solutionContainer.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four', 'large-print-mode');
+        
+        if (isLargePrint) {
+          solutionContainer.classList.add('large-print-mode', 'solution-section--one');
+        } else if (perPage === 1) {
+          solutionContainer.classList.add('solution-section--one');
+        } else if (perPage === 2) {
+          solutionContainer.classList.add('solution-section--two');
+        } else if (perPage === 4) {
+          solutionContainer.classList.add('solution-section--four');
+        }
         
         solutions.forEach((solution, i) => {
           const wrapper = document.createElement('div');
-          wrapper.className = 'single-puzzle-wrapper';
+          wrapper.className = 'puzzle-item';
+          
+          const title = document.createElement('h3');
+          title.className = 'solution-title';
+          title.textContent = perPage > 1 ? `Solution ${i + 1}` : 'Solution';
+          wrapper.appendChild(title);
           
           const size = solution.length;
           wrapper.appendChild(renderSudokuGrid(solution, size, i + 1));
           
-          const label = document.createElement('div');
-          label.className = 'puzzle-label';
-          label.textContent = `Solution ${i + 1}`;
-          wrapper.appendChild(label);
-          
-          solutionsWrapper.appendChild(wrapper);
+          solutionContainer.appendChild(wrapper);
         });
-        
-        solutionContainer.appendChild(solutionsWrapper);
       } else {
         solutionSection.style.display = 'none';
       }
@@ -716,10 +823,21 @@
      */
     async function generateBulkPuzzles() {
       const size = parseInt(document.getElementById('size').value);
-      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
       const fontSize = parseInt(document.getElementById('bulk-font-size').value);
       const isLargePrint = document.getElementById('bulk-large-print').checked;
+      
+      // Get selected difficulties
+      const difficulties = [];
+      if (document.getElementById('diff-easy').checked) difficulties.push('easy');
+      if (document.getElementById('diff-medium').checked) difficulties.push('medium');
+      if (document.getElementById('diff-hard').checked) difficulties.push('hard');
+      if (document.getElementById('diff-expert').checked) difficulties.push('expert');
+      
+      if (difficulties.length === 0) {
+        alert('Please select at least one difficulty level');
+        return;
+      }
       
       const progressContainer = document.getElementById('bulk-progress');
       progressContainer.style.display = 'block';
@@ -728,34 +846,41 @@
       const puzzlesFolder = zip.folder('puzzles');
       const solutionsFolder = zip.folder('solutions');
       
-      for (let i = 0; i < count; i++) {
-        // Update progress
-        updateProgress(i + 1, count, progressContainer);
-        
-        // Generate puzzle
-        const { puzzle, solution } = generateSudoku(size, difficulty, false);
-        
-        // Create canvas and add to ZIP
-        const puzzleCanvas = createSudokuCanvas(puzzle, size, 300, fontSize, isLargePrint);
-        const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
-        const puzzleBase64 = puzzleDataUrl.split(',')[1];
-        puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
-        
-        const solutionCanvas = createSudokuCanvas(solution, size, 300, fontSize, isLargePrint);
-        const solutionDataUrl = solutionCanvas.toDataURL('image/png');
-        const solutionBase64 = solutionDataUrl.split(',')[1];
-        solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
-        
-        // Yield to UI
-        await delay(1);
+      const totalCount = count * difficulties.length;
+      let generated = 0;
+      
+      for (const difficulty of difficulties) {
+        for (let i = 0; i < count; i++) {
+          // Update progress
+          generated++;
+          updateProgress(generated, totalCount, progressContainer);
+          
+          // Generate puzzle
+          const { puzzle, solution } = generateSudoku(size, difficulty, false);
+          
+          // Create canvas and add to ZIP
+          const puzzleCanvas = createSudokuCanvas(puzzle, size, 300, fontSize, isLargePrint);
+          const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
+          const puzzleBase64 = puzzleDataUrl.split(',')[1];
+          puzzlesFolder.file(`${difficulty}-puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
+          
+          const solutionCanvas = createSudokuCanvas(solution, size, 300, fontSize, isLargePrint);
+          const solutionDataUrl = solutionCanvas.toDataURL('image/png');
+          const solutionBase64 = solutionDataUrl.split(',')[1];
+          solutionsFolder.file(`${difficulty}-solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
+          
+          // Yield to UI
+          await delay(1);
+        }
       }
       
       // Generate ZIP
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const zipUrl = URL.createObjectURL(zipBlob);
       
+      const diffStr = difficulties.join('-');
       const link = document.createElement('a');
-      link.download = `sudoku-${size}x${size}-${difficulty}-${count}-puzzles.zip`;
+      link.download = `sudoku-${size}x${size}-${diffStr}-${count}-puzzles.zip`;
       link.href = zipUrl;
       link.click();
       
@@ -822,6 +947,33 @@
     // Auto-generate on page load for immediate preview
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('generate').click();
+      
+      // Hamburger menu toggle
+      const hamburger = document.getElementById('hamburger');
+      const sideMenu = document.getElementById('side-menu');
+      const menuOverlay = document.getElementById('menu-overlay');
+      
+      if (hamburger) {
+        hamburger.addEventListener('click', () => {
+          hamburger.classList.toggle('open');
+          sideMenu.classList.toggle('open');
+          menuOverlay.classList.toggle('open');
+        });
+        
+        menuOverlay.addEventListener('click', () => {
+          hamburger.classList.remove('open');
+          sideMenu.classList.remove('open');
+          menuOverlay.classList.remove('open');
+        });
+        
+        sideMenu.querySelectorAll('.header__menu-link').forEach(link => {
+          link.addEventListener('click', () => {
+            hamburger.classList.remove('open');
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('open');
+          });
+        });
+      }
     });
   </script>
 </body>

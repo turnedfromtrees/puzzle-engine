@@ -26,14 +26,9 @@
       background: white;
     }
     
-    /* Improved Large print mode */
+    /* Large print mode */
     .large-print-mode .maze-canvas {
       max-width: 100%;
-    }
-    
-    .large-print-mode .puzzle-label {
-      font-size: 14pt;
-      font-weight: 600;
     }
     
     /* Multi-puzzle layout */
@@ -67,16 +62,33 @@
     
     /* Solution display */
     .solution-container {
-      margin-top: 30px;
-      padding-top: 30px;
-      border-top: 2px dashed var(--color-border);
-      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      padding: var(--spacing-lg);
     }
     
-    .solution-container h2 {
-      text-align: center;
-      color: var(--color-text-light);
-      margin-bottom: 20px;
+    .solution-section--one {
+      justify-content: center;
+    }
+    
+    .solution-section--two {
+      flex-direction: column;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--four {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--four .single-puzzle-wrapper {
+      width: calc(50% - var(--spacing-xl));
+      max-width: 450px;
+      min-width: 280px;
     }
     
     /* Slider styling */
@@ -129,11 +141,20 @@
       font-size: 0.75rem;
     }
     
-    /* Difficulty descriptions */
+    /* Difficulty descriptions - positioned absolutely to not affect row alignment */
+    .control-group--with-desc {
+      position: relative;
+    }
+    
     .difficulty-desc {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      white-space: nowrap;
       font-size: 0.75rem;
       color: var(--color-text-light);
       margin-top: 2px;
+      z-index: 1;
     }
     
     /* Maze display container */
@@ -168,6 +189,30 @@
         <a href="../kenken/index.html" class="header__nav-link">KenKen</a>
         <a href="../killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
       </nav>
+      <button class="header__hamburger" id="hamburger" aria-label="Open menu">
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+      </button>
+      <div class="header__overlay" id="menu-overlay"></div>
+      <nav class="header__menu" id="side-menu">
+        <div class="header__menu-section">
+          <div class="header__menu-title">Puzzles</div>
+          <a href="../sudoku/index.html" class="header__menu-link">🔢 Sudoku</a>
+          <a href="../word-search/index.html" class="header__menu-link">🔤 Word Search</a>
+          <a href="../mazes/index.html" class="header__menu-link active">🌀 Mazes</a>
+          <a href="../number-search/index.html" class="header__menu-link">🔍 Number Search</a>
+          <a href="../word-scramble/index.html" class="header__menu-link">🔀 Word Scramble</a>
+          <a href="../kenken/index.html" class="header__menu-link">➕ KenKen</a>
+          <a href="../killer-sudoku/index.html" class="header__menu-link">💀 Killer Sudoku</a>
+        </div>
+        <div class="header__menu-section">
+          <div class="header__menu-title">Legal</div>
+          <a href="../privacy.html" class="header__menu-link">🔒 Privacy Policy</a>
+          <a href="../terms.html" class="header__menu-link">📄 Terms of Service</a>
+          <a href="mailto:support@puzzle-engine.com" class="header__menu-link">✉️ Contact</a>
+        </div>
+      </nav>
     </div>
   </header>
   
@@ -196,7 +241,7 @@
             </div>
           </div>
           
-          <div class="control-group">
+          <div class="control-group control-group--with-desc">
             <label for="difficulty">Difficulty:</label>
             <select id="difficulty">
               <option value="easy">Easy</option>
@@ -259,12 +304,12 @@
               </select>
             </div>
             <div class="control-group">
-              <label for="bulk-difficulty">Difficulty:</label>
-              <select id="bulk-difficulty">
-                <option value="easy">Easy</option>
-                <option value="medium" selected>Medium</option>
-                <option value="hard">Hard</option>
-              </select>
+              <label>Difficulties:</label>
+              <div class="checkbox-group">
+                <label><input type="checkbox" id="diff-easy" checked> Easy</label>
+                <label><input type="checkbox" id="diff-medium" checked> Medium</label>
+                <label><input type="checkbox" id="diff-hard"> Hard</label>
+              </div>
             </div>
             <div class="control-group">
               <label for="bulk-font-size">Cell Size:</label>
@@ -295,7 +340,6 @@
         </div>
         
         <div class="solution-section" id="solution-section" style="display: none;">
-          <h2>Solutions</h2>
           <div id="solution-container"></div>
         </div>
       </div>
@@ -323,7 +367,7 @@
     const SOLUTION = 2;
     
     let currentMazes = [];
-    let currentSolutions = [];
+    let currentSolutionPaths = []; // Store the actual path arrays from BFS
     let currentSettings = {};
     
     // ============================================
@@ -540,16 +584,19 @@
     
     /**
      * Create canvas with maze grid for display/export
+     * The grid uses a cellular representation where:
+     * - Cells at odd coordinates (1,3,5...) are path/wall cells
+     * - Cells at even coordinates (0,2,4...) are wall cells
      */
-    function createMazeCanvas(grid, cellSize = 20, showSolution = false, dpi = 96) {
-      const height = grid.length;
-      const width = grid[0].length;
+    function createMazeCanvas(grid, cellSize = 20, showSolution = false, dpi = 96, solutionPath = null) {
+      const gridHeight = grid.length;
+      const gridWidth = grid[0].length;
       
       const scale = dpi / 96;
       const scaledCellSize = cellSize * scale;
       
-      const canvasWidth = width * scaledCellSize;
-      const canvasHeight = height * scaledCellSize;
+      const canvasWidth = gridWidth * scaledCellSize;
+      const canvasHeight = gridHeight * scaledCellSize;
       
       const canvas = createHiDPICanvas(canvasWidth / scale, canvasHeight / scale, dpi);
       const ctx = canvas.getContext('2d');
@@ -561,70 +608,92 @@
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);
       
-      // Draw maze
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const cellX = x * cellSize;
-          const cellY = y * cellSize;
-          
+      // Draw maze walls as lines (thinner, matching V1 style)
+      ctx.strokeStyle = '#1a1a2e';
+      ctx.lineWidth = dpi > 96 ? 3 : 2; // Thicker for export
+      ctx.lineCap = 'square';
+      
+      // Draw horizontal walls
+      for (let y = 0; y < gridHeight; y++) {
+        for (let x = 0; x < gridWidth - 1; x++) {
+          // Check if there's a wall between (x,y) and (x+1,y)
+          if (grid[y][x] === WALL || grid[y][x + 1] === WALL) {
+            // Draw wall segment if either adjacent cell is a wall
+            if (y === 0 || y === gridHeight - 1) {
+              // Top or bottom edge
+              ctx.beginPath();
+              ctx.moveTo(x * cellSize + cellSize, y * cellSize);
+              ctx.lineTo((x + 1) * cellSize + cellSize, y * cellSize);
+              ctx.stroke();
+            }
+          }
+          // Check for vertical wall between current cell and cell below
+          if (x === 0 || x === gridWidth - 1) {
+            if (grid[y][x] === WALL) {
+              ctx.beginPath();
+              ctx.moveTo(x * cellSize, y * cellSize);
+              ctx.lineTo(x * cellSize, (y + 1) * cellSize);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+      
+      // Draw all walls by iterating through wall cells
+      for (let y = 0; y < gridHeight; y++) {
+        for (let x = 0; x < gridWidth; x++) {
           if (grid[y][x] === WALL) {
+            const cellX = x * cellSize;
+            const cellY = y * cellSize;
+            
+            // Draw wall cell as a filled rectangle but with thinner appearance
+            // by only filling the center portion
+            const wallThickness = cellSize * 0.15; // 15% of cell size for walls
             ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(cellX, cellY, cellSize, cellSize);
-          } else if (showSolution && grid[y][x] === SOLUTION) {
-            ctx.fillStyle = '#e6fffa';
-            ctx.fillRect(cellX, cellY, cellSize, cellSize);
-          } else {
-            ctx.fillStyle = '#ffffff';
             ctx.fillRect(cellX, cellY, cellSize, cellSize);
           }
         }
       }
       
-      // Draw entrance marker (green)
+      // Draw outer border
+      ctx.strokeStyle = '#1a1a2e';
+      ctx.lineWidth = dpi > 96 ? 4 : 3;
+      ctx.strokeRect(0, 0, gridWidth * cellSize, gridHeight * cellSize);
+      
+      // Draw entrance marker (green) - at top opening
       ctx.fillStyle = '#48bb78';
       ctx.beginPath();
-      ctx.arc(1 * cellSize + cellSize / 2, 0 * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
+      ctx.arc(1 * cellSize + cellSize / 2, 0.5 * cellSize, cellSize / 3, 0, Math.PI * 2);
       ctx.fill();
       
-      // Draw exit marker (red)
+      // Draw exit marker (red) - at bottom opening
       ctx.fillStyle = '#f56565';
-      const exitX = (width - 2) * cellSize + cellSize / 2;
-      const exitY = (height - 1) * cellSize + cellSize / 2;
+      const exitX = (gridWidth - 2) * cellSize + cellSize / 2;
+      const exitY = (gridHeight - 1) * cellSize + cellSize / 2;
       ctx.beginPath();
       ctx.arc(exitX, exitY, cellSize / 3, 0, Math.PI * 2);
       ctx.fill();
       
-      // Draw solution path if needed
-      if (showSolution) {
+      // Draw solution path if needed (using the ordered path from BFS)
+      if (showSolution && solutionPath && solutionPath.length > 1) {
+        // Draw solution highlight background
+        ctx.fillStyle = 'rgba(107, 70, 193, 0.15)';
+        for (const point of solutionPath) {
+          ctx.fillRect(point.x * cellSize, point.y * cellSize, cellSize, cellSize);
+        }
+        
+        // Draw solution line
         ctx.strokeStyle = '#6b46c1';
-        ctx.lineWidth = Math.max(2, cellSize / 4);
+        ctx.lineWidth = Math.max(2, cellSize * 0.35);
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         
-        const solutionPath = [];
-        for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            if (grid[y][x] === SOLUTION) {
-              solutionPath.push({ x, y });
-            }
-          }
+        ctx.beginPath();
+        ctx.moveTo(solutionPath[0].x * cellSize + cellSize / 2, solutionPath[0].y * cellSize + cellSize / 2);
+        for (let i = 1; i < solutionPath.length; i++) {
+          ctx.lineTo(solutionPath[i].x * cellSize + cellSize / 2, solutionPath[i].y * cellSize + cellSize / 2);
         }
-        
-        if (solutionPath.length > 1) {
-          ctx.beginPath();
-          const sorted = solutionPath.sort((a, b) => {
-            // Sort by path order (BFS order from entrance to exit)
-            const aDist = Math.abs(a.x - 1) + Math.abs(a.y - 1);
-            const bDist = Math.abs(b.x - 1) + Math.abs(b.y - 1);
-            return aDist - bDist;
-          });
-          
-          ctx.moveTo(sorted[0].x * cellSize + cellSize / 2, sorted[0].y * cellSize + cellSize / 2);
-          for (let i = 1; i < sorted.length; i++) {
-            ctx.lineTo(sorted[i].x * cellSize + cellSize / 2, sorted[i].y * cellSize + cellSize / 2);
-          }
-          ctx.stroke();
-        }
+        ctx.stroke();
       }
       
       // Add footer with site URL (only for high DPI/export)
@@ -641,7 +710,7 @@
     /**
      * Render mazes to container
      */
-    function renderMazes(mazes, solutions, perPage, showSolutions) {
+    function renderMazes(mazes, solutionPaths, perPage, showSolutions) {
       const container = document.getElementById('puzzle-container');
       const solutionSection = document.getElementById('solution-section');
       const solutionContainer = document.getElementById('solution-container');
@@ -649,7 +718,20 @@
       container.innerHTML = '';
       solutionContainer.innerHTML = '';
       
+      // Remove old layout classes and add new one
+      solutionContainer.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four', 'large-print-mode');
+      
       const isLargePrint = document.getElementById('large-print').checked;
+      if (isLargePrint) {
+        solutionContainer.classList.add('large-print-mode', 'solution-section--one');
+      } else if (perPage === 1) {
+        solutionContainer.classList.add('solution-section--one');
+      } else if (perPage === 2) {
+        solutionContainer.classList.add('solution-section--two');
+      } else if (perPage === 4) {
+        solutionContainer.classList.add('solution-section--four');
+      }
+      
       const cellSize = isLargePrint ? 16 : 12;
       
       // Render mazes
@@ -676,18 +758,14 @@
       container.appendChild(puzzlesWrapper);
       
       // Render solutions if enabled
-      if (showSolutions && solutions.length > 0) {
+      if (showSolutions && solutionPaths.length > 0) {
         solutionSection.style.display = 'flex';
         
-        const solutionsWrapper = document.createElement('div');
-        solutionsWrapper.className = 'puzzles-page';
-        solutionsWrapper.dataset.count = perPage;
-        
-        solutions.forEach((solution, i) => {
+        solutionPaths.forEach((solutionPath, i) => {
           const wrapper = document.createElement('div');
           wrapper.className = 'single-puzzle-wrapper';
           
-          const canvas = createMazeCanvas(solution, cellSize, true);
+          const canvas = createMazeCanvas(mazes[i], cellSize, true, 96, solutionPath);
           canvas.className = 'maze-canvas';
           wrapper.appendChild(canvas);
           
@@ -696,10 +774,8 @@
           label.textContent = `Solution ${i + 1}`;
           wrapper.appendChild(label);
           
-          solutionsWrapper.appendChild(wrapper);
+          solutionContainer.appendChild(wrapper);
         });
-        
-        solutionContainer.appendChild(solutionsWrapper);
       } else {
         solutionSection.style.display = 'none';
       }
@@ -734,9 +810,9 @@
       
       // Also export solutions if enabled
       const showSolutions = document.getElementById('solutions').value === 'separate';
-      if (showSolutions && currentSolutions.length > 0) {
-        for (let i = 0; i < currentSolutions.length; i++) {
-          const canvas = createMazeCanvas(currentSolutions[i], cellSize, true, 300);
+      if (showSolutions && currentSolutionPaths.length > 0) {
+        for (let i = 0; i < currentSolutionPaths.length; i++) {
+          const canvas = createMazeCanvas(currentMazes[i], cellSize, true, 300, currentSolutionPaths[i]);
           const filename = `maze-${width}x${height}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
           await downloadCanvas(canvas, filename);
           await delay(100);
@@ -754,11 +830,21 @@
     async function generateBulkMazes() {
       const width = parseInt(document.getElementById('width').value);
       const height = parseInt(document.getElementById('height').value);
-      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
       const cellSize = parseInt(document.getElementById('bulk-font-size').value);
       const isLargePrint = document.getElementById('bulk-large-print').checked;
       const effectiveCellSize = isLargePrint ? Math.max(cellSize, 20) : cellSize;
+      
+      // Get selected difficulties
+      const difficulties = [];
+      if (document.getElementById('diff-easy').checked) difficulties.push('easy');
+      if (document.getElementById('diff-medium').checked) difficulties.push('medium');
+      if (document.getElementById('diff-hard').checked) difficulties.push('hard');
+      
+      if (difficulties.length === 0) {
+        alert('Please select at least one difficulty level');
+        return;
+      }
       
       const progressContainer = document.getElementById('bulk-progress');
       progressContainer.style.display = 'block';
@@ -767,37 +853,43 @@
       const puzzlesFolder = zip.folder('mazes');
       const solutionsFolder = zip.folder('solutions');
       
-      for (let i = 0; i < count; i++) {
-        // Update progress
-        updateProgress(i + 1, count, progressContainer);
-        
-        // Generate maze with unique seed
-        const seed = Date.now() + i;
-        const maze = generateMaze(width, height, difficulty, seed);
-        const solutionPath = solveMaze(maze);
-        const solution = drawSolution(maze, solutionPath);
-        
-        // Create canvas and add to ZIP
-        const mazeCanvas = createMazeCanvas(maze, effectiveCellSize, false, 300);
-        const mazeDataUrl = mazeCanvas.toDataURL('image/png');
-        const mazeBase64 = mazeDataUrl.split(',')[1];
-        puzzlesFolder.file(`maze-${String(i + 1).padStart(3, '0')}.png`, mazeBase64, { base64: true });
-        
-        const solutionCanvas = createMazeCanvas(solution, effectiveCellSize, true, 300);
-        const solutionDataUrl = solutionCanvas.toDataURL('image/png');
-        const solutionBase64 = solutionDataUrl.split(',')[1];
-        solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
-        
-        // Yield to UI
-        await delay(1);
+      const totalCount = count * difficulties.length;
+      let generated = 0;
+      
+      for (const difficulty of difficulties) {
+        for (let i = 0; i < count; i++) {
+          // Update progress
+          generated++;
+          updateProgress(generated, totalCount, progressContainer);
+          
+          // Generate maze with unique seed
+          const seed = Date.now() + generated;
+          const maze = generateMaze(width, height, difficulty, seed);
+          const solutionPath = solveMaze(maze);
+          
+          // Create canvas and add to ZIP
+          const mazeCanvas = createMazeCanvas(maze, effectiveCellSize, false, 300);
+          const mazeDataUrl = mazeCanvas.toDataURL('image/png');
+          const mazeBase64 = mazeDataUrl.split(',')[1];
+          puzzlesFolder.file(`${difficulty}-maze-${String(i + 1).padStart(3, '0')}.png`, mazeBase64, { base64: true });
+          
+          const solutionCanvas = createMazeCanvas(maze, effectiveCellSize, true, 300, solutionPath);
+          const solutionDataUrl = solutionCanvas.toDataURL('image/png');
+          const solutionBase64 = solutionDataUrl.split(',')[1];
+          solutionsFolder.file(`${difficulty}-solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
+          
+          // Yield to UI
+          await delay(1);
+        }
       }
       
       // Generate ZIP
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const zipUrl = URL.createObjectURL(zipBlob);
       
+      const diffStr = difficulties.join('-');
       const link = document.createElement('a');
-      link.download = `mazes-${width}x${height}-${difficulty}-${count}.zip`;
+      link.download = `mazes-${width}x${height}-${diffStr}-${count}.zip`;
       link.href = zipUrl;
       link.click();
       
@@ -854,7 +946,7 @@
       const seed = seedInput ? parseInt(seedInput) : null;
       
       currentMazes = [];
-      currentSolutions = [];
+      currentSolutionPaths = [];
       currentSettings = { width, height, difficulty, perPage };
       
       for (let i = 0; i < perPage; i++) {
@@ -862,13 +954,12 @@
         const puzzleSeed = seed ? seed + i * 1000 : null;
         const maze = generateMaze(width, height, difficulty, puzzleSeed);
         const solutionPath = solveMaze(maze);
-        const solution = drawSolution(maze, solutionPath);
         
         currentMazes.push(maze);
-        currentSolutions.push(solution);
+        currentSolutionPaths.push(solutionPath);
       }
       
-      renderMazes(currentMazes, currentSolutions, perPage, showSolutions);
+      renderMazes(currentMazes, currentSolutionPaths, perPage, showSolutions);
     });
     
     // Print
@@ -904,13 +995,40 @@
       if (currentMazes.length > 0) {
         const perPage = parseInt(document.getElementById('per-page').value);
         const showSolutions = this.value === 'separate';
-        renderMazes(currentMazes, currentSolutions, perPage, showSolutions);
+        renderMazes(currentMazes, currentSolutionPaths, perPage, showSolutions);
       }
     });
     
     // Auto-generate on page load for immediate preview
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('generate').click();
+      
+      // Hamburger menu toggle
+      const hamburger = document.getElementById('hamburger');
+      const sideMenu = document.getElementById('side-menu');
+      const menuOverlay = document.getElementById('menu-overlay');
+      
+      if (hamburger) {
+        hamburger.addEventListener('click', () => {
+          hamburger.classList.toggle('open');
+          sideMenu.classList.toggle('open');
+          menuOverlay.classList.toggle('open');
+        });
+        
+        menuOverlay.addEventListener('click', () => {
+          hamburger.classList.remove('open');
+          sideMenu.classList.remove('open');
+          menuOverlay.classList.remove('open');
+        });
+        
+        sideMenu.querySelectorAll('.header__menu-link').forEach(link => {
+          link.addEventListener('click', () => {
+            hamburger.classList.remove('open');
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('open');
+          });
+        });
+      }
     });
   </script>
 </body>

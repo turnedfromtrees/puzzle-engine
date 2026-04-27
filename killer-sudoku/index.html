@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Killer Sudoku Generator — Free Printable Killer Sudoku Puzzles | Puzzle Engine</title>
+  <meta name="description" content="Generate free printable Killer Sudoku puzzles in 5 grid sizes (4x4 to 16x16) with 3 difficulty levels. Perfect for KDP books, worksheets, and seniors. 300 DPI PNG export, bulk generation, no watermarks.">
+  <meta name="keywords" content="killer sudoku generator, printable killer sudoku, killer sudoku puzzles, sum sudoku, KDP killer sudoku, free killer sudoku">
+  <link rel="canonical" href="https://puzzle-engine.com/killer-sudoku/">
+  
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script src="../assets/puzzle-core.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <style>
+    /* Killer Sudoku-specific styles */
+    .killer-grid {
+      border-collapse: collapse;
+      margin: 0 auto;
+      background: white;
+    }
+    
+    .killer-grid td {
+      width: 48px;
+      height: 48px;
+      text-align: center;
+      vertical-align: middle;
+      border: 1px solid #999;
+      font-size: 20px;
+      font-weight: 600;
+      padding: 0;
+      position: relative;
+    }
+    
+    /* Box borders - thicker */
+    .killer-grid td.box-right {
+      border-right-width: 3px;
+      border-right-color: #000;
+    }
+    
+    .killer-grid td.box-bottom {
+      border-bottom-width: 3px;
+      border-bottom-color: #000;
+    }
+    
+    .killer-grid td.box-left {
+      border-left-width: 3px;
+      border-left-color: #000;
+    }
+    
+    .killer-grid td.box-top {
+      border-top-width: 3px;
+      border-top-color: #000;
+    }
+    
+    /* Cage borders - thick dashed for cages */
+    .killer-grid td.cage-top {
+      border-top: 3px dashed #000;
+    }
+    
+    .killer-grid td.cage-bottom {
+      border-bottom: 3px dashed #000;
+    }
+    
+    .killer-grid td.cage-left {
+      border-left: 3px dashed #000;
+    }
+    
+    .killer-grid td.cage-right {
+      border-right: 3px dashed #000;
+    }
+    
+    /* Cage sum indicator */
+    .cage-sum {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      font-size: 10px;
+      font-weight: normal;
+      color: #333;
+      line-height: 1;
+    }
+    
+    /* Solution cells */
+    .killer-grid td.solution {
+      background: #f0f8ff;
+      color: #1a73e8;
+    }
+    
+    /* Large print mode */
+    .large-print-mode .killer-grid td {
+      width: 60px;
+      height: 60px;
+      font-size: 26px;
+    }
+    
+    .large-print-mode .cage-sum {
+      font-size: 14px;
+      top: 3px;
+      left: 3px;
+    }
+    
+    .large-print-mode .killer-grid {
+      max-width: 100%;
+    }
+    
+    /* Multi-puzzle layout */
+    .puzzles-page {
+      display: grid;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    
+    .puzzles-page[data-count="2"] {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .puzzles-page[data-count="4"] {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+    
+    .single-puzzle-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    
+    .puzzle-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    
+    /* Solution display */
+    .solution-container {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px dashed var(--color-border);
+      width: 100%;
+    }
+    
+    .solution-container h2 {
+      text-align: center;
+      color: var(--color-text-light);
+      margin-bottom: 20px;
+    }
+    
+    /* Size options info */
+    .size-info {
+      font-size: 0.875rem;
+      color: var(--color-text-light);
+      margin-top: var(--spacing-xs);
+    }
+    
+    /* Print styles for killer sudoku */
+    @media print {
+      .cage-sum {
+        font-size: 8px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__content">
+      <a href="../index.html" class="header__logo">
+        <span class="header__logo-icon">🧩</span>
+        <span>Puzzle Engine</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../sudoku/index.html" class="header__nav-link">Sudoku</a>
+        <a href="../word-search/index.html" class="header__nav-link">Word Search</a>
+        <a href="../mazes/index.html" class="header__nav-link">Mazes</a>
+        <a href="../number-search/index.html" class="header__nav-link">Number Search</a>
+        <a href="../word-scramble/index.html" class="header__nav-link">Word Scramble</a>
+        <a href="../kenken/index.html" class="header__nav-link">KenKen</a>
+        <a href="../killer-sudoku/index.html" class="header__nav-link active">Killer Sudoku</a>
+      </nav>
+    </div>
+  </header>
+  
+  <main class="main-content">
+    <div class="container">
+      <div class="page-title">
+        <h1>Killer Sudoku Generator</h1>
+        <p>Generate printable Killer Sudoku puzzles in 5 grid sizes with 3 difficulty levels. Perfect for KDP books and seniors.</p>
+      </div>
+      
+      <div class="controls">
+        <!-- Row 1: Core Settings -->
+        <div class="controls-row">
+          <div class="control-group">
+            <label for="size">Grid Size:</label>
+            <select id="size">
+              <option value="4">4×4 (Kids)</option>
+              <option value="6">6×6 (Junior)</option>
+              <option value="9" selected>9×9 (Standard)</option>
+              <option value="12">12×12 (Advanced)</option>
+              <option value="16">16×16 (Expert)</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <label for="per-page">Per Page:</label>
+            <select id="per-page">
+              <option value="1" selected>1 puzzle</option>
+              <option value="2">2 puzzles</option>
+              <option value="4">4 puzzles</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <label for="solutions">Solutions:</label>
+            <select id="solutions">
+              <option value="none">None</option>
+              <option value="separate" selected>Separate page</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Row 2: Large Print Toggle -->
+        <div class="controls-row">
+          <div class="control-group control-group--checkbox">
+            <input type="checkbox" id="large-print">
+            <label for="large-print">Large Print Mode</label>
+          </div>
+        </div>
+        
+        <!-- Row 3: Actions -->
+        <div class="controls-row controls-row--actions">
+          <button id="generate" class="btn btn--primary">Generate</button>
+          <button id="print" class="btn btn--secondary">Print</button>
+          <button id="export-png" class="btn btn--secondary">Export PNG</button>
+        </div>
+        
+        <!-- Row 4: Bulk Generation -->
+        <details class="bulk-section">
+          <summary>Bulk Generation (KDP)</summary>
+          <div class="bulk-controls">
+            <div class="control-group">
+              <label for="bulk-count">Count:</label>
+              <select id="bulk-count">
+                <option value="10">10 puzzles</option>
+                <option value="25">25 puzzles</option>
+                <option value="50" selected>50 puzzles</option>
+                <option value="100">100 puzzles</option>
+              </select>
+            </div>
+            <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
+            <div class="progress-container" id="bulk-progress" style="display: none;">
+              <div class="progress-bar"><div class="progress-fill"></div></div>
+              <span class="progress-text">0%</span>
+            </div>
+          </div>
+        </details>
+      </div>
+      
+      <div class="puzzle-display">
+        <div class="puzzle-container" id="puzzle-container">
+          <!-- Puzzle(s) will be rendered here -->
+          <p style="color: var(--color-text-light);">Click "Generate" to create a puzzle</p>
+        </div>
+        
+        <div class="solution-section" id="solution-section" style="display: none;">
+          <h2>Solution</h2>
+          <div id="solution-container"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer class="footer">
+    <div class="container footer__content">
+      <div class="footer__links">
+        <a href="../privacy.html">Privacy Policy</a>
+        <a href="../terms.html">Terms of Service</a>
+      </div>
+      <p class="footer__license">Commercial license included for KDP creators.</p>
+    </div>
+  </footer>
+  
+  <script>
+    // ============================================
+    // Killer Sudoku Generator - V2
+    // ============================================
+    
+    // Configuration
+    const BOX_CONFIG = {
+      4: { rows: 2, cols: 2 },
+      6: { rows: 2, cols: 3 },
+      9: { rows: 3, cols: 3 },
+      12: { rows: 3, cols: 4 },
+      16: { rows: 4, cols: 4 }
+    };
+    
+    // Cage count based on size and difficulty
+    // More cages = easier (smaller cages, easier sums)
+    // Fewer cages = harder (larger cages, complex sums)
+    const CAGE_CONFIG = {
+      4: { easy: { minCages: 5, maxCages: 6, maxCageSize: 3 }, medium: { minCages: 4, maxCages: 5, maxCageSize: 4 }, hard: { minCages: 3, maxCages: 4, maxCageSize: 4 } },
+      6: { easy: { minCages: 10, maxCages: 12, maxCageSize: 4 }, medium: { minCages: 7, maxCages: 9, maxCageSize: 5 }, hard: { minCages: 5, maxCages: 7, maxCageSize: 6 } },
+      9: { easy: { minCages: 20, maxCages: 25, maxCageSize: 4 }, medium: { minCages: 14, maxCages: 18, maxCageSize: 5 }, hard: { minCages: 10, maxCages: 14, maxCageSize: 6 } },
+      12: { easy: { minCages: 30, maxCages: 36, maxCageSize: 4 }, medium: { minCages: 22, maxCages: 28, maxCageSize: 5 }, hard: { minCages: 16, maxCages: 22, maxCageSize: 6 } },
+      16: { easy: { minCages: 45, maxCages: 55, maxCageSize: 4 }, medium: { minCages: 35, maxCages: 44, maxCageSize: 5 }, hard: { minCages: 25, maxCages: 34, maxCageSize: 6 } }
+    };
+    
+    let currentPuzzles = [];
+    let currentSolutions = [];
+    let currentCages = [];
+    let currentSettings = {};
+    
+    // ============================================
+    // Sudoku Solution Generation
+    // ============================================
+    
+    /**
+     * Generate a complete valid Sudoku grid
+     */
+    function generateSolution(size) {
+      const grid = createEmptyGrid(size, size, 0);
+      const boxConfig = BOX_CONFIG[size];
+      fillGrid(grid, size, boxConfig);
+      return grid;
+    }
+    
+    /**
+     * Fill grid using backtracking
+     */
+    function fillGrid(grid, size, boxConfig) {
+      const numbers = [];
+      for (let i = 1; i <= size; i++) numbers.push(i);
+      
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          if (grid[row][col] === 0) {
+            const shuffled = shuffleArray(numbers);
+            
+            for (const num of shuffled) {
+              if (isValidPlacement(grid, row, col, num, boxConfig.rows, boxConfig.cols)) {
+                grid[row][col] = num;
+                
+                if (fillGrid(grid, size, boxConfig)) {
+                  return true;
+                }
+                
+                grid[row][col] = 0;
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+    
+    /**
+     * Check if a placement is valid
+     */
+    function isValidPlacement(grid, row, col, value, boxRows, boxCols) {
+      const size = grid.length;
+      
+      // Check row
+      for (let c = 0; c < size; c++) {
+        if (grid[row][c] === value) return false;
+      }
+      
+      // Check column
+      for (let r = 0; r < size; r++) {
+        if (grid[r][col] === value) return false;
+      }
+      
+      // Check box
+      const boxStartRow = Math.floor(row / boxRows) * boxRows;
+      const boxStartCol = Math.floor(col / boxCols) * boxCols;
+      
+      for (let r = boxStartRow; r < boxStartRow + boxRows; r++) {
+        for (let c = boxStartCol; c < boxStartCol + boxCols; c++) {
+          if (grid[r][c] === value) return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    // ============================================
+    // Cage Generation Algorithm
+    // ============================================
+    
+    /**
+     * Divide the grid into cages (irregular regions)
+     */
+    function generateCages(size, difficulty) {
+      const config = CAGE_CONFIG[size][difficulty];
+      const totalCells = size * size;
+      const cages = [];
+      const assigned = createEmptyGrid(size, size, false);
+      
+      // Target number of cages
+      const targetCages = config.minCages + Math.floor(Math.random() * (config.maxCages - config.minCages + 1));
+      
+      // Minimum average cells per cage
+      const avgCageSize = Math.floor(totalCells / targetCages);
+      
+      // Create cages using flood fill from random starting points
+      const unassignedCells = [];
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          unassignedCells.push([r, c]);
+        }
+      }
+      
+      shuffleArray(unassignedCells);
+      
+      while (unassignedCells.length > 0) {
+        // Find next unassigned cell
+        let startCell = null;
+        for (const cell of unassignedCells) {
+          if (!assigned[cell[0]][cell[1]]) {
+            startCell = cell;
+            break;
+          }
+        }
+        
+        if (!startCell) break;
+        
+        // Create a new cage
+        const cage = {
+          cells: [startCell],
+          sum: 0
+        };
+        assigned[startCell[0]][startCell[1]] = true;
+        
+        // Remove from unassigned
+        const startIdx = unassignedCells.findIndex(c => c[0] === startCell[0] && c[1] === startCell[1]);
+        if (startIdx !== -1) unassignedCells.splice(startIdx, 1);
+        
+        // Grow the cage
+        const targetSize = Math.min(
+          config.maxCageSize,
+          Math.max(2, avgCageSize + (Math.random() < 0.5 ? -1 : 1))
+        );
+        
+        while (cage.cells.length < targetSize && unassignedCells.length > 0) {
+          // Find adjacent unassigned cells
+          const candidates = [];
+          for (const cell of unassignedCells) {
+            if (!assigned[cell[0]][cell[1]]) {
+              // Check if adjacent to any cell in cage
+              for (const cageCell of cage.cells) {
+                const dr = Math.abs(cell[0] - cageCell[0]);
+                const dc = Math.abs(cell[1] - cageCell[1]);
+                if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
+                  candidates.push(cell);
+                  break;
+                }
+              }
+            }
+          }
+          
+          if (candidates.length === 0) break;
+          
+          // Add random candidate
+          const newCell = candidates[Math.floor(Math.random() * candidates.length)];
+          cage.cells.push(newCell);
+          assigned[newCell[0]][newCell[1]] = true;
+          
+          const idx = unassignedCells.findIndex(c => c[0] === newCell[0] && c[1] === newCell[1]);
+          if (idx !== -1) unassignedCells.splice(idx, 1);
+        }
+        
+        cages.push(cage);
+      }
+      
+      return cages;
+    }
+    
+    /**
+     * Calculate cage sums based on solution
+     */
+    function calculateCageSums(cages, solution) {
+      return cages.map(cage => ({
+        cells: cage.cells,
+        sum: cage.cells.reduce((sum, [r, c]) => sum + solution[r][c], 0)
+      }));
+    }
+    
+    /**
+     * Ensure unique solution by checking cage constraints
+     * This is simplified - true uniqueness checking would require full solving
+     */
+    function validateCages(cages, size) {
+      // Basic validation: all cells must be covered
+      const covered = new Set();
+      for (const cage of cages) {
+        for (const [r, c] of cage.cells) {
+          const key = `${r},${c}`;
+          if (covered.has(key)) {
+            return false; // Cell in multiple cages
+          }
+          covered.add(key);
+        }
+      }
+      
+      return covered.size === size * size;
+    }
+    
+    // ============================================
+    // Complete Killer Sudoku Generation
+    // ============================================
+    
+    /**
+     * Generate a complete Killer Sudoku puzzle
+     */
+    function generateKillerSudoku(size, difficulty) {
+      // Step 1: Generate valid Sudoku solution
+      const solution = generateSolution(size);
+      
+      // Step 2: Generate cages
+      let cages = generateCages(size, difficulty);
+      
+      // Step 3: Calculate cage sums
+      cages = calculateCageSums(cages, solution);
+      
+      // Step 4: Validate
+      if (!validateCages(cages, size)) {
+        // Retry if validation fails
+        return generateKillerSudoku(size, difficulty);
+      }
+      
+      // For Killer Sudoku, the puzzle IS the cages with sums
+      // The grid itself has no givens
+      const puzzle = createEmptyGrid(size, size, 0);
+      
+      return { puzzle, solution, cages };
+    }
+    
+    // ============================================
+    // Rendering
+    // ============================================
+    
+    /**
+     * Get display character for cell value
+     */
+    function cellDisplay(value) {
+      if (value === 0) return '';
+      if (value <= 9) return value.toString();
+      return String.fromCharCode(64 + value - 9); // 10 -> A, 11 -> B, etc.
+    }
+    
+    /**
+     * Find cage for a cell
+     */
+    function findCageForCell(cages, row, col) {
+      for (let i = 0; i < cages.length; i++) {
+        for (const [r, c] of cages[i].cells) {
+          if (r === row && c === col) {
+            return { cage: cages[i], index: i };
+          }
+        }
+      }
+      return null;
+    }
+    
+    /**
+     * Check if two cells are in the same cage
+     */
+    function sameCage(cages, r1, c1, r2, c2) {
+      const cage1 = findCageForCell(cages, r1, c1);
+      const cage2 = findCageForCell(cages, r2, c2);
+      return cage1 && cage2 && cage1.index === cage2.index;
+    }
+    
+    /**
+     * Render a single Killer Sudoku grid
+     */
+    function renderKillerGrid(grid, size, cages, showValues = false) {
+      const boxConfig = BOX_CONFIG[size];
+      const table = document.createElement('table');
+      table.className = 'killer-grid';
+      table.dataset.size = size;
+      
+      for (let row = 0; row < size; row++) {
+        const tr = document.createElement('tr');
+        
+        for (let col = 0; col < size; col++) {
+          const td = document.createElement('td');
+          const value = grid[row][col];
+          
+          // Box borders
+          if (col % boxConfig.cols === 0) td.classList.add('box-left');
+          if ((col + 1) % boxConfig.cols === 0) td.classList.add('box-right');
+          if (row % boxConfig.rows === 0) td.classList.add('box-top');
+          if ((row + 1) % boxConfig.rows === 0) td.classList.add('box-bottom');
+          
+          // Cage borders (dashed)
+          const cageInfo = findCageForCell(cages, row, col);
+          
+          // Check each direction for cage boundary
+          if (row === 0 || !sameCage(cages, row, col, row - 1, col)) {
+            td.classList.add('cage-top');
+          }
+          if (row === size - 1 || !sameCage(cages, row, col, row + 1, col)) {
+            td.classList.add('cage-bottom');
+          }
+          if (col === 0 || !sameCage(cages, row, col, row, col - 1)) {
+            td.classList.add('cage-left');
+          }
+          if (col === size - 1 || !sameCage(cages, row, col, row, col + 1)) {
+            td.classList.add('cage-right');
+          }
+          
+          // Show cage sum in top-left cell of cage
+          if (cageInfo) {
+            const cage = cageInfo.cage;
+            const firstCell = cage.cells[0];
+            if (row === firstCell[0] && col === firstCell[1]) {
+              const sumSpan = document.createElement('span');
+              sumSpan.className = 'cage-sum';
+              sumSpan.textContent = cage.sum;
+              td.appendChild(sumSpan);
+            }
+          }
+          
+          // Show solution value if requested
+          if (showValues && value !== 0) {
+            const valueSpan = document.createElement('span');
+            valueSpan.textContent = cellDisplay(value);
+            td.appendChild(valueSpan);
+            td.classList.add('solution');
+          }
+          
+          tr.appendChild(td);
+        }
+        
+        table.appendChild(tr);
+      }
+      
+      return table;
+    }
+    
+    /**
+     * Render multiple puzzles
+     */
+    function renderPuzzles(puzzles, solutions, cagesList, perPage, showSolutions) {
+      const container = document.getElementById('puzzle-container');
+      const solutionSection = document.getElementById('solution-section');
+      const solutionContainer = document.getElementById('solution-container');
+      
+      container.innerHTML = '';
+      solutionContainer.innerHTML = '';
+      
+      // Render puzzles
+      const puzzlesWrapper = document.createElement('div');
+      puzzlesWrapper.className = 'puzzles-page';
+      puzzlesWrapper.dataset.count = perPage;
+      
+      puzzles.forEach((puzzle, i) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'single-puzzle-wrapper';
+        
+        const size = puzzle.length;
+        wrapper.appendChild(renderKillerGrid(puzzle, size, cagesList[i], false));
+        
+        const label = document.createElement('div');
+        label.className = 'puzzle-label';
+        label.textContent = `Puzzle ${i + 1}`;
+        wrapper.appendChild(label);
+        
+        puzzlesWrapper.appendChild(wrapper);
+      });
+      
+      container.appendChild(puzzlesWrapper);
+      
+      // Render solutions if enabled
+      if (showSolutions && solutions.length > 0) {
+        solutionSection.style.display = 'flex';
+        
+        const solutionsWrapper = document.createElement('div');
+        solutionsWrapper.className = 'puzzles-page';
+        solutionsWrapper.dataset.count = perPage;
+        
+        solutions.forEach((solution, i) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'single-puzzle-wrapper';
+          
+          const size = solution.length;
+          wrapper.appendChild(renderKillerGrid(solution, size, cagesList[i], true));
+          
+          const label = document.createElement('div');
+          label.className = 'puzzle-label';
+          label.textContent = `Solution ${i + 1}`;
+          wrapper.appendChild(label);
+          
+          solutionsWrapper.appendChild(wrapper);
+        });
+        
+        solutionContainer.appendChild(solutionsWrapper);
+      } else {
+        solutionSection.style.display = 'none';
+      }
+    }
+    
+    // ============================================
+    // PNG Export
+    // ============================================
+    
+    /**
+     * Create canvas with Killer Sudoku grid for PNG export
+     */
+    function createKillerCanvas(grid, size, cages, showValues, dpi = 300) {
+      const boxConfig = BOX_CONFIG[size];
+      const isLargePrint = document.getElementById('large-print').checked;
+      
+      // Base cell size (in pixels at screen resolution)
+      const baseCellSize = isLargePrint ? 70 : 55;
+      const margin = 40;
+      
+      const scale = dpi / 96;
+      const cellSize = baseCellSize * scale;
+      
+      const width = margin * 2 + size * cellSize;
+      const height = margin * 2 + size * cellSize;
+      
+      const canvas = createHiDPICanvas(width / scale, height / scale, dpi);
+      const ctx = canvas.getContext('2d');
+      
+      // Background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw cells with cage backgrounds
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          const x = margin + col * cellSize;
+          const y = margin + row * cellSize;
+          
+          // Light background
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x, y, cellSize, cellSize);
+        }
+      }
+      
+      // Draw cage sums
+      const fontSize = isLargePrint ? 12 : 10;
+      ctx.font = `${fontSize * scale}px Arial`;
+      ctx.fillStyle = '#333333';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      
+      for (const cage of cages) {
+        const firstCell = cage.cells[0];
+        const x = margin + firstCell[1] * cellSize + 3 * scale;
+        const y = margin + firstCell[0] * cellSize + 3 * scale;
+        ctx.fillText(cage.sum.toString(), x, y);
+      }
+      
+      // Draw values if showing solution
+      if (showValues) {
+        const valueFontSize = isLargePrint ? 28 : 22;
+        ctx.font = `bold ${valueFontSize * scale}px Arial`;
+        ctx.fillStyle = '#1a73e8';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        for (let row = 0; row < size; row++) {
+          for (let col = 0; col < size; col++) {
+            const value = grid[row][col];
+            if (value !== 0) {
+              const x = margin + col * cellSize + cellSize / 2;
+              const y = margin + row * cellSize + cellSize / 2;
+              ctx.fillText(cellDisplay(value), x, y);
+            }
+          }
+        }
+      }
+      
+      // Draw thin grid lines
+      ctx.strokeStyle = '#999999';
+      ctx.lineWidth = 1 * scale;
+      
+      for (let i = 0; i <= size; i++) {
+        const x = margin + i * cellSize;
+        const y = margin + i * cellSize;
+        
+        // Vertical
+        ctx.beginPath();
+        ctx.moveTo(x, margin);
+        ctx.lineTo(x, margin + size * cellSize);
+        ctx.stroke();
+        
+        // Horizontal
+        ctx.beginPath();
+        ctx.moveTo(margin, y);
+        ctx.lineTo(margin + size * cellSize, y);
+        ctx.stroke();
+      }
+      
+      // Draw cage borders (dashed)
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2 * scale;
+      ctx.setLineDash([4 * scale, 2 * scale]);
+      
+      for (const cage of cages) {
+        // Draw borders for each cell in cage
+        for (const [row, col] of cage.cells) {
+          const x = margin + col * cellSize;
+          const y = margin + row * cellSize;
+          
+          // Top border
+          if (row === 0 || !cage.cells.some(([r, c]) => r === row - 1 && c === col)) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + cellSize, y);
+            ctx.stroke();
+          }
+          
+          // Bottom border
+          if (row === size - 1 || !cage.cells.some(([r, c]) => r === row + 1 && c === col)) {
+            ctx.beginPath();
+            ctx.moveTo(x, y + cellSize);
+            ctx.lineTo(x + cellSize, y + cellSize);
+            ctx.stroke();
+          }
+          
+          // Left border
+          if (col === 0 || !cage.cells.some(([r, c]) => r === row && c === col - 1)) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + cellSize);
+            ctx.stroke();
+          }
+          
+          // Right border
+          if (col === size - 1 || !cage.cells.some(([r, c]) => r === row && c === col + 1)) {
+            ctx.beginPath();
+            ctx.moveTo(x + cellSize, y);
+            ctx.lineTo(x + cellSize, y + cellSize);
+            ctx.stroke();
+          }
+        }
+      }
+      
+      // Draw thick box borders (solid)
+      ctx.setLineDash([]);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 3 * scale;
+      
+      // Outer border
+      ctx.strokeRect(margin, margin, size * cellSize, size * cellSize);
+      
+      // Internal box borders
+      for (let i = 1; i < size / boxConfig.cols; i++) {
+        ctx.beginPath();
+        ctx.moveTo(margin + i * boxConfig.cols * cellSize, margin);
+        ctx.lineTo(margin + i * boxConfig.cols * cellSize, margin + size * cellSize);
+        ctx.stroke();
+      }
+      
+      for (let i = 1; i < size / boxConfig.rows; i++) {
+        ctx.beginPath();
+        ctx.moveTo(margin, margin + i * boxConfig.rows * cellSize);
+        ctx.lineTo(margin + size * cellSize, margin + i * boxConfig.rows * cellSize);
+        ctx.stroke();
+      }
+      
+      return canvas;
+    }
+    
+    /**
+     * Export current puzzle as PNG
+     */
+    async function exportPuzzlePNG() {
+      if (currentPuzzles.length === 0) {
+        alert('Please generate a puzzle first.');
+        return;
+      }
+      
+      const size = currentPuzzles[0].length;
+      const difficulty = document.getElementById('difficulty').value;
+      const ts = timestamp();
+      
+      for (let i = 0; i < currentPuzzles.length; i++) {
+        const canvas = createKillerCanvas(currentPuzzles[i], size, currentCages[i], false);
+        const filename = `killer-sudoku-${size}x${size}-${difficulty}-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
+        await downloadCanvas(canvas, filename);
+        await delay(100);
+      }
+      
+      // Also export solutions if enabled
+      const showSolutions = document.getElementById('solutions').value === 'separate';
+      if (showSolutions && currentSolutions.length > 0) {
+        for (let i = 0; i < currentSolutions.length; i++) {
+          const canvas = createKillerCanvas(currentSolutions[i], size, currentCages[i], true);
+          const filename = `killer-sudoku-${size}x${size}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
+          await downloadCanvas(canvas, filename);
+          await delay(100);
+        }
+      }
+    }
+    
+    // ============================================
+    // Bulk Generation
+    // ============================================
+    
+    /**
+     * Generate bulk puzzles and download as ZIP
+     */
+    async function generateBulkPuzzles() {
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const count = parseInt(document.getElementById('bulk-count').value);
+      
+      const progressContainer = document.getElementById('bulk-progress');
+      progressContainer.style.display = 'block';
+      
+      const zip = new JSZip();
+      const puzzlesFolder = zip.folder('puzzles');
+      const solutionsFolder = zip.folder('solutions');
+      
+      for (let i = 0; i < count; i++) {
+        // Update progress
+        updateProgress(i + 1, count, progressContainer);
+        
+        // Generate puzzle
+        const { puzzle, solution, cages } = generateKillerSudoku(size, difficulty);
+        
+        // Create canvas and add to ZIP
+        const puzzleCanvas = createKillerCanvas(puzzle, size, cages, false);
+        const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
+        const puzzleBase64 = puzzleDataUrl.split(',')[1];
+        puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
+        
+        const solutionCanvas = createKillerCanvas(solution, size, cages, true);
+        const solutionDataUrl = solutionCanvas.toDataURL('image/png');
+        const solutionBase64 = solutionDataUrl.split(',')[1];
+        solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
+        
+        // Yield to UI
+        await delay(1);
+      }
+      
+      // Generate ZIP
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipUrl = URL.createObjectURL(zipBlob);
+      
+      const link = document.createElement('a');
+      link.download = `killer-sudoku-${size}x${size}-${difficulty}-${count}-puzzles.zip`;
+      link.href = zipUrl;
+      link.click();
+      
+      URL.revokeObjectURL(zipUrl);
+      progressContainer.style.display = 'none';
+    }
+    
+    // ============================================
+    // Event Handlers
+    // ============================================
+    
+    document.getElementById('generate').addEventListener('click', () => {
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const perPage = parseInt(document.getElementById('per-page').value);
+      const showSolutions = document.getElementById('solutions').value === 'separate';
+      
+      currentPuzzles = [];
+      currentSolutions = [];
+      currentCages = [];
+      
+      for (let i = 0; i < perPage; i++) {
+        const { puzzle, solution, cages } = generateKillerSudoku(size, difficulty);
+        currentPuzzles.push(puzzle);
+        currentSolutions.push(solution);
+        currentCages.push(cages);
+      }
+      
+      currentSettings = { size, difficulty, perPage };
+      renderPuzzles(currentPuzzles, currentSolutions, currentCages, perPage, showSolutions);
+    });
+    
+    document.getElementById('print').addEventListener('click', () => {
+      if (currentPuzzles.length === 0) {
+        alert('Please generate a puzzle first.');
+        return;
+      }
+      window.print();
+    });
+    
+    document.getElementById('export-png').addEventListener('click', exportPuzzlePNG);
+    document.getElementById('generate-bulk').addEventListener('click', generateBulkPuzzles);
+    
+    // Large Print toggle - force 1 per page
+    document.getElementById('large-print').addEventListener('change', function() {
+      const perPageSelect = document.getElementById('per-page');
+      if (this.checked) {
+        perPageSelect.value = '1';
+        perPageSelect.disabled = true;
+        document.body.classList.add('large-print-mode');
+      } else {
+        perPageSelect.disabled = false;
+        document.body.classList.remove('large-print-mode');
+      }
+    });
+    
+    // Update solutions display when changed
+    document.getElementById('solutions').addEventListener('change', function() {
+      if (currentPuzzles.length > 0) {
+        const perPage = parseInt(document.getElementById('per-page').value);
+        const showSolutions = this.value === 'separate';
+        renderPuzzles(currentPuzzles, currentSolutions, currentCages, perPage, showSolutions);
+      }
+    });
+    
+    // Auto-generate on page load for immediate preview
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('generate').click();
+    });
+  </script>
+</body>
+</html>

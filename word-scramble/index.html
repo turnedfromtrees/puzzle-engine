@@ -738,17 +738,7 @@
       const solutionSection = document.getElementById('solution-section');
       solutionSection.innerHTML = '';
       
-      if (solutionsOption === 'same') {
-        // Add solutions inline
-        const puzzleItems = puzzleContainer.querySelectorAll('.scramble-list');
-        currentPuzzles.forEach((puzzle, idx) => {
-          const solutionHtml = renderSolutionInline(puzzle, idx, perPage);
-          if (puzzleItems[idx]) {
-            puzzleItems[idx].insertAdjacentHTML('beforeend', solutionHtml);
-          }
-        });
-        solutionSection.style.display = 'none';
-      } else if (solutionsOption === 'separate') {
+      if (solutionsOption === 'separate') {
         solutionSection.style.display = 'block';
         if (largePrint) {
           solutionSection.classList.add('large-print-mode');

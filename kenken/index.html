@@ -910,20 +910,6 @@
 
         renderKenKenPuzzle(currentSolutions[i], cages, puzzleDiv, currentSize, false, currentLargePrint);
         container.appendChild(puzzleDiv);
-        
-        // Handle solutions based on format
-        if (solutionsOption === 'same') {
-          const solutionDiv = document.createElement('div');
-          solutionDiv.className = 'solution-same-page';
-          
-          const solutionTitle = document.createElement('h3');
-          solutionTitle.className = 'solution-title';
-          solutionTitle.textContent = currentPerPage > 1 ? `Solution ${i + 1}` : 'Solution';
-          solutionDiv.appendChild(solutionTitle);
-          
-          renderKenKenPuzzle(currentSolutions[i], cages, solutionDiv, currentSize, true, currentLargePrint);
-          puzzleDiv.appendChild(solutionDiv);
-        }
       });
 
       // Handle separate solution page

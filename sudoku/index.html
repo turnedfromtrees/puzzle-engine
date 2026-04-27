@@ -179,59 +179,6 @@
       padding: 0.5in;
     }
     
-    /* Same page solution */
-    .solution-same-page {
-      margin-top: var(--spacing-lg);
-      padding-top: var(--spacing-md);
-      border-top: 1px solid var(--color-border);
-    }
-    
-    /* Compact solution grid (4-6 per page) */
-    .solution-compact {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-md);
-    }
-    
-    .solution-compact-item {
-      text-align: center;
-    }
-    
-    .solution-compact-item table {
-      margin: 0 auto;
-    }
-    
-    /* Smaller cells for compact solution grids */
-    .solution-compact .sudoku-grid--4x4 td {
-      width: 28px;
-      height: 28px;
-      font-size: var(--font-size-sm);
-    }
-    
-    .solution-compact .sudoku-grid--6x6 td {
-      width: 24px;
-      height: 24px;
-      font-size: var(--font-size-xs);
-    }
-    
-    .solution-compact .sudoku-grid--9x9 td {
-      width: 22px;
-      height: 22px;
-      font-size: var(--font-size-xs);
-    }
-    
-    .solution-compact .sudoku-grid--12x12 td {
-      width: 18px;
-      height: 18px;
-      font-size: var(--font-size-xs);
-    }
-    
-    .solution-compact .sudoku-grid--16x16 td {
-      width: 14px;
-      height: 14px;
-      font-size: 10px;
-    }
-    
     /* Large print toggle styling */
     .toggle-switch {
       display: flex;
@@ -791,28 +738,12 @@
         renderGridToTable(puzzle, table, currentSize, true);
         puzzleDiv.appendChild(table);
         
-        // Add same-page solution if selected
-        if (solutionsOption === 'same') {
-          const solutionDiv = document.createElement('div');
-          solutionDiv.className = 'solution-same-page';
-          
-          const solutionTitle = document.createElement('h3');
-          solutionTitle.className = 'solution-title';
-          solutionTitle.textContent = perPage > 1 ? `Solution ${i + 1}` : 'Solution';
-          solutionDiv.appendChild(solutionTitle);
-          
-          const solutionTable = document.createElement('table');
-          solutionTable.className = `sudoku-grid sudoku-grid--${currentSize}x${currentSize}`;
-          renderGridToTable(solutions[i], solutionTable, currentSize, false);
-          solutionDiv.appendChild(solutionTable);
-          
-          puzzleDiv.appendChild(solutionDiv);
-        }
+        // No same-page solution - only separate page option available
         
         container.appendChild(puzzleDiv);
       });
       
-      // Handle solutions for separate and compact formats
+      // Handle solutions for separate page format
       const solutionSection = document.getElementById('solution-section');
       solutionSection.innerHTML = '';
       
@@ -820,7 +751,7 @@
         solutionSection.style.display = '';
         
         // Remove all layout classes and add appropriate one
-        solutionSection.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four', 'large-print-mode', 'solution-compact');
+        solutionSection.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four', 'large-print-mode');
         if (largePrintMode) {
           solutionSection.classList.add('large-print-mode', 'solution-section--one');
         } else if (perPage === 1) {
@@ -845,36 +776,6 @@
           table.setAttribute('role', 'grid');
           table.setAttribute('aria-label', `Sudoku solution ${i + 1}`);
           
-          renderGridToTable(solution, table, currentSize, false);
-          solutionDiv.appendChild(table);
-          
-          solutionSection.appendChild(solutionDiv);
-        });
-      } else if (solutionsOption === 'compact') {
-        solutionSection.style.display = '';
-        solutionSection.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four');
-        solutionSection.classList.add('solution-compact');
-        
-        // Print header for solutions
-        const printHeader = document.createElement('div');
-        printHeader.className = 'print-header';
-        printHeader.innerHTML = `
-          <h2 style="text-align: center; margin-bottom: var(--spacing-md);">Solutions</h2>
-        `;
-        solutionSection.appendChild(printHeader);
-        
-        solutions.forEach((solution, i) => {
-          const solutionDiv = document.createElement('div');
-          solutionDiv.className = 'solution-compact-item';
-          
-          const title = document.createElement('h4');
-          title.style.fontSize = 'var(--font-size-sm)';
-          title.style.marginBottom = 'var(--spacing-xs)';
-          title.textContent = `#${i + 1}`;
-          solutionDiv.appendChild(title);
-          
-          const table = document.createElement('table');
-          table.className = `sudoku-grid sudoku-grid--${currentSize}x${currentSize}`;
           renderGridToTable(solution, table, currentSize, false);
           solutionDiv.appendChild(table);
           

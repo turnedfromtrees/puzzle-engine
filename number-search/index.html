@@ -110,13 +110,6 @@
       padding: 0.5in;
     }
     
-    /* Same page solution */
-    .solution-same-page {
-      margin-top: var(--spacing-lg);
-      padding-top: var(--spacing-md);
-      border-top: 1px solid var(--color-border);
-    }
-    
     /* Solution section layout classes */
     .solution-section--one .puzzle-item {
       margin-bottom: var(--spacing-xl);
@@ -774,16 +767,7 @@
         solutionSection.classList.add('solution-section--four');
       }
       
-      if (solutionsOption === 'same') {
-        // Add solutions after each puzzle (same page, separate section below)
-        const puzzleItems = puzzleContainer.querySelectorAll('.puzzle-item');
-        currentPuzzles.forEach((puzzle, idx) => {
-          const solutionHtml = renderSolutionInline(puzzle, idx);
-          if (puzzleItems[idx]) {
-            puzzleItems[idx].insertAdjacentHTML('beforeend', solutionHtml);
-          }
-        });
-      } else if (solutionsOption === 'separate') {
+      if (solutionsOption === 'separate') {
         solutionSection.style.display = '';
         // Create solution items
         currentPuzzles.forEach((puzzle, idx) => {

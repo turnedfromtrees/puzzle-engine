@@ -905,11 +905,7 @@
           puzzleDiv.appendChild(msgDiv);
         }
         
-        // Solution on same page
-        if (solutionsOption === 'same') {
-          const solutionDiv = createSolutionInlineDiv(puzzle, i);
-          puzzleDiv.appendChild(solutionDiv);
-        }
+        // No same-page solution - only separate page option available
         
         puzzleContainer.appendChild(puzzleDiv);
       });

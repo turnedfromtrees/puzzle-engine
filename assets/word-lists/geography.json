@@ -1,0 +1,16 @@
+{
+  "name": "Geography",
+  "description": "Countries, cities, and geographical features",
+  "difficulty": "all",
+  "words": [
+    "ocean", "mountain", "river", "valley", "desert",
+    "forest", "island", "lake", "volcano", "canyon",
+    "glacier", "waterfall", "cave", "cliff", "beach",
+    "peninsula", "plateau", "swamp", "reef", "delta",
+    "Canada", "Mexico", "Brazil", "France", "Germany",
+    "Japan", "China", "India", "Australia", "Egypt",
+    "London", "Paris", "Tokyo", "Sydney", "Rome",
+    "Amazon", "Nile", "Mississippi", "Everest", "Sahara",
+    "Pacific", "Atlantic", "Arctic", "Mediterranean", "Caribbean"
+  ]
+}

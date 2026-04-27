@@ -1,0 +1,16 @@
+{
+  "name": "Seasons",
+  "description": "Seasons, weather, and seasonal activities",
+  "difficulty": "all",
+  "words": [
+    "spring", "summer", "autumn", "winter", "season",
+    "sunshine", "rainfall", "snowfall", "breeze", "storm",
+    "blossom", "flower", "bloom", "gardening", "picnic",
+    "beach", "swimming", "vacation", "camping", "hiking",
+    "harvest", "pumpkin", "leaves", "thanksgiving", "football",
+    "snow", "skiing", "skating", "fireplace", "holiday",
+    "warm", "hot", "cool", "cold", "frosty",
+    "sunny", "rainy", "windy", "cloudy", "foggy",
+    "rainbow", "thunder", "lightning", "hurricane", "blizzard"
+  ]
+}

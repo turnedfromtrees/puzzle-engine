@@ -1,0 +1,17 @@
+{
+  "theme": "weather",
+  "words": [
+    "sunny", "cloudy", "rainy", "snowy", "windy", "stormy", "foggy", "misty", "hazy", "clear",
+    "rain", "snow", "hail", "sleet", "drizzle", "shower", "downpour", "blizzard", "flurry", "thundershower",
+    "thunder", "lightning", "tornado", "hurricane", "typhoon", "cyclone", "blizzard", "drought", "flood", "monsoon",
+    "cloud", "cumulus", "stratus", "cirrus", "nimbus", "fog", "mist", "haze", "smog", "vapor",
+    "spring", "summer", "autumn", "winter", "fall", "season", "monsoon", "dry", "wet", "humid",
+    "hot", "cold", "warm", "cool", "freezing", "boiling", "mild", "chilly", "frosty", "breezy",
+    "temperature", "humidity", "pressure", "wind", "breeze", "gust", "gale", "forecast", "climate", "meteorologist"
+  ],
+  "metadata": {
+    "wordCount": 70,
+    "difficulty": "mixed",
+    "categories": ["conditions", "precipitation", "storms", "clouds", "seasons", "temperature"]
+  }
+}

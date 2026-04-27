@@ -1,0 +1,16 @@
+{
+  "name": "Food",
+  "description": "Foods, meals, and cooking terms",
+  "difficulty": "all",
+  "words": [
+    "pizza", "pasta", "burger", "sandwich", "salad",
+    "soup", "steak", "chicken", "fish", "rice",
+    "bread", "cheese", "butter", "milk", "eggs",
+    "apple", "banana", "orange", "grape", "strawberry",
+    "chocolate", "cookie", "cake", "pie", "ice cream",
+    "pancake", "waffle", "omelet", "cereal", "toast",
+    "taco", "burrito", "nachos", "sushi", "ramen",
+    "popcorn", "chips", "pretzel", "donut", "muffin",
+    "carrot", "broccoli", "spinach", "potato", "tomato"
+  ]
+}

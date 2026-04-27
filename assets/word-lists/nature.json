@@ -1,0 +1,16 @@
+{
+  "name": "Nature",
+  "description": "Natural world, plants, and environments",
+  "difficulty": "all",
+  "words": [
+    "tree", "flower", "grass", "leaf", "root",
+    "branch", "trunk", "bark", "seed", "fruit",
+    "rose", "tulip", "daisy", "lily", "orchid",
+    "oak", "pine", "maple", "willow", "birch",
+    "forest", "jungle", "meadow", "garden", "park",
+    "river", "stream", "pond", "swamp", "wetland",
+    "sunset", "sunrise", "rainbow", "cloud", "star",
+    "butterfly", "bee", "ant", "spider", "beetle",
+    "wildlife", "habitat", "ecosystem", "environment", "conservation"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "School",
+  "description": "School subjects, supplies, and activities",
+  "difficulty": "all",
+  "words": [
+    "math", "science", "reading", "writing", "history",
+    "geography", "music", "art", "gym", "library",
+    "teacher", "student", "classroom", "desk", "chair",
+    "pencil", "paper", "notebook", "eraser", "ruler",
+    "book", "dictionary", "encyclopedia", "computer", "calculator",
+    "homework", "assignment", "project", "presentation", "report",
+    "test", "exam", "quiz", "grade", "report card",
+    "recess", "lunch", "cafeteria", "playground", "auditorium",
+    "graduation", "diploma", "degree", "scholarship", "university"
+  ]
+}

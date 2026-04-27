@@ -1,0 +1,15 @@
+{
+  "name": "Holidays",
+  "description": "Holidays, celebrations, and special occasions",
+  "difficulty": "all",
+  "words": [
+    "Christmas", "Easter", "Halloween", "Thanksgiving", "birthday",
+    "Valentine", "New Year", "Independence", "Memorial", "Labor",
+    "Mother", "Father", "Grandparents", "Veterans", "Presidents",
+    "Santa", "reindeer", "snowman", "present", "gift",
+    "pumpkin", "turkey", "fireworks", "parade", "celebration",
+    "holiday", "vacation", "family", "tradition", "feast",
+    "decorations", "ornaments", "lights", "tree", "wreath",
+    "candy", "cookies", "pie", "cake", "chocolate"
+  ]
+}

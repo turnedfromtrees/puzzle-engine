@@ -74,6 +74,75 @@
     .wordsearch-grid--15x15 td { width: 36px; height: 36px; font-size: var(--font-size-lg); }
     .wordsearch-grid--20x20 td { width: 30px; height: 30px; font-size: var(--font-size-md); }
     
+    /* Large print mode */
+    .wordsearch-grid.large-print td {
+      width: 48px;
+      height: 48px;
+      font-size: 18pt;
+    }
+    
+    .wordsearch-grid.large-print.wordsearch-grid--20x20 td {
+      width: 38px;
+      height: 38px;
+      font-size: 16pt;
+    }
+    
+    /* Large print mode class (Sudoku-style) */
+    .large-print-mode .wordsearch-grid td {
+      font-size: 18pt;
+      min-width: 14mm;
+      min-height: 14mm;
+    }
+    
+    .large-print-mode .puzzle-container {
+      padding: 0.5in;
+    }
+    
+    .large-print-mode .word-list .word-list__item {
+      font-size: 16pt;
+      padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    .large-print-mode .word-list {
+      font-size: 16pt;
+    }
+    
+    /* Theme checkbox group */
+    .theme-checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-xs) var(--spacing-sm);
+      max-width: 100%;
+    }
+    
+    .theme-checkbox {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      transition: all 0.2s;
+    }
+    
+    .theme-checkbox:hover {
+      border-color: var(--color-primary);
+      background: rgba(107, 70, 193, 0.05);
+    }
+    
+    .theme-checkbox input:checked + span {
+      font-weight: 600;
+    }
+    
+    .theme-checkbox input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-primary);
+    }
+    
     /* Word list */
     .word-list {
       display: flex;
@@ -95,6 +164,11 @@
       text-transform: uppercase;
     }
     
+    .word-list.large-print .word-list__item {
+      font-size: 16pt;
+      padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
     /* Solution section */
     .solution-section {
       margin-top: var(--spacing-xl);
@@ -105,6 +179,79 @@
     .solution-grid td.highlighted {
       background: rgba(107, 70, 193, 0.15);
       font-weight: 700;
+    }
+    
+    /* Hidden message styling */
+    .hidden-message {
+      text-align: center;
+      margin: var(--spacing-md) 0;
+      padding: var(--spacing-md);
+      background: var(--color-bg-alt);
+      border-radius: var(--radius-md);
+    }
+    
+    .hidden-message__label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-light);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .hidden-message__text {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      font-family: var(--font-mono);
+      letter-spacing: 0.1em;
+    }
+    
+    /* Slider styling */
+    .form-slider {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: var(--color-border);
+      outline: none;
+      cursor: pointer;
+    }
+    
+    .form-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      cursor: pointer;
+    }
+    
+    .slider-value {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      text-align: center;
+      margin-top: var(--spacing-xs);
+    }
+    
+    /* Layout options */
+    .layout-options {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+    
+    .layout-option {
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--color-bg-white);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .layout-option:hover {
+      border-color: var(--color-primary);
+    }
+    
+    .layout-option.active {
+      border-color: var(--color-primary);
+      background: rgba(107, 70, 193, 0.1);
     }
     
     /* Print styles */
@@ -119,7 +266,6 @@
         display: none !important;
       }
       
-      /* Show print headers during print */
       .print-header {
         display: flex !important;
         flex-direction: column;
@@ -179,12 +325,15 @@
           <a href="../index.html" class="header__nav-link">Home</a>
           <a href="../sudoku/index.html" class="header__nav-link">Sudoku</a>
           <a href="index.html" class="header__nav-link header__nav-link--active">Word Search</a>
+          <a href="../mazes/index.html" class="header__nav-link">Mazes</a>
+          <a href="../number-search/index.html" class="header__nav-link">Number Search</a>
+          <a href="../word-scramble/index.html" class="header__nav-link">Word Scramble</a>
+          <a href="../kenken/index.html" class="header__nav-link">KenKen</a>
+          <a href="../killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
         </div>
       </nav>
     </div>
   </header>
-
-  <!-- Ad Slots (Sidebar) -->
 
   <!-- Main Content -->
   <main class="main-content">
@@ -206,41 +355,78 @@
               <option value="20">20×20 (Challenge)</option>
             </select>
           </div>
+          
           <div class="controls__field">
             <label class="form-label" for="difficulty">Difficulty</label>
             <select class="form-select" id="difficulty">
-              <option value="easy">Easy</option>
-              <option value="medium" selected>Medium</option>
-              <option value="hard">Hard</option>
-              <option value="expert">Expert</option>
+              <option value="easy">Easy (Horizontal/Vertical)</option>
+              <option value="medium" selected>Medium (+ Diagonal)</option>
+              <option value="hard">Hard (+ Backwards)</option>
             </select>
           </div>
+          
           <div class="controls__field">
-            <label class="form-label" for="theme">Theme</label>
-            <select class="form-select" id="theme">
-              <option value="animals">Animals</option>
-              <option value="colors">Colors</option>
-              <option value="food">Food</option>
-              <option value="nature">Nature</option>
-              <option value="sports">Sports</option>
-              <option value="weather">Weather</option>
-              <option value="random">Random</option>
-              <option value="custom">Custom words...</option>
-            </select>
+            <label class="form-label">Themes</label>
+            <div class="theme-checkbox-group" id="theme-checkbox-group">
+              <label class="theme-checkbox"><input type="checkbox" value="animals" checked> 🐾 Animals</label>
+              <label class="theme-checkbox"><input type="checkbox" value="colors"> 🎨 Colors</label>
+              <label class="theme-checkbox"><input type="checkbox" value="food-drink"> 🍔 Food & Drink</label>
+              <label class="theme-checkbox"><input type="checkbox" value="geography"> 🌍 Geography</label>
+              <label class="theme-checkbox"><input type="checkbox" value="holidays"> 🎉 Holidays</label>
+              <label class="theme-checkbox"><input type="checkbox" value="nature"> 🌿 Nature</label>
+              <label class="theme-checkbox"><input type="checkbox" value="school"> 📚 School</label>
+              <label class="theme-checkbox"><input type="checkbox" value="science"> 🔬 Science</label>
+              <label class="theme-checkbox"><input type="checkbox" value="seasons"> 🍂 Seasons</label>
+              <label class="theme-checkbox"><input type="checkbox" value="sports"> ⚽ Sports</label>
+              <label class="theme-checkbox"><input type="checkbox" value="weather"> ⛅ Weather</label>
+              <label class="theme-checkbox"><input type="checkbox" value="food"> 🍕 Food</label>
+            </div>
           </div>
-          <div class="controls__field" id="custom-words-field" style="display: none;">
-            <label class="form-label" for="custom-words">Custom Words</label>
-            <textarea class="form-input" id="custom-words" rows="3" placeholder="Enter words separated by commas or new lines"></textarea>
-            <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">one word per line or comma-separated</span>
+          
+          <div class="controls__field">
+            <label class="form-label" for="word-preview">Word List Preview</label>
+            <textarea class="form-input" id="word-preview" rows="5" placeholder="Words from selected themes will appear here..."></textarea>
+            <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">edit words directly or select themes above</span>
           </div>
+        </div>
+        
+        <div class="controls__row">
           <div class="controls__field">
             <label class="form-label" for="solutions">Solutions</label>
             <select class="form-select" id="solutions">
               <option value="none" selected>None</option>
+              <option value="same">Same page</option>
               <option value="separate">Separate page</option>
             </select>
           </div>
+          
+          <div class="controls__field">
+            <label class="form-label" for="per-page">Puzzles Per Page</label>
+            <select class="form-select" id="per-page">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          
+          <div class="controls__actions">
+            <div class="toggle-switch">
+              <input type="checkbox" id="large-print-toggle">
+              <label class="toggle-label" for="large-print-toggle">Large Print Mode</label>
+            </div>
+          </div>
         </div>
+        
+        <div class="controls__row">
+          <div class="controls__field">
+            <label class="form-checkbox" style="display: flex; align-items: center; gap: var(--spacing-sm);">
+              <input type="checkbox" id="hidden-message-toggle">
+              <span>Hidden Message Mode</span>
+            </label>
+            <input type="text" class="form-input" id="hidden-message" placeholder="Enter hidden message (optional)" style="display: none; margin-top: var(--spacing-sm);">
+          </div>
+        </div>
+        
         <div class="controls__actions">
           <button class="btn btn--primary btn--large" id="generate-btn">
             Generate Puzzle
@@ -249,7 +435,7 @@
             Print Puzzle
           </button>
           <button class="btn btn--secondary" id="export-btn" disabled>
-            Export PNG
+            Export PNG (300 DPI)
           </button>
         </div>
 
@@ -267,8 +453,28 @@
             <div class="controls__row">
               <div class="controls__field">
                 <label class="form-label" for="bulk-count">Bulk Generate</label>
-                <input type="number" class="form-input" id="bulk-count" value="50" min="1" max="100">
-                <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">puzzles</span>
+                <select class="form-select" id="bulk-count">
+                  <option value="50">50 puzzles</option>
+                  <option value="100" selected>100 puzzles</option>
+                  <option value="200">200 puzzles</option>
+                </select>
+              </div>
+              <div class="controls__field">
+                <label class="form-label">Themes for Bulk</label>
+                <div class="form-checkbox-group" id="bulk-themes">
+                  <label class="form-checkbox"><input type="checkbox" value="animals" checked> Animals</label>
+                  <label class="form-checkbox"><input type="checkbox" value="colors"> Colors</label>
+                  <label class="form-checkbox"><input type="checkbox" value="food-drink" checked> Food & Drink</label>
+                  <label class="form-checkbox"><input type="checkbox" value="geography" checked> Geography</label>
+                  <label class="form-checkbox"><input type="checkbox" value="holidays"> Holidays</label>
+                  <label class="form-checkbox"><input type="checkbox" value="nature"> Nature</label>
+                  <label class="form-checkbox"><input type="checkbox" value="school"> School</label>
+                  <label class="form-checkbox"><input type="checkbox" value="science"> Science</label>
+                  <label class="form-checkbox"><input type="checkbox" value="seasons"> Seasons</label>
+                  <label class="form-checkbox"><input type="checkbox" value="sports"> Sports</label>
+                  <label class="form-checkbox"><input type="checkbox" value="weather"> Weather</label>
+                  <label class="form-checkbox"><input type="checkbox" value="food"> Food</label>
+                </div>
               </div>
             </div>
             <div class="form-group">
@@ -283,14 +489,11 @@
                 <label class="form-checkbox">
                   <input type="checkbox" id="diff-hard"> Hard
                 </label>
-                <label class="form-checkbox">
-                  <input type="checkbox" id="diff-expert"> Expert
-                </label>
               </div>
             </div>
             <div class="controls__actions" style="margin-top: var(--spacing-md);">
               <button class="btn btn--secondary" id="bulk-generate-btn">
-                Generate Bundle
+                Generate ZIP Bundle
               </button>
             </div>
             <div class="progress-container hidden" id="bulk-progress">
@@ -320,7 +523,6 @@
       </div>
 
       <!-- Puzzle Container -->
-      <!-- Print-only header (hidden on screen, shown on print) -->
       <div class="print-header" id="print-header" style="display: none;">
         <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
         <div class="print-header__text">
@@ -333,9 +535,8 @@
         <!-- Puzzles will be generated by JavaScript -->
       </div>
 
-      <!-- Solution Container (for separate page option) -->
+      <!-- Solution Container -->
       <div class="solution-section" id="solution-section" style="display: none;">
-        <!-- Print header for solutions page -->
         <div class="print-header" id="print-header-solutions" style="display: none;">
           <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
           <div class="print-header__text">
@@ -343,7 +544,6 @@
             <p class="print-header__url">puzzle-engine.com</p>
           </div>
         </div>
-        <!-- Solutions will be generated by JavaScript -->
       </div>
     </div>
   </main>
@@ -354,9 +554,6 @@
       <div class="footer__content">
         <nav class="footer__nav" aria-label="Footer">
           <a href="../index.html">← Back to Home</a>
-          <a href="#about">About</a>
-          <a href="#license">License</a>
-          <a href="#contact">Contact</a>
         </nav>
         <div class="footer__license">
           <p class="footer__license-title">✓ Free Commercial Use License</p>
@@ -368,26 +565,33 @@
 
   <script>
     /* ==========================================================================
-       Word Search Generator - Core Logic
+       Word Search Generator - KDP Enhanced Version
        ========================================================================== */
 
-    // Word themes
-    const WORD_THEMES = {
+    // Word list cache for theme loading
+    const wordListCache = new Map();
+    
+    // Fallback words if loading fails
+    const FALLBACK_WORDS = {
       animals: ['cat', 'dog', 'bird', 'fish', 'bear', 'lion', 'tiger', 'zebra', 'elephant', 'monkey', 'rabbit', 'turtle', 'dolphin', 'eagle', 'shark', 'whale', 'panda', 'koala', 'snake', 'horse'],
-      colors: ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'black', 'white', 'gray', 'cyan', 'magenta', 'violet', 'indigo', 'gold', 'silver', 'bronze', 'crimson', 'teal'],
-      food: ['apple', 'banana', 'cherry', 'grape', 'lemon', 'orange', 'peach', 'plum', 'carrot', 'potato', 'tomato', 'onion', 'bread', 'cheese', 'butter', 'pasta', 'rice', 'pizza', 'burger', 'salad'],
-      nature: ['tree', 'flower', 'river', 'mountain', 'ocean', 'forest', 'desert', 'island', 'cloud', 'rain', 'snow', 'wind', 'sun', 'moon', 'star', 'leaf', 'rock', 'sand', 'wave', 'storm'],
+      colors: ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'black', 'white', 'gray', 'silver', 'gold', 'beige', 'cyan', 'magenta', 'violet', 'indigo', 'maroon', 'teal'],
+      'food-drink': ['apple', 'banana', 'cherry', 'grape', 'lemon', 'orange', 'peach', 'plum', 'carrot', 'potato', 'tomato', 'onion', 'bread', 'cheese', 'butter', 'pasta', 'rice', 'pizza', 'burger', 'salad'],
+      food: ['pizza', 'pasta', 'burger', 'salad', 'soup', 'sandwich', 'taco', 'sushi', 'curry', 'steak', 'chicken', 'rice', 'bread', 'cheese', 'fruit', 'vegetable', 'dessert', 'cake', 'cookie', 'ice cream'],
+      geography: ['ocean', 'river', 'mountain', 'valley', 'desert', 'forest', 'island', 'lake', 'cliff', 'canyon', 'beach', 'volcano', 'glacier', 'cave', 'waterfall', 'plateau', 'delta', 'bay', 'peninsula', 'archipelago'],
+      holidays: ['christmas', 'easter', 'halloween', 'thanksgiving', 'birthday', 'new year', 'valentine', 'independence', 'labor', 'memorial', 'veterans', 'mothers', 'fathers', 'graduation', 'anniversary', 'wedding', 'party', 'celebration', 'parade', 'fireworks'],
+      nature: ['tree', 'flower', 'grass', 'river', 'mountain', 'ocean', 'forest', 'rain', 'sun', 'cloud', 'wind', 'storm', 'snow', 'leaf', 'rock', 'animal', 'bird', 'insect', 'butterfly', 'sunset'],
+      school: ['teacher', 'student', 'book', 'pencil', 'desk', 'chair', 'classroom', 'homework', 'exam', 'test', 'grade', 'science', 'math', 'reading', 'writing', 'recess', 'lunch', 'library', 'playground', 'principal'],
+      science: ['atom', 'molecule', 'energy', 'force', 'gravity', 'light', 'sound', 'heat', 'motion', 'experiment', 'hypothesis', 'theory', 'gravity', 'magnet', 'electricity', 'chemistry', 'physics', 'biology', 'geology', 'astronomy'],
+      seasons: ['spring', 'summer', 'autumn', 'winter', 'fall', 'blossom', 'sunshine', 'rain', 'snow', 'leaves', 'flowers', 'warm', 'cold', 'hot', 'cool', 'freeze', 'thaw', 'bloom', 'harvest', 'hibernate'],
       sports: ['soccer', 'tennis', 'golf', 'swimming', 'running', 'cycling', 'boxing', 'hockey', 'baseball', 'basketball', 'volleyball', 'skiing', 'surfing', 'climbing', 'diving', 'skating', 'rowing', 'archery', 'fencing', 'wrestling'],
-      weather: ['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'foggy', 'humid', 'cold', 'warm', 'hot', 'freeze', 'thunder', 'lightning', 'tornado', 'hurricane', 'blizzard', 'drought', 'flood', 'hail'],
-      random: ['house', 'school', 'book', 'music', 'dance', 'travel', 'beach', 'garden', 'family', 'friend', 'water', 'earth', 'fire', 'light', 'dark', 'fast', 'slow', 'happy', 'smile', 'dream']
+      weather: ['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'foggy', 'humid', 'cold', 'warm', 'hot', 'freeze', 'thunder', 'lightning', 'tornado', 'hurricane', 'blizzard', 'drought', 'flood', 'hail']
     };
 
     // Direction vectors: [row_delta, col_delta]
     const DIRECTIONS = {
-      easy: [[0, 1], [1, 0]],  // right, down
-      medium: [[0, 1], [1, 0], [1, 1]],  // + diagonal down-right
-      hard: [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0]],  // + diagonal down-left, backwards
-      expert: [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, 1], [-1, -1]]  // all 8 directions
+      easy: [[0, 1], [1, 0]],                           // right, down only
+      medium: [[0, 1], [1, 0], [1, 1]],                 // + diagonal down-right
+      hard: [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, 1], [-1, -1]]  // all 8 directions
     };
 
     // Current puzzle state
@@ -397,14 +601,38 @@
     let currentSize = 15;
     let currentDifficulty = 'medium';
     let currentTheme = 'animals';
+    let currentHiddenMessage = null;
+
+    /* --------------------------------------------------------------------------
+       Word List Loading
+       -------------------------------------------------------------------------- */
+
+    async function loadWordList(theme) {
+      // Check cache first
+      if (wordListCache.has(theme)) {
+        return wordListCache.get(theme);
+      }
+      
+      // Try to load from JSON file
+      try {
+        const response = await fetch(`../assets/word-lists/${theme}.json`);
+        if (response.ok) {
+          const data = await response.json();
+          wordListCache.set(theme, data.words);
+          return data.words;
+        }
+      } catch (e) {
+        console.log(`Could not load word list for ${theme}, using fallback`);
+      }
+      
+      // Use fallback
+      return FALLBACK_WORDS[theme] || FALLBACK_WORDS.animals;
+    }
 
     /* --------------------------------------------------------------------------
        Word Placement Algorithm
        -------------------------------------------------------------------------- */
 
-    /**
-     * Word placement algorithm
-     */
     function canPlaceWord(grid, word, startRow, startCol, direction) {
       const [dRow, dCol] = direction;
       const size = grid.length;
@@ -473,10 +701,21 @@
       return { placed: false };
     }
 
-    function fillEmptyCells(grid) {
+    function fillEmptyCells(grid, hiddenMessage = null) {
       const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const size = grid.length;
       
+      // Track used cells
+      const usedCells = new Set();
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          if (grid[row][col] !== '') {
+            usedCells.add(`${row},${col}`);
+          }
+        }
+      }
+      
+      // Fill empty cells
       for (let row = 0; row < size; row++) {
         for (let col = 0; col < size; col++) {
           if (grid[row][col] === '') {
@@ -484,22 +723,50 @@
           }
         }
       }
+      
+      // If hidden message, place it in unused cells
+      if (hiddenMessage && hiddenMessage.length > 0) {
+        const emptyCells = [];
+        for (let row = 0; row < size; row++) {
+          for (let col = 0; col < size; col++) {
+            if (!usedCells.has(`${row},${col}`)) {
+              emptyCells.push([row, col]);
+            }
+          }
+        }
+        
+        // Place hidden message letters in sequence
+        const shuffledCells = shuffleArray(emptyCells);
+        const msgUpper = hiddenMessage.toUpperCase().replace(/[^A-Z]/g, '');
+        
+        for (let i = 0; i < Math.min(msgUpper.length, shuffledCells.length); i++) {
+          const [row, col] = shuffledCells[i];
+          grid[row][col] = msgUpper[i];
+        }
+        
+        return {
+          cells: shuffledCells.slice(0, msgUpper.length),
+          message: msgUpper
+        };
+      }
+      
+      return null;
     }
 
     /* --------------------------------------------------------------------------
        Puzzle Generation
        -------------------------------------------------------------------------- */
 
-    function generateWordSearch(size, difficulty, theme, customWords) {
+    async function generateWordSearch(size, difficulty, theme, customWords, hiddenMessage = null) {
       const grid = createEmptyGrid(size);
       const directions = DIRECTIONS[difficulty];
       
-      // Use custom words or theme words
+      // Load words from theme or use custom
       let allWords;
       if (customWords && customWords.length > 0) {
         allWords = customWords;
       } else {
-        allWords = WORD_THEMES[theme] || WORD_THEMES.random;
+        allWords = await loadWordList(theme);
       }
       
       const maxWordLength = size - 1;
@@ -530,12 +797,14 @@
         }
       }
       
-      fillEmptyCells(grid);
+      // Fill empty cells, optionally with hidden message
+      const hiddenMsgData = fillEmptyCells(grid, hiddenMessage);
       
       return {
         grid: grid,
         words: placedWords,
-        positions: wordPositions
+        positions: wordPositions,
+        hiddenMessage: hiddenMsgData
       };
     }
 
@@ -543,50 +812,125 @@
        Rendering
        -------------------------------------------------------------------------- */
 
+    function getCellSize(size, largePrint) {
+      if (largePrint) {
+        return size <= 10 ? 48 : (size <= 15 ? 44 : 38);
+      }
+      return size <= 10 ? 42 : (size <= 15 ? 36 : 30);
+    }
+
+    function getFontSize(size, largePrint, customFontSize = null) {
+      if (customFontSize) return customFontSize;
+      if (largePrint) {
+        return size <= 10 ? 18 : (size <= 15 ? 16 : 14);
+      }
+      return size <= 10 ? 16 : (size <= 15 ? 14 : 12);
+    }
+
+    // Store all puzzles for multi-puzzle pages
+    let allPuzzles = [];
+    let largePrintMode = false;
+
     function renderPuzzle() {
       const puzzleContainer = document.getElementById('puzzle-container');
-      const printHeader = document.getElementById('print-header');
       const printHeaderTitle = document.getElementById('print-header-title');
       const solutionsOption = document.getElementById('solutions').value;
+      const perPage = allPuzzles.length;
       
-      // Print header is controlled by CSS @media print
-      // Don't show it on screen
+      // Print header
       printHeaderTitle.textContent = `Word Search (${currentSize}×${currentSize} - ${currentDifficulty})`;
       
-      // Build puzzle HTML
-      let html = `
-        <div class="puzzle-item">
-          <h2 class="puzzle-title">Word Search</h2>
-          <p style="margin-bottom: var(--spacing-md); color: var(--color-text-light);">
-            Find the hidden words in the grid below.
-          </p>
-          <table class="wordsearch-grid wordsearch-grid--${currentSize}x${currentSize}">
-      `;
-      
-      for (let row = 0; row < currentSize; row++) {
-        html += '<tr>';
-        for (let col = 0; col < currentSize; col++) {
-          html += `<td>${currentGrid[row][col]}</td>`;
-        }
-        html += '</tr>';
-      }
-      
-      html += `</table>
-          <div class="word-list">
-            ${currentWords.map(word => `<span class="word-list__item">${word}</span>`).join('')}
-          </div>
-        </div>
-      `;
-      
-      puzzleContainer.innerHTML = html;
+      // Clear and set up container
+      puzzleContainer.innerHTML = '';
       puzzleContainer.style.display = 'block';
       
-      // Handle solutions - controlled by CSS @media print
+      // Apply large print mode class
+      if (largePrintMode) {
+        puzzleContainer.classList.add('large-print-mode');
+      } else {
+        puzzleContainer.classList.remove('large-print-mode');
+      }
+      
+      // Render each puzzle
+      allPuzzles.forEach((puzzle, i) => {
+        const puzzleDiv = document.createElement('div');
+        puzzleDiv.className = 'puzzle-item';
+        
+        const title = document.createElement('h2');
+        title.className = 'puzzle-title';
+        title.textContent = allPuzzles.length > 1 ? `Word Search ${i + 1}` : 'Word Search';
+        puzzleDiv.appendChild(title);
+        
+        const subtitle = document.createElement('p');
+        subtitle.style.cssText = 'margin-bottom: var(--spacing-md); color: var(--color-text-light);';
+        subtitle.textContent = 'Find the hidden words in the grid below.';
+        puzzleDiv.appendChild(subtitle);
+        
+        // Build grid
+        const gridClass = `wordsearch-grid wordsearch-grid--${currentSize}x${currentSize}`;
+        const table = document.createElement('table');
+        table.className = gridClass;
+        table.setAttribute('role', 'grid');
+        table.setAttribute('aria-label', `Word Search puzzle ${i + 1}`);
+        
+        for (let row = 0; row < currentSize; row++) {
+          const tr = document.createElement('tr');
+          for (let col = 0; col < currentSize; col++) {
+            const td = document.createElement('td');
+            td.textContent = puzzle.grid[row][col];
+            tr.appendChild(td);
+          }
+          table.appendChild(tr);
+        }
+        puzzleDiv.appendChild(table);
+        
+        // Word list
+        const wordListDiv = document.createElement('div');
+        wordListDiv.className = 'word-list';
+        puzzle.words.forEach(word => {
+          const span = document.createElement('span');
+          span.className = 'word-list__item';
+          span.textContent = word;
+          wordListDiv.appendChild(span);
+        });
+        puzzleDiv.appendChild(wordListDiv);
+        
+        // Hidden message section
+        if (puzzle.hiddenMessage) {
+          const msgDiv = document.createElement('div');
+          msgDiv.className = 'hidden-message';
+          msgDiv.innerHTML = `
+            <p class="hidden-message__label">Hidden Message (find these letters!)</p>
+            <p class="hidden-message__text">${puzzle.hiddenMessage.message || ''}</p>
+          `;
+          puzzleDiv.appendChild(msgDiv);
+        }
+        
+        // Solution on same page
+        if (solutionsOption === 'same') {
+          const solutionDiv = createSolutionInlineDiv(puzzle, i);
+          puzzleDiv.appendChild(solutionDiv);
+        }
+        
+        puzzleContainer.appendChild(puzzleDiv);
+      });
+      
+      // Handle solutions for separate page
       const solutionSection = document.getElementById('solution-section');
+      solutionSection.innerHTML = '';
       
       if (solutionsOption === 'separate') {
         solutionSection.style.display = 'block';
-        renderSolution();
+        if (largePrintMode) {
+          solutionSection.classList.add('large-print-mode');
+        } else {
+          solutionSection.classList.remove('large-print-mode');
+        }
+        
+        allPuzzles.forEach((puzzle, i) => {
+          const solutionDiv = createSolutionSeparateDiv(puzzle, i);
+          solutionSection.appendChild(solutionDiv);
+        });
       } else {
         solutionSection.style.display = 'none';
       }
@@ -598,278 +942,230 @@
       // Show affiliate banner
       document.getElementById('affiliate-banner').style.display = 'block';
     }
-
-    function renderSolution() {
-      const solutionSection = document.getElementById('solution-section');
-      
-      // Create highlight grid
+    
+    function createSolutionInlineDiv(puzzle, index) {
       const highlightGrid = Array(currentSize).fill(null).map(() => Array(currentSize).fill(false));
       
-      for (const pos of currentPositions) {
+      for (const pos of puzzle.positions) {
         const [dRow, dCol] = pos.direction;
         for (let i = 0; i < pos.word.length; i++) {
           const row = pos.startRow + i * dRow;
           const col = pos.startCol + i * dCol;
-          highlightGrid[row][col] = true;
+          if (row >= 0 && row < currentSize && col >= 0 && col < currentSize) {
+            highlightGrid[row][col] = true;
+          }
         }
       }
       
-      // Build solution HTML
-      let html = `
-        <div class="puzzle-item">
-          <h2 class="solution-title">Solution</h2>
-          <table class="wordsearch-grid solution-grid wordsearch-grid--${currentSize}x${currentSize}">
-      `;
+      const div = document.createElement('div');
+      div.className = 'solution-section';
+      div.style.cssText = 'margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px dashed var(--color-border);';
+      
+      const title = document.createElement('h3');
+      title.style.marginBottom = 'var(--spacing-md)';
+      title.textContent = allPuzzles.length > 1 ? `Solution ${index + 1}` : 'Solution';
+      div.appendChild(title);
+      
+      const table = document.createElement('table');
+      table.className = `wordsearch-grid solution-grid wordsearch-grid--${currentSize}x${currentSize}`;
       
       for (let row = 0; row < currentSize; row++) {
-        html += '<tr>';
+        const tr = document.createElement('tr');
         for (let col = 0; col < currentSize; col++) {
-          const highlightClass = highlightGrid[row][col] ? 'highlighted' : '';
-          html += `<td class="${highlightClass}">${currentGrid[row][col]}</td>`;
+          const td = document.createElement('td');
+          td.className = highlightGrid[row][col] ? 'highlighted' : '';
+          td.textContent = puzzle.grid[row][col];
+          tr.appendChild(td);
         }
-        html += '</tr>';
+        table.appendChild(tr);
       }
+      div.appendChild(table);
       
-      html += '</table></div>';
-      
-      // Append to solution section (after the print header)
-      const existingSolution = solutionSection.querySelector('.puzzle-item');
-      if (existingSolution) {
-        existingSolution.remove();
-      }
-      solutionSection.insertAdjacentHTML('beforeend', html);
+      return div;
     }
+    
+    function createSolutionSeparateDiv(puzzle, index) {
+      const highlightGrid = Array(currentSize).fill(null).map(() => Array(currentSize).fill(false));
+      
+      for (const pos of puzzle.positions) {
+        const [dRow, dCol] = pos.direction;
+        for (let i = 0; i < pos.word.length; i++) {
+          const row = pos.startRow + i * dRow;
+          const col = pos.startCol + i * dCol;
+          if (row >= 0 && row < currentSize && col >= 0 && col < currentSize) {
+            highlightGrid[row][col] = true;
+          }
+        }
+      }
+      
+      const div = document.createElement('div');
+      div.className = 'puzzle-item';
+      
+      const title = document.createElement('h2');
+      title.className = 'solution-title';
+      title.textContent = allPuzzles.length > 1 ? `Solution ${index + 1}` : 'Solution';
+      div.appendChild(title);
+      
+      const table = document.createElement('table');
+      table.className = `wordsearch-grid solution-grid wordsearch-grid--${currentSize}x${currentSize}`;
+      
+      for (let row = 0; row < currentSize; row++) {
+        const tr = document.createElement('tr');
+        for (let col = 0; col < currentSize; col++) {
+          const td = document.createElement('td');
+          td.className = highlightGrid[row][col] ? 'highlighted' : '';
+          td.textContent = puzzle.grid[row][col];
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+      div.appendChild(table);
+      
+      return div;
+    }
+
+
 
     /* --------------------------------------------------------------------------
        Actions
        -------------------------------------------------------------------------- */
 
-    function generatePuzzle() {
+    async function generatePuzzle() {
       currentSize = parseInt(document.getElementById('size').value);
       currentDifficulty = document.getElementById('difficulty').value;
-      currentTheme = document.getElementById('theme').value;
+      const perPage = parseInt(document.getElementById('per-page').value);
       
-      // Handle custom words
-      let words = null;
-      if (currentTheme === 'custom') {
-        const customWordsInput = document.getElementById('custom-words').value;
-        words = customWordsInput
+      // Get selected themes
+      const themeCheckboxes = document.querySelectorAll('#theme-checkbox-group input:checked');
+      const selectedThemes = Array.from(themeCheckboxes).map(cb => cb.value);
+      
+      // Get words from word preview textarea
+      const wordPreview = document.getElementById('word-preview');
+      let customWords = null;
+      
+      if (wordPreview.value.trim()) {
+        customWords = wordPreview.value
           .split(/[\n,]+/)
           .map(w => w.trim().toUpperCase())
           .filter(w => w.length > 0);
         
-        if (words.length < 3) {
-          alert('Please enter at least 3 words for custom word list.');
+        if (customWords.length < 3) {
+          alert('Please enter at least 3 words.');
           return;
         }
+      } else if (selectedThemes.length === 0) {
+        alert('Please select at least one theme or enter custom words.');
+        return;
       }
       
-      const result = generateWordSearch(currentSize, currentDifficulty, currentTheme, words);
-      currentGrid = result.grid;
-      currentWords = result.words;
-      currentPositions = result.positions;
+      // Handle hidden message
+      let hiddenMessage = null;
+      if (document.getElementById('hidden-message-toggle').checked) {
+        hiddenMessage = document.getElementById('hidden-message').value.trim() || null;
+      }
+      
+      // Generate puzzles
+      allPuzzles = [];
+      for (let i = 0; i < perPage; i++) {
+        // Pick a theme from selected ones (rotate through)
+        const theme = selectedThemes.length > 0 ? selectedThemes[i % selectedThemes.length] : 'animals';
+        const result = await generateWordSearch(currentSize, currentDifficulty, theme, customWords, hiddenMessage);
+        allPuzzles.push(result);
+      }
+      
+      // Store first puzzle for backwards compatibility with export
+      currentGrid = allPuzzles[0].grid;
+      currentWords = allPuzzles[0].words;
+      currentPositions = allPuzzles[0].positions;
+      currentHiddenMessage = allPuzzles[0].hiddenMessage;
       
       renderPuzzle();
     }
+    
+    async function updateWordPreview() {
+      const themeCheckboxes = document.querySelectorAll('#theme-checkbox-group input:checked');
+      const selectedThemes = Array.from(themeCheckboxes).map(cb => cb.value);
+      const wordPreview = document.getElementById('word-preview');
+      
+      if (selectedThemes.length === 0) {
+        return;
+      }
+      
+      // Combine words from all selected themes
+      const allWords = [];
+      for (const theme of selectedThemes) {
+        const words = await loadWordList(theme);
+        allWords.push(...words);
+      }
+      
+      // Update preview textarea
+      wordPreview.value = allWords.join(', ');
+    }
 
     function printPuzzle() {
-      // Solution visibility is controlled by CSS @media print
       window.print();
     }
 
     function exportPuzzle() {
-      // Create canvas for PNG export
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const cellSize = currentSize <= 10 ? 40 : (currentSize <= 15 ? 32 : 28);
-      const padding = 20;
-      const gridWidth = currentSize * cellSize;
+      const canvas = createPuzzleCanvas300DPI(
+        { grid: currentGrid, words: currentWords, positions: currentPositions, hiddenMessage: currentHiddenMessage },
+        1, currentDifficulty, largePrintMode, null
+      );
       
-      canvas.width = gridWidth + padding * 2;
-      canvas.height = gridWidth + padding * 2;
-      
-      // White background
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw grid
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = `bold ${cellSize * 0.5}px Arial`;
-      
-      for (let row = 0; row < currentSize; row++) {
-        for (let col = 0; col < currentSize; col++) {
-          const x = padding + col * cellSize;
-          const y = padding + row * cellSize;
-          
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(x, y, cellSize, cellSize);
-          
-          ctx.strokeStyle = '#cbd5e0';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(x, y, cellSize, cellSize);
-          
-          ctx.fillStyle = '#1a202c';
-          ctx.fillText(currentGrid[row][col], x + cellSize / 2, y + cellSize / 2);
-        }
-      }
-      
-      // Grid border
-      ctx.strokeStyle = '#1a202c';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(padding, padding, gridWidth, gridWidth);
-      
-      // Download
       const link = document.createElement('a');
-      link.download = `wordsearch-${currentSize}x${currentSize}-${currentDifficulty}.png`;
+      link.download = `wordsearch-${currentSize}x${currentSize}-${currentDifficulty}${largePrintMode ? '-large-print' : ''}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
 
-    async function generateBulkPuzzles() {
-      const count = parseInt(document.getElementById('bulk-count').value) || 50;
-      const difficulties = [];
-      
-      if (document.getElementById('diff-easy').checked) difficulties.push('easy');
-      if (document.getElementById('diff-medium').checked) difficulties.push('medium');
-      if (document.getElementById('diff-hard').checked) difficulties.push('hard');
-      if (document.getElementById('diff-expert').checked) difficulties.push('expert');
-      
-      if (difficulties.length === 0) {
-        alert('Please select at least one difficulty level.');
-        return;
-      }
-      
-      const progressContainer = document.getElementById('bulk-progress');
-      const progressFill = document.getElementById('progress-fill');
-      const progressText = document.getElementById('progress-text');
-      const bulkBtn = document.getElementById('bulk-generate-btn');
-      
-      progressContainer.classList.remove('hidden');
-      bulkBtn.disabled = true;
-      
-      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
-      const sizeName = `${currentSize}x${currentSize}`;
-      
-      const zip = new JSZip();
-      const puzzlesFolder = zip.folder('puzzles');
-      const solutionsFolder = zip.folder('solutions');
-      
-      const puzzles = [];
-      const puzzleDiffs = [];
-      const diffCounts = { easy: 0, medium: 0, hard: 0, expert: 0 };
-      
-      // Generate all puzzles
-      for (let i = 0; i < count; i++) {
-        const percent = Math.round((i + 1) / count * 100);
-        progressFill.style.width = `${percent}%`;
-        progressText.textContent = `Generating puzzle ${i + 1} of ${count}...`;
-        
-        const diff = difficulties[i % difficulties.length];
-        const result = generateWordSearch(currentSize, diff, currentTheme);
-        
-        puzzles.push(result);
-        puzzleDiffs.push(diff);
-        diffCounts[diff]++;
-        
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
-      
-      progressText.textContent = 'Creating puzzle images...';
-      
-      // Reset counts for file naming
-      const diffNumbers = { easy: 0, medium: 0, hard: 0, expert: 0 };
-      
-      // Generate puzzle PNGs
-      for (let i = 0; i < puzzles.length; i++) {
-        progressText.textContent = `Creating puzzle ${i + 1} of ${puzzles.length}...`;
-        
-        const diff = puzzleDiffs[i];
-        diffNumbers[diff]++;
-        const puzzleNum = diffNumbers[diff];
-        
-        const canvas = createPuzzleCanvas(puzzles[i], puzzleNum, diff);
-        const dataUrl = canvas.toDataURL('image/png');
-        const base64Data = dataUrl.split(',')[1];
-        puzzlesFolder.file(`${diffNames[diff].toLowerCase()}-${String(puzzleNum).padStart(3, '0')}.png`, base64Data, { base64: true });
-        
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
-      
-      progressText.textContent = 'Creating solution pages...';
-      
-      // Create solution pages grouped by difficulty
-      const solutionsPerPage = 12;
-      
-      for (const diff of difficulties) {
-        const diffName = diffNames[diff];
-        const diffIndices = puzzleDiffs.map((d, i) => d === diff ? i : -1).filter(i => i >= 0);
-        const diffPuzzles = diffIndices.map(i => puzzles[i]);
-        
-        if (diffPuzzles.length === 0) continue;
-        
-        const numPages = Math.ceil(diffPuzzles.length / solutionsPerPage);
-        
-        for (let page = 0; page < numPages; page++) {
-          progressText.textContent = `Creating ${diffName} solution page ${page + 1} of ${numPages}...`;
-          const startIdx = page * solutionsPerPage;
-          const endIdx = Math.min(startIdx + solutionsPerPage, diffPuzzles.length);
-          const pagePuzzles = diffPuzzles.slice(startIdx, endIdx);
-          const startNumber = startIdx + 1;
-          
-          const canvas = createSolutionPage(pagePuzzles, startNumber, diffName);
-          const dataUrl = canvas.toDataURL('image/png');
-          const base64Data = dataUrl.split(',')[1];
-          solutionsFolder.file(`${diffName.toLowerCase()}-solutions-${String(page + 1).padStart(3, '0')}.png`, base64Data, { base64: true });
-          
-          await new Promise(resolve => setTimeout(resolve, 0));
-        }
-      }
-      
-      progressText.textContent = 'Creating ZIP file...';
-      
-      const content = await zip.generateAsync({ type: 'blob' });
-      const url = URL.createObjectURL(content);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `wordsearch-${sizeName}-${count}-puzzles.zip`;
-      link.click();
-      URL.revokeObjectURL(url);
-      
-      progressContainer.classList.add('hidden');
-      bulkBtn.disabled = false;
-    }
+    /* --------------------------------------------------------------------------
+       300 DPI Canvas Creation
+       -------------------------------------------------------------------------- */
 
-    function createPuzzleCanvas(puzzle, puzzleNum, difficulty) {
+    function createPuzzleCanvas300DPI(puzzle, puzzleNum, difficulty, largePrint = false, customFontSize = null) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const size = puzzle.grid.length;
-      const cellSize = size <= 10 ? 40 : (size <= 15 ? 32 : 26);
+      const dpi = 300;
+      const scale = dpi / 96;
+      
+      // Calculate cell size for large print
+      const baseCellSize = size <= 10 ? 40 : (size <= 15 ? 32 : 26);
+      const cellSize = Math.round((largePrint ? baseCellSize * 1.3 : baseCellSize) * scale);
       const gridWidth = size * cellSize;
-      const padding = 40;
-      const headerHeight = 80;
-      const wordListHeight = Math.ceil(puzzle.words.length / 5) * 30 + 40;
+      const padding = Math.round((largePrint ? 60 : 40) * scale);
+      const headerHeight = Math.round((largePrint ? 100 : 80) * scale);
+      const wordListHeight = Math.round((Math.ceil(puzzle.words.length / 5) * (largePrint ? 35 : 25) + 40) * scale);
       
       canvas.width = gridWidth + padding * 2;
       canvas.height = gridWidth + padding * 2 + headerHeight + wordListHeight;
+      
+      // Scale for 300 DPI
+      ctx.scale(1, 1); // We already calculated in scaled pixels
       
       // White background
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Header
+      const titleSize = Math.round((largePrint ? 28 : 20) * scale);
+      const subtitleSize = Math.round((largePrint ? 18 : 14) * scale);
+      
       ctx.fillStyle = '#1a202c';
-      ctx.font = 'bold 20px Arial';
+      ctx.font = `bold ${titleSize}px Arial`;
       ctx.textAlign = 'center';
-      ctx.fillText(`Word Search - Puzzle ${puzzleNum}`, canvas.width / 2, 30);
-      ctx.font = '14px Arial';
+      ctx.fillText(`Word Search - Puzzle ${puzzleNum}`, canvas.width / 2, Math.round(30 * scale));
+      
+      ctx.font = `${subtitleSize}px Arial`;
       ctx.fillStyle = '#4a5568';
-      ctx.fillText(`${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} - ${size}x${size}`, canvas.width / 2, 55);
+      const diffLabel = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+      ctx.fillText(`${diffLabel} - ${size}×${size}${largePrint ? ' (Large Print)' : ''}`, canvas.width / 2, Math.round(55 * scale));
       
       // Draw grid
+      const fontSize = Math.round((largePrint ? 18 : (customFontSize || 14)) * scale);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `bold ${cellSize * 0.5}px Arial`;
+      ctx.font = `bold ${fontSize}px Arial`;
       
       const gridTop = headerHeight + padding;
       
@@ -882,7 +1178,7 @@
           ctx.fillRect(x, y, cellSize, cellSize);
           
           ctx.strokeStyle = '#cbd5e0';
-          ctx.lineWidth = 1;
+          ctx.lineWidth = Math.round(scale);
           ctx.strokeRect(x, y, cellSize, cellSize);
           
           ctx.fillStyle = '#1a202c';
@@ -892,119 +1188,230 @@
       
       // Grid border
       ctx.strokeStyle = '#1a202c';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = Math.round(2 * scale);
       ctx.strokeRect(padding, gridTop, gridWidth, gridWidth);
       
       // Word list
-      const wordListTop = gridTop + gridWidth + 20;
+      const wordListTop = gridTop + gridWidth + Math.round(20 * scale);
+      const wordFontSize = Math.round((largePrint ? 16 : 12) * scale);
       ctx.fillStyle = '#1a202c';
-      ctx.font = 'bold 14px Arial';
+      ctx.font = `bold ${Math.round(14 * scale)}px Arial`;
       ctx.textAlign = 'left';
       ctx.fillText('Find:', padding, wordListTop);
       
-      ctx.font = '12px Arial';
-      ctx.textAlign = 'left';
+      ctx.font = `${wordFontSize}px Arial`;
       const colWidth = (canvas.width - padding * 2) / 5;
       puzzle.words.forEach((word, i) => {
         const col = i % 5;
         const row = Math.floor(i / 5);
-        ctx.fillText(word.toUpperCase(), padding + col * colWidth, wordListTop + 20 + row * 25);
+        ctx.fillText(word.toUpperCase(), padding + col * colWidth, wordListTop + Math.round(20 * scale) + row * Math.round(25 * scale));
       });
+      
+      // Hidden message if present
+      if (puzzle.hiddenMessage && puzzle.hiddenMessage.message) {
+        const msgY = wordListTop + Math.ceil(puzzle.words.length / 5) * Math.round(25 * scale) + Math.round(40 * scale);
+        ctx.fillStyle = '#6b46c1';
+        ctx.font = `bold ${Math.round(12 * scale)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('Hidden Message: ' + puzzle.hiddenMessage.message, canvas.width / 2, msgY);
+      }
       
       // Footer
       ctx.fillStyle = '#718096';
-      ctx.font = '10px Arial';
+      ctx.font = `${Math.round(10 * scale)}px Arial`;
       ctx.textAlign = 'center';
-      ctx.fillText('puzzle-engine.com', canvas.width / 2, canvas.height - 10);
+      ctx.fillText('puzzle-engine.com', canvas.width / 2, canvas.height - Math.round(15 * scale));
       
       return canvas;
     }
 
-    function createSolutionPage(puzzles, startNumber, difficulty) {
+    function createSolutionCanvas300DPI(puzzle, puzzleNum, difficulty, largePrint = false) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const solutionsPerRow = 4;
-      const cellSize = 18;
-      const gridSize = puzzles[0].grid.length * cellSize;
-      const boxWidth = gridSize + 20;
-      const boxHeight = gridSize + 50;
-      const cols = solutionsPerRow;
-      const rows = Math.ceil(puzzles.length / cols);
+      const size = puzzle.grid.length;
+      const dpi = 300;
+      const scale = dpi / 96;
       
-      canvas.width = cols * boxWidth + 40;
-      canvas.height = rows * boxHeight + 80;
+      const baseCellSize = size <= 10 ? 40 : (size <= 15 ? 32 : 26);
+      const cellSize = Math.round((largePrint ? baseCellSize * 1.3 : baseCellSize) * scale);
+      const gridWidth = size * cellSize;
+      const padding = Math.round((largePrint ? 60 : 40) * scale);
+      const headerHeight = Math.round((largePrint ? 80 : 60) * scale);
+      
+      canvas.width = gridWidth + padding * 2;
+      canvas.height = gridWidth + padding * 2 + headerHeight;
       
       // White background
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Header
+      const titleSize = Math.round((largePrint ? 24 : 18) * scale);
       ctx.fillStyle = '#1a202c';
-      ctx.font = 'bold 18px Arial';
+      ctx.font = `bold ${titleSize}px Arial`;
       ctx.textAlign = 'center';
-      ctx.fillText(`${difficulty} Solutions`, canvas.width / 2, 30);
+      ctx.fillText(`Solution - Puzzle ${puzzleNum}`, canvas.width / 2, Math.round(25 * scale));
       
-      // Draw each solution
-      puzzles.forEach((puzzle, i) => {
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-        const x = 20 + col * boxWidth + 10;
-        const y = 60 + row * boxHeight;
-        const size = puzzle.grid.length;
-        
-        // Puzzle number
-        ctx.fillStyle = '#4a5568';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(`#${startNumber + i}`, x + gridSize / 2, y - 5);
-        
-        // Create highlight grid
-        const highlightGrid = Array(size).fill(null).map(() => Array(size).fill(false));
-        for (const pos of puzzle.positions) {
-          const [dRow, dCol] = pos.direction;
-          for (let j = 0; j < pos.word.length; j++) {
-            const r = pos.startRow + j * dRow;
-            const c = pos.startCol + j * dCol;
-            if (r >= 0 && r < size && c >= 0 && c < size) {
-              highlightGrid[r][c] = true;
-            }
+      // Create highlight grid
+      const highlightGrid = Array(size).fill(null).map(() => Array(size).fill(false));
+      for (const pos of puzzle.positions) {
+        const [dRow, dCol] = pos.direction;
+        for (let j = 0; j < pos.word.length; j++) {
+          const r = pos.startRow + j * dRow;
+          const c = pos.startCol + j * dCol;
+          if (r >= 0 && r < size && c >= 0 && c < size) {
+            highlightGrid[r][c] = true;
           }
         }
-        
-        // Draw grid
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = `bold ${cellSize * 0.6}px Arial`;
-        
-        for (let r = 0; r < size; r++) {
-          for (let c = 0; c < size; c++) {
-            const px = x + c * cellSize;
-            const py = y + c * cellSize + r * cellSize - c * cellSize + c * cellSize;
-            const cellX = x + c * cellSize;
-            const cellY = y + r * cellSize;
-            
-            if (highlightGrid[r][c]) {
-              ctx.fillStyle = 'rgba(107, 70, 193, 0.2)';
-              ctx.fillRect(cellX, cellY, cellSize, cellSize);
-            }
-            
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 0.5;
-            ctx.strokeRect(cellX, cellY, cellSize, cellSize);
-            
-            ctx.fillStyle = '#1a202c';
-            ctx.fillText(puzzle.grid[r][c], cellX + cellSize / 2, cellY + cellSize / 2);
+      }
+      
+      // Draw grid
+      const fontSize = Math.round((largePrint ? 16 : 12) * scale);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `bold ${fontSize}px Arial`;
+      
+      const gridTop = headerHeight + padding;
+      
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          const x = padding + col * cellSize;
+          const y = gridTop + row * cellSize;
+          
+          if (highlightGrid[row][col]) {
+            ctx.fillStyle = 'rgba(107, 70, 193, 0.2)';
+            ctx.fillRect(x, y, cellSize, cellSize);
+          } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(x, y, cellSize, cellSize);
           }
+          
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = Math.round(scale);
+          ctx.strokeRect(x, y, cellSize, cellSize);
+          
+          ctx.fillStyle = '#1a202c';
+          ctx.fillText(puzzle.grid[row][col], x + cellSize / 2, y + cellSize / 2);
         }
-      });
+      }
+      
+      // Grid border
+      ctx.strokeStyle = '#1a202c';
+      ctx.lineWidth = Math.round(2 * scale);
+      ctx.strokeRect(padding, gridTop, gridWidth, gridWidth);
       
       // Footer
       ctx.fillStyle = '#718096';
-      ctx.font = '10px Arial';
+      ctx.font = `${Math.round(10 * scale)}px Arial`;
       ctx.textAlign = 'center';
-      ctx.fillText('puzzle-engine.com', canvas.width / 2, canvas.height - 10);
+      ctx.fillText('puzzle-engine.com', canvas.width / 2, canvas.height - Math.round(10 * scale));
       
       return canvas;
+    }
+
+    /* --------------------------------------------------------------------------
+       Bulk Generation
+       -------------------------------------------------------------------------- */
+
+    async function generateBulkPuzzles() {
+      const count = parseInt(document.getElementById('bulk-count').value) || 100;
+      
+      // Get selected difficulties
+      const difficulties = [];
+      if (document.getElementById('diff-easy').checked) difficulties.push('easy');
+      if (document.getElementById('diff-medium').checked) difficulties.push('medium');
+      if (document.getElementById('diff-hard').checked) difficulties.push('hard');
+      
+      if (difficulties.length === 0) {
+        alert('Please select at least one difficulty level.');
+        return;
+      }
+      
+      // Get selected themes for bulk
+      const themeCheckboxes = document.querySelectorAll('#bulk-themes input:checked');
+      const themes = Array.from(themeCheckboxes).map(cb => cb.value);
+      
+      if (themes.length === 0) {
+        alert('Please select at least one theme.');
+        return;
+      }
+      
+      const progressContainer = document.getElementById('bulk-progress');
+      const progressFill = document.getElementById('progress-fill');
+      const progressText = document.getElementById('progress-text');
+      const bulkBtn = document.getElementById('bulk-generate-btn');
+      
+      progressContainer.classList.remove('hidden');
+      bulkBtn.disabled = true;
+      
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+      const sizeName = `${currentSize}x${currentSize}`;
+      
+      const zip = new JSZip();
+      const puzzlesFolder = zip.folder('puzzles');
+      const solutionsFolder = zip.folder('solutions');
+      
+      const puzzles = [];
+      const puzzleData = [];
+      
+      // Generate all puzzles
+      for (let i = 0; i < count; i++) {
+        const percent = Math.round((i + 1) / count * 100);
+        progressFill.style.width = `${percent}%`;
+        progressText.textContent = `Generating puzzle ${i + 1} of ${count}...`;
+        
+        const diff = difficulties[i % difficulties.length];
+        const theme = themes[i % themes.length];
+        const result = await generateWordSearch(currentSize, diff, theme, null, null);
+        
+        puzzles.push(result);
+        puzzleData.push({ difficulty: diff, theme: theme });
+        
+        // Yield to UI
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      
+      progressText.textContent = 'Creating puzzle images...';
+      
+      // Track puzzle numbers per difficulty
+      const diffNumbers = { easy: 0, medium: 0, hard: 0 };
+      
+      // Generate puzzle and solution PNGs
+      for (let i = 0; i < puzzles.length; i++) {
+        const { difficulty, theme } = puzzleData[i];
+        diffNumbers[difficulty]++;
+        const puzzleNum = diffNumbers[difficulty];
+        
+        progressText.textContent = `Creating puzzle ${i + 1} of ${puzzles.length}...`;
+        
+        const puzzleCanvas = createPuzzleCanvas300DPI(puzzles[i], puzzleNum, difficulty, largePrintMode, null);
+        const solutionCanvas = createSolutionCanvas300DPI(puzzles[i], puzzleNum, difficulty, largePrintMode);
+        
+        const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
+        const solutionDataUrl = solutionCanvas.toDataURL('image/png');
+        
+        puzzlesFolder.file(`${diffNames[difficulty].toLowerCase()}-${String(puzzleNum).padStart(3, '0')}.png`, 
+          puzzleDataUrl.split(',')[1], { base64: true });
+        solutionsFolder.file(`${diffNames[difficulty].toLowerCase()}-${String(puzzleNum).padStart(3, '0')}.png`, 
+          solutionDataUrl.split(',')[1], { base64: true });
+        
+        if (i % 10 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+      
+      progressText.textContent = 'Creating ZIP file...';
+      
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `wordsearch-${sizeName}-${count}-puzzles-300dpi.zip`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      progressContainer.classList.add('hidden');
+      bulkBtn.disabled = false;
     }
 
     /* --------------------------------------------------------------------------
@@ -1018,15 +1425,46 @@
       document.getElementById('export-btn').addEventListener('click', exportPuzzle);
       document.getElementById('bulk-generate-btn').addEventListener('click', generateBulkPuzzles);
       
-      // Theme selector - show/hide custom words field
-      const themeSelect = document.getElementById('theme');
-      const customWordsField = document.getElementById('custom-words-field');
+      // Theme checkbox handlers
+      const themeCheckboxes = document.querySelectorAll('#theme-checkbox-group input');
+      themeCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateWordPreview);
+      });
       
-      themeSelect.addEventListener('change', function() {
-        if (themeSelect.value === 'custom') {
-          customWordsField.style.display = 'block';
+      // Hidden message toggle
+      const hiddenMessageToggle = document.getElementById('hidden-message-toggle');
+      const hiddenMessageInput = document.getElementById('hidden-message');
+      
+      hiddenMessageToggle.addEventListener('change', function() {
+        hiddenMessageInput.style.display = hiddenMessageToggle.checked ? 'block' : 'none';
+      });
+      
+      // Large print toggle - only toggles CSS class, no regeneration
+      document.getElementById('large-print-toggle').addEventListener('change', function() {
+        largePrintMode = this.checked;
+        const container = document.getElementById('puzzle-container');
+        const solutionSection = document.getElementById('solution-section');
+        
+        if (largePrintMode) {
+          container.classList.add('large-print-mode');
+          solutionSection.classList.add('large-print-mode');
         } else {
-          customWordsField.style.display = 'none';
+          container.classList.remove('large-print-mode');
+          solutionSection.classList.remove('large-print-mode');
+        }
+      });
+      
+      // Solution format change
+      document.getElementById('solutions').addEventListener('change', function() {
+        if (allPuzzles.length > 0) {
+          renderPuzzle();
+        }
+      });
+      
+      // Per page change
+      document.getElementById('per-page').addEventListener('change', function() {
+        if (allPuzzles.length > 0) {
+          generatePuzzle();
         }
       });
       
@@ -1042,6 +1480,7 @@
       
       // Generate initial puzzle
       generatePuzzle();
+      updateWordPreview();
     });
   </script>
 </body>

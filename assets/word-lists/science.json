@@ -1,0 +1,16 @@
+{
+  "name": "Science",
+  "description": "Scientific terms, discoveries, and concepts",
+  "difficulty": "all",
+  "words": [
+    "atom", "molecule", "electron", "proton", "neutron",
+    "gravity", "energy", "force", "motion", "velocity",
+    "light", "sound", "heat", "electricity", "magnet",
+    "cell", "DNA", "gene", "protein", "enzyme",
+    "bacteria", "virus", "fungus", "microbe", "organism",
+    "planet", "star", "galaxy", "universe", "nebula",
+    "evolution", "mutation", "species", "habitat", "ecosystem",
+    "chemistry", "physics", "biology", "geology", "astronomy",
+    "experiment", "hypothesis", "theory", "research", "discovery"
+  ]
+}

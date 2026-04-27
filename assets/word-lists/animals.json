@@ -1,0 +1,16 @@
+{
+  "name": "Animals",
+  "description": "Common and exotic animals",
+  "difficulty": "all",
+  "words": [
+    "cat", "dog", "bird", "fish", "bear",
+    "lion", "tiger", "zebra", "elephant", "monkey",
+    "rabbit", "turtle", "dolphin", "eagle", "shark",
+    "whale", "panda", "koala", "snake", "horse",
+    "wolf", "fox", "deer", "owl", "frog",
+    "penguin", "giraffe", "cheetah", "leopard", "rhino",
+    "hippo", "crocodile", "alligator", "camel", "buffalo",
+    "gorilla", "chimpanzee", "parrot", "peacock", "flamingo",
+    "kangaroo", "koala", "wombat", "platypus", "anteater"
+  ]
+}

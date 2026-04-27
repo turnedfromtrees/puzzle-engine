@@ -1,0 +1,16 @@
+{
+  "name": "Colors",
+  "description": "Colors and shades",
+  "difficulty": "all",
+  "words": [
+    "red", "blue", "green", "yellow", "orange",
+    "purple", "pink", "brown", "black", "white",
+    "gray", "grey", "silver", "gold", "bronze",
+    "crimson", "scarlet", "maroon", "coral", "salmon",
+    "navy", "azure", "turquoise", "teal", "cyan",
+    "emerald", "lime", "olive", "forest", "mint",
+    "amber", "peach", "apricot", "tangerine", "rust",
+    "lavender", "magenta", "violet", "indigo", "plum",
+    "chocolate", "tan", "beige", "ivory", "cream"
+  ]
+}

@@ -1,2 +1,9 @@
 # Dist folder is for Cloudflare deployment
 dist/
+
+# Cloudflare wrangler cache
+.wrangler/
+
+# Misc temp files
+*.tmp
+*.temp

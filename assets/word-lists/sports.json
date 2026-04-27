@@ -1,0 +1,16 @@
+{
+  "name": "Sports",
+  "description": "Sports, games, and athletic activities",
+  "difficulty": "all",
+  "words": [
+    "soccer", "football", "basketball", "baseball", "hockey",
+    "tennis", "golf", "swimming", "running", "cycling",
+    "skiing", "skating", "surfing", "skateboarding", "gymnastics",
+    "volleyball", "badminton", "rugby", "cricket", "boxing",
+    "wrestling", "karate", "judo", "archery", "fencing",
+    "bowling", "pool", "darts", "ping pong", "track",
+    "marathon", "triathlon", "decathlon", "hiking", "climbing",
+    "fishing", "hunting", "rowing", "sailing", "kayaking",
+    "athlete", "champion", "medal", "trophy", "victory"
+  ]
+}

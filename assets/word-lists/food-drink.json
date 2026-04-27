@@ -1,0 +1,22 @@
+{
+  "theme": "food-drink",
+  "words": [
+    "apple", "banana", "orange", "grape", "lemon", "lime", "peach", "pear", "plum", "cherry",
+    "strawberry", "blueberry", "raspberry", "blackberry", "watermelon", "cantaloupe", "honeydew", "kiwi", "mango", "papaya",
+    "pineapple", "coconut", "pomegranate", "grapefruit", "tangerine", "apricot", "nectarine", "fig", "date", "avocado",
+    "tomato", "potato", "carrot", "onion", "garlic", "celery", "lettuce", "spinach", "broccoli", "cauliflower",
+    "cabbage", "kale", "pepper", "cucumber", "zucchini", "squash", "pumpkin", "eggplant", "beet", "radish",
+    "turnip", "parsnip", "asparagus", "corn", "pea", "bean", "mushroom", "olive", "artichoke", "brussels",
+    "bread", "toast", "bagel", "muffin", "croissant", "pancake", "waffle", "biscuit", "roll", "pretzel",
+    "rice", "pasta", "noodle", "spaghetti", "lasagna", "macaroni", "cereal", "oatmeal", "granola", "cracker",
+    "pizza", "burger", "sandwich", "hotdog", "taco", "burrito", "quesadilla", "salad", "soup", "stew",
+    "chicken", "steak", "pork", "bacon", "sausage", "ham", "turkey", "fish", "salmon", "shrimp",
+    "cheese", "butter", "milk", "cream", "yogurt", "eggs", "cake", "pie", "cookie", "brownie",
+    "donut", "cupcake", "ice", "chocolate", "candy", "sugar", "honey", "jam", "jelly", "peanut"
+  ],
+  "metadata": {
+    "wordCount": 120,
+    "difficulty": "mixed",
+    "categories": ["fruits", "vegetables", "grains", "meals", "proteins", "sweets"]
+  }
+}

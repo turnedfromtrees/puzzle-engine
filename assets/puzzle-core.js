@@ -1,6 +1,14 @@
 /**
  * Puzzle Engine - Shared Core Utilities
  * Common functions used across all puzzle types
+ * 
+ * Includes:
+ * - Array manipulation
+ * - Grid utilities
+ * - Canvas helpers
+ * - Large Print configuration
+ * - DPI scaling helpers
+ * - Bulk export progress tracking
  */
 
 /**
@@ -138,6 +146,265 @@ function downloadCanvas(canvas, filename) {
   link.click();
 }
 
+// ============================================================================
+// Large Print Configuration
+// ============================================================================
+
+/**
+ * Large Print mode configuration for accessibility and KDP
+ */
+const LARGE_PRINT = {
+  enabled: false,
+  minFontPt: 16,
+  preferredFontPt: 18,
+  maxFontPt: 24,
+  cellMinMM: 12,           // Minimum 12mm cells for accessibility
+  marginInch: 0.5,          // Extra margins for large print
+  lineHeight: 1.5,          // Increased line height
+  colors: {
+    background: '#ffffff',
+    text: '#000000',
+    grid: '#333333',
+    highlight: '#f0f0f0'
+  }
+};
+
+/**
+ * Enable or disable large print mode
+ * @param {boolean} enabled - Whether to enable large print
+ * @returns {Object} Current large print config
+ */
+function setLargePrintMode(enabled) {
+  LARGE_PRINT.enabled = enabled;
+  return { ...LARGE_PRINT };
+}
+
+/**
+ * Get font size adjusted for large print mode
+ * @param {number} baseFontPt - Base font size in points
+ * @returns {number} Adjusted font size
+ */
+function getLargePrintFontSize(baseFontPt) {
+  if (!LARGE_PRINT.enabled) return baseFontPt;
+  return Math.max(baseFontPt, LARGE_PRINT.minFontPt);
+}
+
+/**
+ * Get cell size adjusted for large print mode
+ * @param {number} baseCellPx - Base cell size in pixels
+ * @returns {number} Adjusted cell size
+ */
+function getLargePrintCellSize(baseCellPx) {
+  if (!LARGE_PRINT.enabled) return baseCellPx;
+  // Convert minimum mm to pixels (at 96 DPI screen)
+  const minPixels = (LARGE_PRINT.cellMinMM / 25.4) * 96;
+  return Math.max(baseCellPx, minPixels);
+}
+
+// ============================================================================
+// DPI Scaling Helpers
+// ============================================================================
+
+/**
+ * DPI configuration constants
+ */
+const DPI = {
+  SCREEN: 96,
+  PRINT: 300,
+  HIGH_QUALITY: 600
+};
+
+/**
+ * Calculate scale factor for target DPI
+ * @param {number} targetDPI - Target DPI (default 300)
+ * @returns {number} Scale factor to multiply dimensions
+ */
+function getDPIScale(targetDPI = DPI.PRINT) {
+  return targetDPI / DPI.SCREEN;
+}
+
+/**
+ * Scale a canvas for high-DPI rendering
+ * @param {HTMLCanvasElement} canvas - Canvas to scale
+ * @param {number} targetDPI - Target DPI (default 300)
+ * @returns {Object} { ctx, scale } - Scaled context and scale factor
+ */
+function scaleCanvasForDPI(canvas, targetDPI = DPI.PRINT) {
+  const ctx = canvas.getContext('2d');
+  const scale = getDPIScale(targetDPI);
+  
+  // Store original dimensions
+  const originalWidth = canvas.width;
+  const originalHeight = canvas.height;
+  
+  // Scale canvas dimensions
+  canvas.width = originalWidth * scale;
+  canvas.height = originalHeight * scale;
+  
+  // Scale context for drawing operations
+  ctx.scale(scale, scale);
+  
+  return { ctx, scale };
+}
+
+/**
+ * Convert millimeters to pixels
+ * @param {number} mm - Millimeters
+ * @param {number} dpi - Target DPI (default 300)
+ * @returns {number} Pixels
+ */
+function mmToPixels(mm, dpi = DPI.SCREEN) {
+  return (mm / 25.4) * dpi;
+}
+
+/**
+ * Convert inches to pixels
+ * @param {number} inches - Inches
+ * @param {number} dpi - Target DPI (default 300)
+ * @returns {number} Pixels
+ */
+function inchesToPixels(inches, dpi = DPI.SCREEN) {
+  return inches * dpi;
+}
+
+// ============================================================================
+// Bulk Export Progress Tracking
+// ============================================================================
+
+/**
+ * Progress tracker for bulk puzzle generation
+ */
+class BulkProgressTracker {
+  constructor(total, onProgress = null) {
+    this.total = total;
+    this.completed = 0;
+    this.onProgress = onProgress;
+    this.startTime = Date.now();
+    this.errors = [];
+  }
+  
+  /**
+   * Increment progress by count
+   * @param {number} count - Number completed (default 1)
+   */
+  increment(count = 1) {
+    this.completed += count;
+    if (this.onProgress) {
+      const elapsed = (Date.now() - this.startTime) / 1000;
+      const rate = this.completed / elapsed;
+      const remaining = this.total - this.completed;
+      const eta = rate > 0 ? remaining / rate : 0;
+      
+      this.onProgress({
+        completed: this.completed,
+        total: this.total,
+        percent: Math.round((this.completed / this.total) * 100),
+        elapsed: Math.round(elapsed),
+        eta: Math.round(eta),
+        errors: this.errors.length
+      });
+    }
+  }
+  
+  /**
+   * Record an error
+   * @param {Error} error - Error that occurred
+   */
+  recordError(error) {
+    this.errors.push({
+      error: error.message,
+      time: Date.now()
+    });
+  }
+  
+  /**
+   * Mark as complete and get final stats
+   * @returns {Object} Final progress stats
+   */
+  complete() {
+    const elapsed = (Date.now() - this.startTime) / 1000;
+    const result = {
+      completed: this.completed,
+      total: this.total,
+      percent: 100,
+      elapsed: Math.round(elapsed),
+      eta: 0,
+      errors: this.errors.length,
+      rate: this.completed / elapsed
+    };
+    
+    if (this.onProgress) {
+      this.onProgress(result);
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Check if cancelled
+   * @returns {boolean} True if should cancel
+   */
+  isCancelled() {
+    return this._cancelled === true;
+  }
+  
+  /**
+   * Cancel the operation
+   */
+  cancel() {
+    this._cancelled = true;
+  }
+}
+
+/**
+ * Generate puzzles in batches with progress tracking
+ * @param {Function} generatorFn - Function that generates one puzzle
+ * @param {number} count - Total puzzles to generate
+ * @param {Object} options - Options
+ * @returns {Promise<Array>} Array of generated puzzles
+ */
+async function generateWithProgress(generatorFn, count, options = {}) {
+  const {
+    onProgress = null,
+    batchSize = 10,
+    yieldMs = 0
+  } = options;
+  
+  const tracker = new BulkProgressTracker(count, onProgress);
+  const results = [];
+  
+  for (let i = 0; i < count; i += batchSize) {
+    if (tracker.isCancelled()) break;
+    
+    const batchEnd = Math.min(i + batchSize, count);
+    
+    for (let j = i; j < batchEnd; j++) {
+      if (tracker.isCancelled()) break;
+      
+      try {
+        const puzzle = generatorFn(j);
+        results.push(puzzle);
+      } catch (error) {
+        tracker.recordError(error);
+        results.push(null);
+      }
+      tracker.increment();
+    }
+    
+    // Yield to event loop to prevent UI freeze
+    if (yieldMs >= 0) {
+      await new Promise(resolve => setTimeout(resolve, yieldMs));
+    }
+  }
+  
+  tracker.complete();
+  return results;
+}
+
+// ============================================================================
+// Mobile Navigation
+// ============================================================================
+
 /**
  * Initialize mobile navigation toggle
  */
@@ -174,14 +441,36 @@ function initMobileNav() {
 // Initialize mobile nav on DOM ready
 document.addEventListener('DOMContentLoaded', initMobileNav);
 
+// ============================================================================
+// Module Exports
+// ============================================================================
+
 // Export for use in puzzle files
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    // Core utilities
     shuffleArray,
     createEmptyGrid,
     createCanvasWithHeader,
     drawGridCells,
     addCanvasFooter,
-    downloadCanvas
+    downloadCanvas,
+    
+    // Large print
+    LARGE_PRINT,
+    setLargePrintMode,
+    getLargePrintFontSize,
+    getLargePrintCellSize,
+    
+    // DPI scaling
+    DPI,
+    getDPIScale,
+    scaleCanvasForDPI,
+    mmToPixels,
+    inchesToPixels,
+    
+    // Bulk progress
+    BulkProgressTracker,
+    generateWithProgress
   };
 }

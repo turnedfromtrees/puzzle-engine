@@ -1,0 +1,14 @@
+{
+  "name": "Body Parts",
+  "emoji": "🖐️",
+  "words": [
+    "HEAD", "FACE", "EYE", "EAR", "NOSE",
+    "MOUTH", "TOOTH", "TEETH", "TONGUE", "LIP",
+    "HAIR", "NECK", "SHOULDER", "ARM", "ELBOW",
+    "WRIST", "HAND", "FINGER", "THUMB", "NAIL",
+    "CHEST", "BACK", "STOMACH", "HIP", "LEG",
+    "KNEE", "ANKLE", "FOOT", "TOE", "HEEL",
+    "SKIN", "BONE", "MUSCLE", "HEART", "BRAIN",
+    "LUNG", "STOMACH", "LIVER", "KIDNEY", "INTESTINE"
+  ]
+}

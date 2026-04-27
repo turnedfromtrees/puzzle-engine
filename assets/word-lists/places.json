@@ -1,0 +1,14 @@
+{
+  "name": "Buildings & Places",
+  "emoji": "🏛️",
+  "words": [
+    "HOUSE", "APARTMENT", "BUILDING", "OFFICE", "STORE",
+    "SCHOOL", "HOSPITAL", "LIBRARY", "CHURCH", "TEMPLE",
+    "MUSEUM", "THEATER", "STADIUM", "AIRPORT", "STATION",
+    "RESTAURANT", "CAFETERIA", "HOTEL", "MOTEL", "HOSTEL",
+    "BANK", "POST", "POLICE", "FIRE", "COURT",
+    "PRISON", "FACTORY", "WAREHOUSE", "BARN", "GARAGE",
+    "CASTLE", "PALACE", "TOWER", "BRIDGE", "TUNNEL",
+    "MONUMENT", "MEMORIAL", "STATUE", "FOUNTAIN", "PARK"
+  ]
+}

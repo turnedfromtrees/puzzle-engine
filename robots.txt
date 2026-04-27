@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://puzzle-engine.com/sitemap.xml
+Crawl-delay: 1

@@ -1,0 +1,14 @@
+{
+  "name": "Food & Cooking",
+  "emoji": "🍕",
+  "words": [
+    "PIZZA", "PASTA", "BREAD", "CHEESE", "BUTTER",
+    "APPLE", "BANANA", "ORANGE", "GRAPE", "CHERRY",
+    "CHICKEN", "TURKEY", "BACON", "STEAK", "SALMON",
+    "CARROT", "POTATO", "TOMATO", "ONION", "PEPPER",
+    "COOKIE", "CAKE", "CANDY", "CHOCOLATE", "DONUT",
+    "CEREAL", "RICE", "SOUP", "SALAD", "SANDWICH",
+    "PANCAKE", "WAFFLE", "OMELET", "TOAST", "MUFFIN",
+    "YOGURT", "PUDDING", "JELLY", "PIE", "PRETZEL"
+  ]
+}

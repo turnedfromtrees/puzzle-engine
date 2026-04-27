@@ -1,0 +1,14 @@
+{
+  "name": "Actions & Verbs",
+  "emoji": "🏃",
+  "words": [
+    "RUN", "WALK", "JUMP", "SWIM", "FLY",
+    "CLIMB", "CRAWL", "DANCE", "SING", "PLAY",
+    "READ", "WRITE", "DRAW", "PAINT", "BUILD",
+    "COOK", "EAT", "DRINK", "SLEEP", "WAKE",
+    "TALK", "LISTEN", "WATCH", "LOOK", "SEE",
+    "THINK", "LEARN", "TEACH", "HELP", "WORK",
+    "CLEAN", "WASH", "BRUSH", "COMB", "DRESS",
+    "OPEN", "CLOSE", "PUSH", "PULL", "CARRY"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Geography",
+  "emoji": "🌍",
+  "words": [
+    "OCEAN", "RIVER", "MOUNTAIN", "DESERT", "FOREST",
+    "ISLAND", "LAKE", "VALLEY", "CANYON", "VOLCANO",
+    "BEACH", "CLIFF", "GLACIER", "WATERFALL", "CAVERN",
+    "FRANCE", "SPAIN", "ITALY", "GERMANY", "BRAZIL",
+    "JAPAN", "CHINA", "INDIA", "AUSTRALIA", "CANADA",
+    "MEXICO", "EGYPT", "GREECE", "IRELAND", "NORWAY",
+    "PARIS", "LONDON", "TOKYO", "ROME", "BERLIN",
+    "AMERICA", "AFRICA", "ASIA", "EUROPE", "AMAZON"
+  ]
+}

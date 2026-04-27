@@ -1,0 +1,14 @@
+{
+  "name": "Weather",
+  "emoji": "🌦️",
+  "words": [
+    "SUNNY", "CLOUDY", "RAINY", "SNOWY", "WINDY",
+    "STORMY", "FOGGY", "HUMID", "CHILLY", "FREEZING",
+    "HOT", "COLD", "WARM", "COOL", "MILD",
+    "THUNDER", "LIGHTNING", "RAINBOW", "TORNADO", "HURRICANE",
+    "BLIZZARD", "DROUGHT", "FLOOD", "MONSOON", "DUST",
+    "HAZE", "MIST", "DEW", "FROST", "SLEET",
+    "HAIL", "DRIZZLE", "DOWNPOUR", "SHOWER", "SPRINKLE",
+    "FORECAST", "PREDICTION", "TEMPERATURE", "HUMIDITY", "BAROMETER"
+  ]
+}

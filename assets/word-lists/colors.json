@@ -1,0 +1,14 @@
+{
+  "name": "Colors",
+  "emoji": "🎨",
+  "words": [
+    "RED", "BLUE", "GREEN", "YELLOW", "ORANGE",
+    "PURPLE", "PINK", "BROWN", "BLACK", "WHITE",
+    "GRAY", "GREY", "CYAN", "MAGENTA", "VIOLET",
+    "INDIGO", "TEAL", "MAROON", "CRIMSON", "SCARLET",
+    "CORAL", "PEACH", "TAN", "BEIGE", "CREAM",
+    "GOLD", "SILVER", "BRONZE", "COPPER", "BRASS",
+    "LAVENDER", "LILAC", "MINT", "OLIVE", "NAVY",
+    "AQUA", "TURQUOISE", "SALMON", "RUST", "AMBER"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Kitchen & Cooking",
+  "emoji": "🍳",
+  "words": [
+    "STOVE", "OVEN", "MICROWAVE", "FRIDGE", "FREEZER",
+    "BLENDER", "MIXER", "TOASTER", "KETTLE", "COFFEE",
+    "PAN", "POT", "SKILLET", "WOK", "DISH",
+    "PLATE", "BOWL", "CUP", "MUG", "GLASS",
+    "FORK", "SPOON", "KNIFE", "CHOPSTICKS", "SPATULA",
+    "WHISK", "LADLE", "TONGS", "OPENER", "PEELER",
+    "CUTTING", "COUNTER", "SINK", "FAUCET", "DRAWER",
+    "CABINET", "SHELF", "PANTRY", "APPLIANCE", "UTENSIL"
+  ]
+}

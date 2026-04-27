@@ -1,0 +1,14 @@
+{
+  "name": "School",
+  "emoji": "📚",
+  "words": [
+    "TEACHER", "STUDENT", "CLASSROOM", "DESK", "CHAIR",
+    "BLACKBOARD", "WHITEBOARD", "CHALK", "MARKER", "ERASER",
+    "BOOK", "NOTEBOOK", "PENCIL", "PEN", "RULER",
+    "SCISSORS", "GLUE", "PAPER", "CALCULATOR", "BACKPACK",
+    "LIBRARY", "CAFETERIA", "PLAYGROUND", "GYM", "HALL",
+    "MATH", "SCIENCE", "READING", "WRITING", "SPELLING",
+    "HISTORY", "GEOGRAPHY", "MUSIC", "ART", "PHYSICAL",
+    "EXAM", "QUIZ", "TEST", "HOMEWORK", "ASSIGNMENT"
+  ]
+}

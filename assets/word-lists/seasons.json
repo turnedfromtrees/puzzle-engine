@@ -1,0 +1,14 @@
+{
+  "name": "Seasons & Weather",
+  "emoji": "🌤️",
+  "words": [
+    "SPRING", "SUMMER", "AUTUMN", "WINTER", "SEASON",
+    "RAINDROP", "SUNSHINE", "SNOWFALL", "THUNDER", "LIGHTNING",
+    "CLOUD", "STORM", "RAINBOW", "BLIZZARD", "TORNADO",
+    "HURRICANE", "FOGGY", "WINDY", "SLEET", "HAIL",
+    "FREEZE", "WARMTH", "CHILLY", "HUMID", "BREEZE",
+    "MONSOON", "DROUGHT", "FLOOD", "DROUGHT", "MIST",
+    "SUNRISE", "SUNSET", "TWILIGHT", "DAWN", "DUSK",
+    "SOLSTICE", "EQUINOX", "FROST", "THAW", "DRIZZLE"
+  ]
+}

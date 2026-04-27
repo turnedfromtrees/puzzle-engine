@@ -1,0 +1,14 @@
+{
+  "name": "Transportation",
+  "emoji": "🚗",
+  "words": [
+    "CAR", "BUS", "TRAIN", "AIRPLANE", "BOAT",
+    "BICYCLE", "MOTORCYCLE", "TRUCK", "VAN", "TAXI",
+    "SUBWAY", "TRAM", "FERRY", "HELICOPTER", "ROCKET",
+    "SHIP", "CRUISE", "YACHT", "AMBULANCE", "FIRETRUCK",
+    "POLICE", "SCOOTER", "SKATEBOARD", "ROLLER", "WHEELCHAIR",
+    "STROLLER", "WAGON", "TRAILER", "ENGINE", "VEHICLE",
+    "TRAFFIC", "HIGHWAY", "BRIDGE", "TUNNEL", "STATION",
+    "AIRPORT", "HARBOR", "GARAGE", "PARKING", "MILE"
+  ]
+}

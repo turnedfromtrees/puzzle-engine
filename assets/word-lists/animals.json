@@ -1,0 +1,14 @@
+{
+  "name": "Animals",
+  "emoji": "🐾",
+  "words": [
+    "CAT", "DOG", "BIRD", "FISH", "BEAR",
+    "LION", "TIGER", "ZEBRA", "ELEPHANT", "MONKEY",
+    "RABBIT", "TURTLE", "DOLPHIN", "EAGLE", "SHARK",
+    "WHALE", "PANDA", "KOALA", "SNAKE", "HORSE",
+    "WOLF", "FOX", "DEER", "OWL", "FROG",
+    "MOUSE", "CAMEL", "PENGUIN", "GIRAFFE", "CHEETAH",
+    "GORILLA", "HIPPO", "JAGUAR", "LEOPARD", "OCTOPUS",
+    "PANTHER", "RACCOON", "RHINO", "SEAL", "WALRUS"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Clothing",
+  "emoji": "👕",
+  "words": [
+    "SHIRT", "PANTS", "DRESS", "SKIRT", "JACKET",
+    "COAT", "SWEATER", "VEST", "SUIT", "TIE",
+    "SHOES", "BOOTS", "SANDALS", "SOCKS", "SLIPPERS",
+    "HAT", "CAP", "SCARF", "GLOVES", "BELT",
+    "UNDERWEAR", "SOCK", "PAJAMAS", "ROBE", "SWIMSUIT",
+    "JEANS", "SHORTS", "BLOUSE", "TSHIRT", "TUNIC",
+    "CLOAK", "PONCHO", "RAINCOAT", "OVERALLS", "LEGGINGS",
+    "SLEEVE", "COLLAR", "BUTTON", "ZIPPER", "POCKET"
+  ]
+}

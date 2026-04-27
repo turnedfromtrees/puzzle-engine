@@ -1,0 +1,14 @@
+{
+  "name": "Music",
+  "emoji": "🎵",
+  "words": [
+    "GUITAR", "PIANO", "DRUM", "VIOLIN", "FLUTE",
+    "TRUMPET", "SAXOPHONE", "CLARINET", "CELLO", "HARP",
+    "SINGER", "BAND", "ORCHESTRA", "CHOIR", "CONCERT",
+    "SONG", "MELODY", "RHYTHM", "BEAT", "TEMPO",
+    "NOTE", "CHORD", "SCALE", "OCTAVE", "PITCH",
+    "VOLUME", "TUNE", "LYRICS", "VERSE", "CHORUS",
+    "ALBUM", "RECORD", "STUDIO", "STAGE", "PERFORM",
+    "COMPOSER", "CONDUCTOR", "SOLO", "DUET", "ENSEMBLE"
+  ]
+}

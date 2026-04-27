@@ -797,43 +797,6 @@
       document.getElementById('affiliate-banner').style.display = 'block';
     }
 
-    function renderSolutionInline(puzzle, idx) {
-      const size = puzzle.grid.length;
-      const highlightGrid = Array(size).fill(null).map(() => Array(size).fill(false));
-      
-      for (const pos of puzzle.positions) {
-        const [dRow, dCol] = pos.direction;
-        const numStr = pos.number.toString();
-        for (let i = 0; i < numStr.length; i++) {
-          const row = pos.startRow + i * dRow;
-          const col = pos.startCol + i * dCol;
-          if (row >= 0 && row < size && col >= 0 && col < size) {
-            highlightGrid[row][col] = true;
-          }
-        }
-      }
-      
-      const gridSizeClass = largePrintMode ? 'numbersearch-grid--large-print' : `numbersearch-grid--${currentSize}x${currentSize}`;
-      
-      let html = `
-        <div class="solution-same-page" style="margin-top: var(--spacing-lg);">
-          <h3 class="solution-title" style="margin-bottom: var(--spacing-sm);">${currentPerPage > 1 ? `Solution ${idx + 1}` : 'Solution'}</h3>
-          <table class="numbersearch-grid solution-grid ${gridSizeClass}">
-      `;
-      
-      for (let row = 0; row < size; row++) {
-        html += '<tr>';
-        for (let col = 0; col < size; col++) {
-          const highlightClass = highlightGrid[row][col] ? 'highlighted' : '';
-          html += `<td class="${highlightClass}">${puzzle.grid[row][col]}</td>`;
-        }
-        html += '</tr>';
-      }
-      
-      html += '</table></div>';
-      return html;
-    }
-
     function renderSolutionGrid(puzzle, idx) {
       const size = puzzle.grid.length;
       const highlightGrid = Array(size).fill(null).map(() => Array(size).fill(false));

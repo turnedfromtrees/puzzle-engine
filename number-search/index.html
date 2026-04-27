@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Search Generator — Free Printable Number Search Puzzles | Puzzle Engine</title>
+  <meta name="description" content="Generate free printable Number Search puzzles in 4 grid sizes (10x10 to 25x25) with 3 difficulty levels. Perfect for KDP books, worksheets, and seniors. 300 DPI PNG export, bulk generation.">
+  <meta name="keywords" content="number search generator, printable number search, number find puzzle, KDP number puzzle, number puzzle book, free number search">
+  <link rel="canonical" href="https://puzzle-engine.com/number-search/">
+  
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script src="../assets/puzzle-core.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <style>
+    /* Number Search-specific styles */
+    .numbersearch-grid {
+      border-collapse: collapse;
+      margin: 0 auto;
+      background: white;
+    }
+    
+    .numbersearch-grid td {
+      width: 36px;
+      height: 36px;
+      text-align: center;
+      vertical-align: middle;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      padding: 0;
+    }
+    
+    /* Large print mode */
+    .large-print-mode .numbersearch-grid td {
+      width: 48px;
+      height: 48px;
+      font-size: 22px;
+    }
+    
+    .large-print-mode .numbersearch-grid {
+      max-width: 100%;
+    }
+    
+    /* Multi-puzzle layout */
+    .puzzles-page {
+      display: grid;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    
+    .puzzles-page[data-count="2"] {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .puzzles-page[data-count="4"] {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+    
+    .single-puzzle-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    
+    .puzzle-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    
+    /* Number list display */
+    .number-list-container {
+      margin-top: 20px;
+      text-align: center;
+      max-width: 100%;
+    }
+    
+    .number-list-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-light);
+      margin-bottom: 10px;
+    }
+    
+    .number-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 16px;
+      padding: 10px;
+      background: var(--color-bg);
+      border-radius: var(--radius-sm);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .number-list-item {
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font-mono);
+      color: var(--color-text);
+    }
+    
+    /* Solution display */
+    .solution-container {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px dashed var(--color-border);
+      width: 100%;
+    }
+    
+    .solution-container h2 {
+      text-align: center;
+      color: var(--color-text-light);
+      margin-bottom: 20px;
+    }
+    
+    /* Solution grid highlighting */
+    .numbersearch-grid.solution td.found {
+      background: #e6fffa;
+    }
+    
+    /* Size info */
+    .size-info {
+      font-size: 0.875rem;
+      color: var(--color-text-light);
+      margin-top: var(--spacing-xs);
+    }
+    
+    /* Difficulty descriptions */
+    .difficulty-desc {
+      font-size: 0.75rem;
+      color: var(--color-text-light);
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__content">
+      <a href="../index.html" class="header__logo">
+        <span class="header__logo-icon">🧩</span>
+        <span>Puzzle Engine</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../sudoku/index.html" class="header__nav-link">Sudoku</a>
+        <a href="../word-search/index.html" class="header__nav-link">Word Search</a>
+        <a href="../mazes/index.html" class="header__nav-link">Mazes</a>
+        <a href="../number-search/index.html" class="header__nav-link active">Number Search</a>
+        <a href="../word-scramble/index.html" class="header__nav-link">Word Scramble</a>
+        <a href="../kenken/index.html" class="header__nav-link">KenKen</a>
+        <a href="../killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
+      </nav>
+    </div>
+  </header>
+  
+  <main class="main-content">
+    <div class="container">
+      <div class="page-title">
+        <h1>Number Search Generator</h1>
+        <p>Generate printable number search puzzles in 4 grid sizes with 3 difficulty levels. Perfect for KDP books and seniors.</p>
+      </div>
+      
+      <div class="controls">
+        <!-- Row 1: Core Settings -->
+        <div class="controls-row">
+          <div class="control-group">
+            <label for="size">Grid Size:</label>
+            <select id="size">
+              <option value="10">10×10 (Kids)</option>
+              <option value="15" selected>15×15 (Standard)</option>
+              <option value="20">20×20 (Large)</option>
+              <option value="25">25×25 (Extra Large)</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+              <option value="easy">Easy (1-9)</option>
+              <option value="medium" selected>Medium (10-99)</option>
+              <option value="hard">Hard (100-999)</option>
+            </select>
+            <div class="difficulty-desc" id="difficulty-desc">2-digit numbers, 8 directions</div>
+          </div>
+          
+          <div class="control-group">
+            <label for="per-page">Per Page:</label>
+            <select id="per-page">
+              <option value="1" selected>1 puzzle</option>
+              <option value="2">2 puzzles</option>
+              <option value="4">4 puzzles</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <label for="solutions">Solutions:</label>
+            <select id="solutions">
+              <option value="none">None</option>
+              <option value="separate" selected>Separate page</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Row 2: Large Print Toggle -->
+        <div class="controls-row">
+          <div class="control-group control-group--checkbox">
+            <input type="checkbox" id="large-print">
+            <label for="large-print">Large Print Mode</label>
+          </div>
+        </div>
+        
+        <!-- Row 3: Actions -->
+        <div class="controls-row controls-row--actions">
+          <button id="generate" class="btn btn--primary">Generate</button>
+          <button id="print" class="btn btn--secondary">Print</button>
+          <button id="export-png" class="btn btn--secondary">Export PNG</button>
+        </div>
+        
+        <!-- Row 4: Bulk Generation -->
+        <details class="bulk-section">
+          <summary>Bulk Generation (KDP)</summary>
+          <div class="bulk-controls">
+            <div class="control-group">
+              <label for="bulk-count">Count:</label>
+              <select id="bulk-count">
+                <option value="10">10 puzzles</option>
+                <option value="25">25 puzzles</option>
+                <option value="50" selected>50 puzzles</option>
+                <option value="100">100 puzzles</option>
+              </select>
+            </div>
+            <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
+            <div class="progress-container" id="bulk-progress" style="display: none;">
+              <div class="progress-bar"><div class="progress-fill"></div></div>
+              <span class="progress-text">0%</span>
+            </div>
+          </div>
+        </details>
+      </div>
+      
+      <div class="puzzle-display">
+        <div class="puzzle-container" id="puzzle-container">
+          <!-- Puzzle(s) will be rendered here -->
+          <p style="color: var(--color-text-light);">Click "Generate" to create a puzzle</p>
+        </div>
+        
+        <div class="solution-section" id="solution-section" style="display: none;">
+          <h2>Solutions</h2>
+          <div id="solution-container"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer class="footer">
+    <div class="container footer__content">
+      <div class="footer__links">
+        <a href="../privacy.html">Privacy Policy</a>
+        <a href="../terms.html">Terms of Service</a>
+      </div>
+      <p class="footer__license">Commercial license included for KDP creators.</p>
+    </div>
+  </footer>
+  
+  <script>
+    // ============================================
+    // Number Search Generator - V2
+    // ============================================
+    
+    // Configuration
+    const GRID_SIZES = [10, 15, 20, 25];
+    
+    // Direction vectors: [row delta, col delta]
+    const DIRECTIONS = {
+      // Cardinal directions only (for Easy difficulty)
+      cardinal: [
+        [0, 1],   // right
+        [1, 0],   // down
+        [0, -1],  // left
+        [-1, 0]   // up
+      ],
+      // All 8 directions (for Medium and Hard)
+      all: [
+        [0, 1],   // right
+        [1, 1],   // down-right
+        [1, 0],   // down
+        [1, -1],  // down-left
+        [0, -1],  // left
+        [-1, -1], // up-left
+        [-1, 0],  // up
+        [-1, 1]   // up-right
+      ]
+    };
+    
+    // Number ranges by difficulty
+    const NUMBER_RANGES = {
+      easy: { min: 1, max: 9, digits: 1 },
+      medium: { min: 10, max: 99, digits: 2 },
+      hard: { min: 100, max: 999, digits: 3 }
+    };
+    
+    let currentPuzzles = [];
+    let currentSolutions = [];
+    let currentNumberLists = [];
+    let currentSettings = {};
+    
+    // ============================================
+    // Number Search Generation Algorithm
+    // ============================================
+    
+    /**
+     * Generate a random number within the difficulty range
+     */
+    function generateNumber(difficulty) {
+      const range = NUMBER_RANGES[difficulty];
+      return Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+    }
+    
+    /**
+     * Convert number to array of digits (for grid placement)
+     */
+    function numberToDigits(num) {
+      return num.toString().split('').map(d => parseInt(d));
+    }
+    
+    /**
+     * Check if a number can be placed at a given position and direction
+     */
+    function canPlaceNumber(grid, digits, startRow, startCol, direction, size) {
+      const [dr, dc] = direction;
+      
+      for (let i = 0; i < digits.length; i++) {
+        const row = startRow + i * dr;
+        const col = startCol + i * dc;
+        
+        // Check bounds
+        if (row < 0 || row >= size || col < 0 || col >= size) {
+          return false;
+        }
+        
+        // Check if cell is empty or has the same digit
+        if (grid[row][col] !== '' && grid[row][col] !== digits[i]) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    /**
+     * Place a number on the grid
+     */
+    function placeNumber(grid, digits, startRow, startCol, direction) {
+      const [dr, dc] = direction;
+      
+      for (let i = 0; i < digits.length; i++) {
+        const row = startRow + i * dr;
+        const col = startCol + i * dc;
+        grid[row][col] = digits[i];
+      }
+    }
+    
+    /**
+     * Get available directions based on difficulty
+     */
+    function getDirections(difficulty) {
+      // Easy: cardinal only (4 directions)
+      // Medium/Hard: all 8 directions
+      switch (difficulty) {
+        case 'easy':
+          return DIRECTIONS.cardinal;
+        case 'medium':
+        case 'hard':
+          return DIRECTIONS.all;
+        default:
+          return DIRECTIONS.all;
+      }
+    }
+    
+    /**
+     * Calculate how many numbers fit in a grid
+     */
+    function getTargetNumberCount(size, difficulty) {
+      const digits = NUMBER_RANGES[difficulty].digits;
+      
+      // Calculate based on grid size and digit length
+      // More numbers for smaller digits, fewer for larger
+      const baseCount = Math.floor((size * size) / (digits * 4));
+      
+      // Ensure reasonable bounds
+      return Math.max(5, Math.min(baseCount, Math.floor(size * 1.2)));
+    }
+    
+    /**
+     * Generate a number search puzzle
+     */
+    function generateNumberSearch(size, difficulty) {
+      const grid = createEmptyGrid(size, size, '');
+      const directions = getDirections(difficulty);
+      const targetCount = getTargetNumberCount(size, difficulty);
+      const numberLength = NUMBER_RANGES[difficulty].digits;
+      
+      // Track placed numbers and their positions
+      const placedNumbers = [];
+      const numberPositions = [];
+      const usedNumbers = new Set();
+      
+      // Generate unique numbers to place
+      const numbersToPlace = [];
+      let attempts = 0;
+      const maxAttempts = targetCount * 10;
+      
+      while (numbersToPlace.length < targetCount && attempts < maxAttempts) {
+        const num = generateNumber(difficulty);
+        if (!usedNumbers.has(num)) {
+          usedNumbers.add(num);
+          numbersToPlace.push(num);
+        }
+        attempts++;
+      }
+      
+      // Try to place each number
+      for (const num of numbersToPlace) {
+        if (placedNumbers.length >= targetCount) break;
+        
+        const digits = numberToDigits(num);
+        let placed = false;
+        const shuffledDirections = shuffleArray([...directions]);
+        
+        // Generate all possible start positions
+        const positions = [];
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            positions.push([r, c]);
+          }
+        }
+        const shuffledPositions = shuffleArray(positions);
+        
+        for (const direction of shuffledDirections) {
+          if (placed) break;
+          
+          for (const [startRow, startCol] of shuffledPositions) {
+            if (canPlaceNumber(grid, digits, startRow, startCol, direction, size)) {
+              placeNumber(grid, digits, startRow, startCol, direction);
+              placedNumbers.push(num);
+              numberPositions.push({
+                number: num,
+                digits: digits,
+                startRow: startRow,
+                startCol: startCol,
+                direction: direction
+              });
+              placed = true;
+              break;
+            }
+          }
+        }
+      }
+      
+      // Fill remaining cells with random digits
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] === '') {
+            grid[r][c] = Math.floor(Math.random() * 10);
+          }
+        }
+      }
+      
+      return {
+        grid: grid,
+        numbers: placedNumbers,
+        positions: numberPositions
+      };
+    }
+    
+    // ============================================
+    // Rendering
+    // ============================================
+    
+    /**
+     * Render a single number search grid
+     */
+    function renderNumberSearchGrid(grid, size, isSolution = false, positions = []) {
+      const table = document.createElement('table');
+      table.className = 'numbersearch-grid' + (isSolution ? ' solution' : '');
+      table.dataset.size = size;
+      
+      // Create position map for highlighting
+      const positionMap = new Map();
+      if (isSolution && positions.length > 0) {
+        for (const pos of positions) {
+          const [dr, dc] = pos.direction;
+          for (let i = 0; i < pos.digits.length; i++) {
+            const row = pos.startRow + i * dr;
+            const col = pos.startCol + i * dc;
+            positionMap.set(`${row},${col}`, true);
+          }
+        }
+      }
+      
+      for (let row = 0; row < size; row++) {
+        const tr = document.createElement('tr');
+        
+        for (let col = 0; col < size; col++) {
+          const td = document.createElement('td');
+          td.textContent = grid[row][col];
+          
+          if (isSolution && positionMap.has(`${row},${col}`)) {
+            td.classList.add('found');
+          }
+          
+          tr.appendChild(td);
+        }
+        
+        table.appendChild(tr);
+      }
+      
+      return table;
+    }
+    
+    /**
+     * Render number list for display
+     */
+    function renderNumberList(numbers) {
+      const container = document.createElement('div');
+      container.className = 'number-list-container';
+      
+      const title = document.createElement('div');
+      title.className = 'number-list-title';
+      title.textContent = 'Find These Numbers';
+      container.appendChild(title);
+      
+      const list = document.createElement('div');
+      list.className = 'number-list';
+      
+      // Sort numbers for display (numerically)
+      const sortedNumbers = [...numbers].sort((a, b) => a - b);
+      
+      for (const num of sortedNumbers) {
+        const item = document.createElement('span');
+        item.className = 'number-list-item';
+        item.textContent = num;
+        list.appendChild(item);
+      }
+      
+      container.appendChild(list);
+      
+      return container;
+    }
+    
+    /**
+     * Render multiple puzzles
+     */
+    function renderPuzzles(puzzlesData, perPage, showSolutions) {
+      const container = document.getElementById('puzzle-container');
+      const solutionSection = document.getElementById('solution-section');
+      const solutionContainer = document.getElementById('solution-container');
+      
+      container.innerHTML = '';
+      solutionContainer.innerHTML = '';
+      
+      // Render puzzles
+      const puzzlesWrapper = document.createElement('div');
+      puzzlesWrapper.className = 'puzzles-page';
+      puzzlesWrapper.dataset.count = perPage;
+      
+      puzzlesData.forEach((puzzleData, i) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'single-puzzle-wrapper';
+        
+        const size = puzzleData.grid.length;
+        wrapper.appendChild(renderNumberSearchGrid(puzzleData.grid, size, false));
+        
+        // Add number list below the grid
+        const numberList = renderNumberList(puzzleData.numbers);
+        wrapper.appendChild(numberList);
+        
+        const label = document.createElement('div');
+        label.className = 'puzzle-label';
+        label.textContent = `Puzzle ${i + 1}`;
+        wrapper.appendChild(label);
+        
+        puzzlesWrapper.appendChild(wrapper);
+      });
+      
+      container.appendChild(puzzlesWrapper);
+      
+      // Render solutions if enabled
+      if (showSolutions && puzzlesData.length > 0) {
+        solutionSection.style.display = 'flex';
+        
+        const solutionsWrapper = document.createElement('div');
+        solutionsWrapper.className = 'puzzles-page';
+        solutionsWrapper.dataset.count = perPage;
+        
+        puzzlesData.forEach((puzzleData, i) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'single-puzzle-wrapper';
+          
+          const size = puzzleData.grid.length;
+          wrapper.appendChild(renderNumberSearchGrid(puzzleData.grid, size, true, puzzleData.positions));
+          
+          const label = document.createElement('div');
+          label.className = 'puzzle-label';
+          label.textContent = `Solution ${i + 1}`;
+          wrapper.appendChild(label);
+          
+          solutionsWrapper.appendChild(wrapper);
+        });
+        
+        solutionContainer.appendChild(solutionsWrapper);
+      } else {
+        solutionSection.style.display = 'none';
+      }
+    }
+    
+    // ============================================
+    // PNG Export
+    // ============================================
+    
+    /**
+     * Create canvas with number search grid for PNG export
+     */
+    function createNumberSearchCanvas(grid, numbers, size, dpi = 300) {
+      const isLargePrint = document.getElementById('large-print').checked;
+      
+      // Base cell size (in pixels at screen resolution)
+      const baseCellSize = isLargePrint ? 48 : 40;
+      const fontSize = isLargePrint ? 26 : 20;
+      const margin = 40;
+      const numberListHeight = 100;
+      
+      const scale = dpi / 96;
+      const cellSize = baseCellSize * scale;
+      
+      const gridWidth = size * cellSize;
+      const gridHeight = size * cellSize;
+      const totalWidth = margin * 2 + gridWidth;
+      const totalHeight = margin * 2 + gridHeight + numberListHeight;
+      
+      const canvas = createHiDPICanvas(totalWidth / scale, totalHeight / scale, dpi);
+      const ctx = canvas.getContext('2d');
+      
+      // Background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, totalWidth, totalHeight);
+      
+      // Draw grid cells
+      ctx.font = `bold ${fontSize * scale}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          const x = margin + col * cellSize;
+          const y = margin + row * cellSize;
+          const value = grid[row][col];
+          
+          // Cell background
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x, y, cellSize, cellSize);
+          
+          // Cell border
+          ctx.strokeStyle = '#cccccc';
+          ctx.lineWidth = 1 * scale;
+          ctx.strokeRect(x, y, cellSize, cellSize);
+          
+          // Cell digit
+          ctx.fillStyle = '#333333';
+          ctx.fillText(value, x + cellSize / 2, y + cellSize / 2);
+        }
+      }
+      
+      // Draw outer border
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2 * scale;
+      ctx.strokeRect(margin, margin, gridWidth, gridHeight);
+      
+      // Draw number list
+      const numberListY = margin + gridHeight + 20 * scale;
+      
+      ctx.font = `bold ${14 * scale}px Arial`;
+      ctx.fillStyle = '#666666';
+      ctx.textAlign = 'center';
+      ctx.fillText('Find These Numbers', margin + gridWidth / 2, numberListY);
+      
+      ctx.font = `${12 * scale}px Arial`;
+      ctx.fillStyle = '#333333';
+      
+      // Sort numbers for display
+      const sortedNumbers = [...numbers].sort((a, b) => a - b);
+      
+      // Calculate layout for numbers
+      const numbersPerRow = Math.ceil(sortedNumbers.length / 4) || 1;
+      const numberSpacing = Math.min(gridWidth / numbersPerRow, 80 * scale);
+      
+      sortedNumbers.forEach((num, i) => {
+        const row = Math.floor(i / numbersPerRow);
+        const col = i % numbersPerRow;
+        const startX = margin + (gridWidth - numbersPerRow * numberSpacing) / 2;
+        const x = startX + col * numberSpacing + numberSpacing / 2;
+        const y = numberListY + 25 * scale + row * 18 * scale;
+        ctx.fillText(num.toString(), x, y);
+      });
+      
+      return canvas;
+    }
+    
+    /**
+     * Export current puzzle as PNG
+     */
+    async function exportPuzzlePNG() {
+      if (currentPuzzles.length === 0) {
+        alert('Please generate a puzzle first.');
+        return;
+      }
+      
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const ts = timestamp();
+      
+      for (let i = 0; i < currentPuzzles.length; i++) {
+        const puzzleData = currentPuzzles[i];
+        const canvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size);
+        const filename = `numbersearch-${size}x${size}-${difficulty}-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
+        await downloadCanvas(canvas, filename);
+        await delay(100);
+      }
+      
+      // Also export solutions if enabled
+      const showSolutions = document.getElementById('solutions').value === 'separate';
+      if (showSolutions && currentPuzzles.length > 0) {
+        for (let i = 0; i < currentPuzzles.length; i++) {
+          const puzzleData = currentPuzzles[i];
+          // For solution, we create a highlighted version
+          const canvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size);
+          const filename = `numbersearch-${size}x${size}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
+          await downloadCanvas(canvas, filename);
+          await delay(100);
+        }
+      }
+    }
+    
+    // ============================================
+    // Bulk Generation
+    // ============================================
+    
+    /**
+     * Generate bulk puzzles and download as ZIP
+     */
+    async function generateBulkPuzzles() {
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const count = parseInt(document.getElementById('bulk-count').value);
+      
+      const progressContainer = document.getElementById('bulk-progress');
+      progressContainer.style.display = 'block';
+      
+      const zip = new JSZip();
+      const puzzlesFolder = zip.folder('puzzles');
+      const solutionsFolder = zip.folder('solutions');
+      
+      for (let i = 0; i < count; i++) {
+        // Update progress
+        updateProgress(i + 1, count, progressContainer);
+        
+        // Generate puzzle
+        const puzzleData = generateNumberSearch(size, difficulty);
+        
+        // Create canvas and add to ZIP
+        const puzzleCanvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size);
+        const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
+        const puzzleBase64 = puzzleDataUrl.split(',')[1];
+        puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
+        
+        const solutionCanvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size);
+        const solutionDataUrl = solutionCanvas.toDataURL('image/png');
+        const solutionBase64 = solutionDataUrl.split(',')[1];
+        solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
+        
+        // Yield to UI
+        await delay(1);
+      }
+      
+      // Generate ZIP
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipUrl = URL.createObjectURL(zipBlob);
+      
+      const link = document.createElement('a');
+      link.download = `numbersearch-${size}x${size}-${difficulty}-${count}-puzzles.zip`;
+      link.href = zipUrl;
+      link.click();
+      
+      URL.revokeObjectURL(zipUrl);
+      progressContainer.style.display = 'none';
+    }
+    
+    // ============================================
+    // Event Handlers
+    // ============================================
+    
+    // Update difficulty description
+    function updateDifficultyDesc() {
+      const difficulty = document.getElementById('difficulty').value;
+      const desc = document.getElementById('difficulty-desc');
+      
+      switch (difficulty) {
+        case 'easy':
+          desc.textContent = '1-digit numbers (1-9), 4 directions';
+          break;
+        case 'medium':
+          desc.textContent = '2-digit numbers (10-99), 8 directions';
+          break;
+        case 'hard':
+          desc.textContent = '3-digit numbers (100-999), 8 directions';
+          break;
+      }
+    }
+    
+    document.getElementById('generate').addEventListener('click', () => {
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const perPage = parseInt(document.getElementById('per-page').value);
+      const showSolutions = document.getElementById('solutions').value === 'separate';
+      
+      currentPuzzles = [];
+      
+      for (let i = 0; i < perPage; i++) {
+        const puzzleData = generateNumberSearch(size, difficulty);
+        currentPuzzles.push(puzzleData);
+      }
+      
+      currentSettings = { size, difficulty, perPage };
+      renderPuzzles(currentPuzzles, perPage, showSolutions);
+    });
+    
+    document.getElementById('print').addEventListener('click', () => {
+      if (currentPuzzles.length === 0) {
+        alert('Please generate a puzzle first.');
+        return;
+      }
+      window.print();
+    });
+    
+    document.getElementById('export-png').addEventListener('click', exportPuzzlePNG);
+    document.getElementById('generate-bulk').addEventListener('click', generateBulkPuzzles);
+    
+    // Large Print toggle - force 1 per page
+    document.getElementById('large-print').addEventListener('change', function() {
+      const perPageSelect = document.getElementById('per-page');
+      if (this.checked) {
+        perPageSelect.value = '1';
+        perPageSelect.disabled = true;
+        document.body.classList.add('large-print-mode');
+      } else {
+        perPageSelect.disabled = false;
+        document.body.classList.remove('large-print-mode');
+      }
+    });
+    
+    // Difficulty description update
+    document.getElementById('difficulty').addEventListener('change', updateDifficultyDesc);
+    
+    // Update solutions display when changed
+    document.getElementById('solutions').addEventListener('change', function() {
+      if (currentPuzzles.length > 0) {
+        const perPage = parseInt(document.getElementById('per-page').value);
+        const showSolutions = this.value === 'separate';
+        renderPuzzles(currentPuzzles, perPage, showSolutions);
+      }
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('generate').click();
+    });
+  </script>
+</body>
+</html>

@@ -62,17 +62,6 @@
       background: white;
     }
     
-    /* Large print mode */
-    .large-print-mode .sudoku-grid td {
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-    }
-    
-    .large-print-mode .sudoku-grid {
-      max-width: 100%;
-    }
-    
     /* Multi-puzzle layout */
     .puzzles-page {
       display: grid;
@@ -116,22 +105,21 @@
       margin-bottom: 20px;
     }
     
-    /* Symmetry toggle */
-    .symmetry-toggle {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
+    /* Improved Large print mode */
+    .large-print-mode .sudoku-grid td {
+      width: 60px;
+      height: 60px;
+      font-size: 26pt;
+      font-weight: 700;
     }
     
-    .symmetry-toggle input {
-      accent-color: var(--color-primary);
+    .large-print-mode .sudoku-grid {
+      max-width: 100%;
     }
     
-    /* Size options info */
-    .size-info {
-      font-size: 0.875rem;
-      color: var(--color-text-light);
-      margin-top: var(--spacing-xs);
+    .large-print-mode .puzzle-label {
+      font-size: 14pt;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -158,7 +146,6 @@
     <div class="container">
       <div class="page-title">
         <h1>Sudoku Generator</h1>
-        <p>Generate printable Sudoku puzzles in 5 grid sizes with 4 difficulty levels. Perfect for KDP books and seniors.</p>
       </div>
       
       <div class="controls">
@@ -209,11 +196,6 @@
             <input type="checkbox" id="large-print">
             <label for="large-print">Large Print Mode</label>
           </div>
-          
-          <div class="control-group control-group--checkbox symmetry-toggle">
-            <input type="checkbox" id="symmetry" checked>
-            <label for="symmetry">Symmetrical givens</label>
-          </div>
         </div>
         
         <!-- Row 3: Actions -->
@@ -236,6 +218,29 @@
                 <option value="100">100 puzzles</option>
                 <option value="200">200 puzzles</option>
               </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-difficulty">Difficulty:</label>
+              <select id="bulk-difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+                <option value="expert">Expert</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-font-size">Font Size:</label>
+              <select id="bulk-font-size">
+                <option value="12">12pt</option>
+                <option value="14" selected>14pt</option>
+                <option value="16">16pt</option>
+                <option value="18">18pt</option>
+                <option value="20">20pt</option>
+              </select>
+            </div>
+            <div class="control-group control-group--checkbox">
+              <input type="checkbox" id="bulk-large-print">
+              <label for="bulk-large-print">Large Print</label>
             </div>
             <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
             <div class="progress-container" id="bulk-progress" style="display: none;">
@@ -573,21 +578,19 @@
     /**
      * Create canvas with Sudoku grid for PNG export
      */
-    function createSudokuCanvas(grid, size, dpi = 300) {
+    function createSudokuCanvas(grid, size, dpi = 300, fontSize = 22, isLargePrint = false) {
       const boxConfig = BOX_CONFIG[size];
-      const isLargePrint = document.getElementById('large-print').checked;
       
-      // Base cell size (in pixels at screen resolution)
+      // Use larger settings if large print mode
+      const effectiveFontSize = isLargePrint ? Math.max(fontSize, 26) : fontSize;
       const baseCellSize = isLargePrint ? 60 : 50;
-      const cellPadding = 4;
-      const fontSize = isLargePrint ? 28 : 22;
       const margin = 40;
       
       const scale = dpi / 96;
       const cellSize = baseCellSize * scale;
       
       const width = margin * 2 + size * cellSize;
-      const height = margin * 2 + size * cellSize;
+      const height = margin * 2 + size * cellSize + 30 * scale; // Extra for footer
       
       const canvas = createHiDPICanvas(width / scale, height / scale, dpi);
       const ctx = canvas.getContext('2d');
@@ -597,7 +600,7 @@
       ctx.fillRect(0, 0, width, height);
       
       // Draw cells
-      ctx.font = `bold ${fontSize * scale}px Arial`;
+      ctx.font = `bold ${effectiveFontSize * scale}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
@@ -662,6 +665,12 @@
         ctx.stroke();
       }
       
+      // Add footer with site URL
+      ctx.font = `${10 * scale}px Arial`;
+      ctx.fillStyle = '#666666';
+      ctx.textAlign = 'center';
+      ctx.fillText('puzzle-engine.com', width / 2, height - 15 * scale);
+      
       return canvas;
     }
     
@@ -676,10 +685,11 @@
       
       const size = currentPuzzles[0].length;
       const difficulty = document.getElementById('difficulty').value;
+      const isLargePrint = document.getElementById('large-print').checked;
       const ts = timestamp();
       
       for (let i = 0; i < currentPuzzles.length; i++) {
-        const canvas = createSudokuCanvas(currentPuzzles[i], size);
+        const canvas = createSudokuCanvas(currentPuzzles[i], size, 300, 22, isLargePrint);
         const filename = `sudoku-${size}x${size}-${difficulty}-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
         await downloadCanvas(canvas, filename);
         await delay(100);
@@ -689,7 +699,7 @@
       const showSolutions = document.getElementById('solutions').value === 'separate';
       if (showSolutions && currentSolutions.length > 0) {
         for (let i = 0; i < currentSolutions.length; i++) {
-          const canvas = createSudokuCanvas(currentSolutions[i], size);
+          const canvas = createSudokuCanvas(currentSolutions[i], size, 300, 22, isLargePrint);
           const filename = `sudoku-${size}x${size}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
           await downloadCanvas(canvas, filename);
           await delay(100);
@@ -706,9 +716,10 @@
      */
     async function generateBulkPuzzles() {
       const size = parseInt(document.getElementById('size').value);
-      const difficulty = document.getElementById('difficulty').value;
-      const symmetrical = document.getElementById('symmetry').checked;
+      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
+      const fontSize = parseInt(document.getElementById('bulk-font-size').value);
+      const isLargePrint = document.getElementById('bulk-large-print').checked;
       
       const progressContainer = document.getElementById('bulk-progress');
       progressContainer.style.display = 'block';
@@ -722,15 +733,15 @@
         updateProgress(i + 1, count, progressContainer);
         
         // Generate puzzle
-        const { puzzle, solution } = generateSudoku(size, difficulty, symmetrical);
+        const { puzzle, solution } = generateSudoku(size, difficulty, false);
         
         // Create canvas and add to ZIP
-        const puzzleCanvas = createSudokuCanvas(puzzle, size);
+        const puzzleCanvas = createSudokuCanvas(puzzle, size, 300, fontSize, isLargePrint);
         const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
         const puzzleBase64 = puzzleDataUrl.split(',')[1];
         puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
         
-        const solutionCanvas = createSudokuCanvas(solution, size);
+        const solutionCanvas = createSudokuCanvas(solution, size, 300, fontSize, isLargePrint);
         const solutionDataUrl = solutionCanvas.toDataURL('image/png');
         const solutionBase64 = solutionDataUrl.split(',')[1];
         solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
@@ -761,18 +772,17 @@
       const difficulty = document.getElementById('difficulty').value;
       const perPage = parseInt(document.getElementById('per-page').value);
       const showSolutions = document.getElementById('solutions').value === 'separate';
-      const symmetrical = document.getElementById('symmetry').checked;
       
       currentPuzzles = [];
       currentSolutions = [];
       
       for (let i = 0; i < perPage; i++) {
-        const { puzzle, solution } = generateSudoku(size, difficulty, symmetrical);
+        const { puzzle, solution } = generateSudoku(size, difficulty, false);
         currentPuzzles.push(puzzle);
         currentSolutions.push(solution);
       }
       
-      currentSettings = { size, difficulty, perPage, symmetrical };
+      currentSettings = { size, difficulty, perPage };
       renderPuzzles(currentPuzzles, currentSolutions, perPage, showSolutions);
     });
     

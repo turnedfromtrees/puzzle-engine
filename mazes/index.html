@@ -26,9 +26,14 @@
       background: white;
     }
     
-    /* Large print mode */
+    /* Improved Large print mode */
     .large-print-mode .maze-canvas {
       max-width: 100%;
+    }
+    
+    .large-print-mode .puzzle-label {
+      font-size: 14pt;
+      font-weight: 600;
     }
     
     /* Multi-puzzle layout */
@@ -170,7 +175,6 @@
     <div class="container">
       <div class="page-title">
         <h1>Maze Generator</h1>
-        <p>Generate printable mazes in custom sizes with 3 difficulty levels. Perfect for KDP books and seniors.</p>
       </div>
       
       <div class="controls">
@@ -253,6 +257,27 @@
                 <option value="50" selected>50 mazes</option>
                 <option value="100">100 mazes</option>
               </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-difficulty">Difficulty:</label>
+              <select id="bulk-difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-font-size">Cell Size:</label>
+              <select id="bulk-font-size">
+                <option value="12">Small</option>
+                <option value="16" selected>Medium</option>
+                <option value="20">Large</option>
+                <option value="24">Extra Large</option>
+              </select>
+            </div>
+            <div class="control-group control-group--checkbox">
+              <input type="checkbox" id="bulk-large-print">
+              <label for="bulk-large-print">Large Print</label>
             </div>
             <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
             <div class="progress-container" id="bulk-progress" style="display: none;">
@@ -602,6 +627,14 @@
         }
       }
       
+      // Add footer with site URL (only for high DPI/export)
+      if (dpi > 96) {
+        ctx.fillStyle = '#666666';
+        ctx.font = `${10 * scale}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('puzzle-engine.com', canvasWidth / scale / 2, canvasHeight / scale - 10);
+      }
+      
       return canvas;
     }
     
@@ -721,10 +754,11 @@
     async function generateBulkMazes() {
       const width = parseInt(document.getElementById('width').value);
       const height = parseInt(document.getElementById('height').value);
-      const difficulty = document.getElementById('difficulty').value;
+      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
-      const isLargePrint = document.getElementById('large-print').checked;
-      const cellSize = isLargePrint ? 20 : 16;
+      const cellSize = parseInt(document.getElementById('bulk-font-size').value);
+      const isLargePrint = document.getElementById('bulk-large-print').checked;
+      const effectiveCellSize = isLargePrint ? Math.max(cellSize, 20) : cellSize;
       
       const progressContainer = document.getElementById('bulk-progress');
       progressContainer.style.display = 'block';
@@ -744,12 +778,12 @@
         const solution = drawSolution(maze, solutionPath);
         
         // Create canvas and add to ZIP
-        const mazeCanvas = createMazeCanvas(maze, cellSize, false, 300);
+        const mazeCanvas = createMazeCanvas(maze, effectiveCellSize, false, 300);
         const mazeDataUrl = mazeCanvas.toDataURL('image/png');
         const mazeBase64 = mazeDataUrl.split(',')[1];
         puzzlesFolder.file(`maze-${String(i + 1).padStart(3, '0')}.png`, mazeBase64, { base64: true });
         
-        const solutionCanvas = createMazeCanvas(solution, cellSize, true, 300);
+        const solutionCanvas = createMazeCanvas(solution, effectiveCellSize, true, 300);
         const solutionDataUrl = solutionCanvas.toDataURL('image/png');
         const solutionBase64 = solutionDataUrl.split(',')[1];
         solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });

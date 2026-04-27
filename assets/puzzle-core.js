@@ -254,9 +254,9 @@ function calculatePrintDimensions(widthInches, heightInches, dpi = 300) {
  * Large print settings
  */
 const LARGE_PRINT = {
-  MIN_FONT_SIZE: 16, // pt
-  PREFERRED_FONT_SIZE: 18, // pt
-  MIN_CELL_SIZE: 14, // mm
+  MIN_FONT_SIZE: 18, // pt
+  PREFERRED_FONT_SIZE: 20, // pt
+  MIN_CELL_SIZE: 18, // mm
   MARGINS: 0.5, // inches
   HIGH_CONTRAST: true
 };
@@ -267,12 +267,44 @@ const LARGE_PRINT = {
 function applyLargePrintSettings(settings = {}) {
   return {
     ...settings,
-    fontSize: Math.max(settings.fontSize || 16, LARGE_PRINT.MIN_FONT_SIZE),
-    cellSize: Math.max(settings.cellSize || 14, LARGE_PRINT.MIN_CELL_SIZE),
+    fontSize: Math.max(settings.fontSize || 18, LARGE_PRINT.MIN_FONT_SIZE),
+    cellSize: Math.max(settings.cellSize || 18, LARGE_PRINT.MIN_CELL_SIZE),
     margins: Math.max(settings.margins || 0.5, LARGE_PRINT.MARGINS),
     highContrast: true,
     perPage: 1 // Force 1 per page for large print
   };
+}
+
+// ============================================
+// KDP Bulk Generation Helpers
+// ============================================
+
+/**
+ * KDP configuration for bulk generation
+ */
+const KDP_OPTIONS = {
+  difficulties: ['easy', 'medium', 'hard', 'expert'],
+  fontSizes: [12, 14, 16, 18, 20],
+  counts: [10, 25, 50, 100, 200]
+};
+
+/**
+ * Generate KDP filename with options
+ */
+function generateKDPFilename(puzzleType, size, difficulty, index, isSolution = false) {
+  const suffix = isSolution ? 'solution' : 'puzzle';
+  const idx = String(index).padStart(3, '0');
+  return `${puzzleType}-${size}x${size}-${difficulty}-${suffix}-${idx}.png`;
+}
+
+/**
+ * Create print footer with site URL
+ */
+function addPrintFooter(ctx, width, height, fontSize = 10) {
+  ctx.font = `${fontSize}px Arial`;
+  ctx.fillStyle = '#666666';
+  ctx.textAlign = 'center';
+  ctx.fillText('puzzle-engine.com', width / 2, height - 20);
 }
 
 // ============================================
@@ -431,4 +463,7 @@ if (typeof window !== 'undefined') {
   window.generateSeed = generateSeed;
   window.validateWordList = validateWordList;
   window.unique = unique;
+  window.KDP_OPTIONS = KDP_OPTIONS;
+  window.generateKDPFilename = generateKDPFilename;
+  window.addPrintFooter = addPrintFooter;
 }

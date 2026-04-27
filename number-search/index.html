@@ -32,15 +32,26 @@
       padding: 0;
     }
     
-    /* Large print mode */
+    /* Improved Large print mode */
     .large-print-mode .numbersearch-grid td {
-      width: 48px;
-      height: 48px;
-      font-size: 22px;
+      width: 56px;
+      height: 56px;
+      font-size: 22pt;
+      font-weight: 700;
     }
     
     .large-print-mode .numbersearch-grid {
       max-width: 100%;
+    }
+    
+    .large-print-mode .number-list-item {
+      font-size: 14pt;
+      font-weight: 600;
+    }
+    
+    .large-print-mode .puzzle-label {
+      font-size: 14pt;
+      font-weight: 600;
     }
     
     /* Multi-puzzle layout */
@@ -162,7 +173,6 @@
     <div class="container">
       <div class="page-title">
         <h1>Number Search Generator</h1>
-        <p>Generate printable number search puzzles in 4 grid sizes with 3 difficulty levels. Perfect for KDP books and seniors.</p>
       </div>
       
       <div class="controls">
@@ -233,6 +243,28 @@
                 <option value="50" selected>50 puzzles</option>
                 <option value="100">100 puzzles</option>
               </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-difficulty">Difficulty:</label>
+              <select id="bulk-difficulty">
+                <option value="easy">Easy (1-9)</option>
+                <option value="medium" selected>Medium (10-99)</option>
+                <option value="hard">Hard (100-999)</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-font-size">Font Size:</label>
+              <select id="bulk-font-size">
+                <option value="12">12pt</option>
+                <option value="14" selected>14pt</option>
+                <option value="16">16pt</option>
+                <option value="18">18pt</option>
+                <option value="20">20pt</option>
+              </select>
+            </div>
+            <div class="control-group control-group--checkbox">
+              <input type="checkbox" id="bulk-large-print">
+              <label for="bulk-large-print">Large Print</label>
             </div>
             <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
             <div class="progress-container" id="bulk-progress" style="display: none;">
@@ -626,12 +658,9 @@
     /**
      * Create canvas with number search grid for PNG export
      */
-    function createNumberSearchCanvas(grid, numbers, size, dpi = 300) {
-      const isLargePrint = document.getElementById('large-print').checked;
-      
-      // Base cell size (in pixels at screen resolution)
-      const baseCellSize = isLargePrint ? 48 : 40;
-      const fontSize = isLargePrint ? 26 : 20;
+    function createNumberSearchCanvas(grid, numbers, size, dpi = 300, fontSize = 20, isLargePrint = false) {
+      const effectiveFontSize = isLargePrint ? Math.max(fontSize, 26) : fontSize;
+      const baseCellSize = isLargePrint ? 56 : 48;
       const margin = 40;
       const numberListHeight = 100;
       
@@ -641,7 +670,7 @@
       const gridWidth = size * cellSize;
       const gridHeight = size * cellSize;
       const totalWidth = margin * 2 + gridWidth;
-      const totalHeight = margin * 2 + gridHeight + numberListHeight;
+      const totalHeight = margin * 2 + gridHeight + numberListHeight + 30 * scale;
       
       const canvas = createHiDPICanvas(totalWidth / scale, totalHeight / scale, dpi);
       const ctx = canvas.getContext('2d');
@@ -651,7 +680,7 @@
       ctx.fillRect(0, 0, totalWidth, totalHeight);
       
       // Draw grid cells
-      ctx.font = `bold ${fontSize * scale}px Arial`;
+      ctx.font = `bold ${effectiveFontSize * scale}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
@@ -708,6 +737,12 @@
         ctx.fillText(num.toString(), x, y);
       });
       
+      // Add footer with site URL
+      ctx.font = `${10 * scale}px Arial`;
+      ctx.fillStyle = '#666666';
+      ctx.textAlign = 'center';
+      ctx.fillText('puzzle-engine.com', totalWidth / 2, totalHeight - 15 * scale);
+      
       return canvas;
     }
     
@@ -722,11 +757,12 @@
       
       const size = parseInt(document.getElementById('size').value);
       const difficulty = document.getElementById('difficulty').value;
+      const isLargePrint = document.getElementById('large-print').checked;
       const ts = timestamp();
       
       for (let i = 0; i < currentPuzzles.length; i++) {
         const puzzleData = currentPuzzles[i];
-        const canvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size);
+        const canvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size, 300, 20, isLargePrint);
         const filename = `numbersearch-${size}x${size}-${difficulty}-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
         await downloadCanvas(canvas, filename);
         await delay(100);
@@ -737,8 +773,7 @@
       if (showSolutions && currentPuzzles.length > 0) {
         for (let i = 0; i < currentPuzzles.length; i++) {
           const puzzleData = currentPuzzles[i];
-          // For solution, we create a highlighted version
-          const canvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size);
+          const canvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size, 300, 20, isLargePrint);
           const filename = `numbersearch-${size}x${size}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
           await downloadCanvas(canvas, filename);
           await delay(100);
@@ -755,8 +790,10 @@
      */
     async function generateBulkPuzzles() {
       const size = parseInt(document.getElementById('size').value);
-      const difficulty = document.getElementById('difficulty').value;
+      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
+      const fontSize = parseInt(document.getElementById('bulk-font-size').value);
+      const isLargePrint = document.getElementById('bulk-large-print').checked;
       
       const progressContainer = document.getElementById('bulk-progress');
       progressContainer.style.display = 'block';
@@ -773,12 +810,12 @@
         const puzzleData = generateNumberSearch(size, difficulty);
         
         // Create canvas and add to ZIP
-        const puzzleCanvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size);
+        const puzzleCanvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size, 300, fontSize, isLargePrint);
         const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
         const puzzleBase64 = puzzleDataUrl.split(',')[1];
         puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
         
-        const solutionCanvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size);
+        const solutionCanvas = createNumberSearchCanvas(puzzleData.grid, puzzleData.numbers, size, 300, fontSize, isLargePrint);
         const solutionDataUrl = solutionCanvas.toDataURL('image/png');
         const solutionBase64 = solutionDataUrl.split(',')[1];
         solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });

@@ -32,15 +32,26 @@
       text-transform: uppercase;
     }
     
-    /* Large print mode */
+    /* Improved Large print mode */
     .large-print-mode .wordsearch-grid td {
-      width: 44px;
-      height: 44px;
-      font-size: 24px;
+      width: 52px;
+      height: 52px;
+      font-size: 22pt;
+      font-weight: 700;
     }
     
     .large-print-mode .wordsearch-grid {
       max-width: 100%;
+    }
+    
+    .large-print-mode .word-list-item {
+      font-size: 14pt;
+      font-weight: 600;
+    }
+    
+    .large-print-mode .puzzle-label {
+      font-size: 14pt;
+      font-weight: 600;
     }
     
     /* Multi-puzzle layout */
@@ -247,7 +258,6 @@
     <div class="container">
       <div class="page-title">
         <h1>Word Search Generator</h1>
-        <p>Generate printable word search puzzles in 5 grid sizes with 3 difficulty levels. Perfect for KDP books and seniors.</p>
       </div>
       
       <div class="controls">
@@ -400,6 +410,28 @@
                 <option value="50" selected>50 puzzles</option>
                 <option value="100">100 puzzles</option>
               </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-difficulty">Difficulty:</label>
+              <select id="bulk-difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-font-size">Font Size:</label>
+              <select id="bulk-font-size">
+                <option value="12">12pt</option>
+                <option value="14" selected>14pt</option>
+                <option value="16">16pt</option>
+                <option value="18">18pt</option>
+                <option value="20">20pt</option>
+              </select>
+            </div>
+            <div class="control-group control-group--checkbox">
+              <input type="checkbox" id="bulk-large-print">
+              <label for="bulk-large-print">Large Print</label>
             </div>
             <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
             <div class="progress-container" id="bulk-progress" style="display: none;">
@@ -839,12 +871,9 @@
     /**
      * Create canvas with word search grid for PNG export
      */
-    function createWordSearchCanvas(grid, words, size, difficulty, dpi = 300) {
-      const isLargePrint = document.getElementById('large-print').checked;
-      
-      // Base cell size (in pixels at screen resolution)
-      const baseCellSize = isLargePrint ? 44 : 36;
-      const fontSize = isLargePrint ? 26 : 20;
+    function createWordSearchCanvas(grid, words, size, difficulty, dpi = 300, fontSize = 20, isLargePrint = false) {
+      const effectiveFontSize = isLargePrint ? Math.max(fontSize, 26) : fontSize;
+      const baseCellSize = isLargePrint ? 52 : 44;
       const margin = 40;
       const wordListHeight = 120;
       
@@ -853,7 +882,7 @@
       
       const gridWidth = size * cellSize;
       const gridHeight = size * cellSize;
-      const totalHeight = margin * 2 + gridHeight + (difficulty !== 'hard' ? wordListHeight : 0);
+      const totalHeight = margin * 2 + gridHeight + (difficulty !== 'hard' ? wordListHeight : 0) + 30 * scale;
       const totalWidth = margin * 2 + gridWidth;
       
       const canvas = createHiDPICanvas(totalWidth / scale, totalHeight / scale, dpi);
@@ -864,7 +893,7 @@
       ctx.fillRect(0, 0, totalWidth, totalHeight);
       
       // Draw grid cells
-      ctx.font = `bold ${fontSize * scale}px Arial`;
+      ctx.font = `bold ${effectiveFontSize * scale}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
@@ -918,6 +947,12 @@
         });
       }
       
+      // Add footer with site URL
+      ctx.font = `${10 * scale}px Arial`;
+      ctx.fillStyle = '#666666';
+      ctx.textAlign = 'center';
+      ctx.fillText('puzzle-engine.com', totalWidth / 2, totalHeight - 15 * scale);
+      
       return canvas;
     }
     
@@ -932,11 +967,12 @@
       
       const size = parseInt(document.getElementById('size').value);
       const difficulty = document.getElementById('difficulty').value;
+      const isLargePrint = document.getElementById('large-print').checked;
       const ts = timestamp();
       
       for (let i = 0; i < currentPuzzles.length; i++) {
         const puzzleData = currentPuzzles[i];
-        const canvas = createWordSearchCanvas(puzzleData.grid, puzzleData.words, size, difficulty);
+        const canvas = createWordSearchCanvas(puzzleData.grid, puzzleData.words, size, difficulty, 300, 20, isLargePrint);
         const filename = `wordsearch-${size}x${size}-${difficulty}-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
         await downloadCanvas(canvas, filename);
         await delay(100);
@@ -947,8 +983,7 @@
       if (showSolutions && currentPuzzles.length > 0) {
         for (let i = 0; i < currentPuzzles.length; i++) {
           const puzzleData = currentPuzzles[i];
-          // For solution, we draw highlighted grid
-          const canvas = createWordSearchCanvas(puzzleData.grid, puzzleData.words, size, difficulty);
+          const canvas = createWordSearchCanvas(puzzleData.grid, puzzleData.words, size, difficulty, 300, 20, isLargePrint);
           const filename = `wordsearch-${size}x${size}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
           await downloadCanvas(canvas, filename);
           await delay(100);
@@ -965,8 +1000,10 @@
      */
     async function generateBulkPuzzles() {
       const size = parseInt(document.getElementById('size').value);
-      const difficulty = document.getElementById('difficulty').value;
+      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
+      const fontSize = parseInt(document.getElementById('bulk-font-size').value);
+      const isLargePrint = document.getElementById('bulk-large-print').checked;
       const theme = getSelectedTheme();
       const useCustom = document.getElementById('use-custom-words').checked;
       const customWords = useCustom ? getCustomWords() : null;
@@ -989,12 +1026,12 @@
         const puzzleData = generateWordSearch(size, difficulty, words);
         
         // Create canvas and add to ZIP
-        const puzzleCanvas = createWordSearchCanvas(puzzleData.grid, puzzleData.words, size, difficulty);
+        const puzzleCanvas = createWordSearchCanvas(puzzleData.grid, puzzleData.words, size, difficulty, 300, fontSize, isLargePrint);
         const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
         const puzzleBase64 = puzzleDataUrl.split(',')[1];
         puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
         
-        const solutionCanvas = createWordSearchCanvas(puzzleData.grid, puzzleData.words, size, difficulty);
+        const solutionCanvas = createWordSearchCanvas(puzzleData.grid, puzzleData.words, size, difficulty, 300, fontSize, isLargePrint);
         const solutionDataUrl = solutionCanvas.toDataURL('image/png');
         const solutionBase64 = solutionDataUrl.split(',')[1];
         solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });

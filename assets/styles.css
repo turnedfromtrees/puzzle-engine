@@ -568,19 +568,75 @@ body {
   color: var(--color-success);
 }
 
-/* Large Print Mode */
+/* Large Print Mode - Significantly larger for accessibility */
 .large-print-mode {
   font-size: 18pt;
 }
 
-.large-print-mode .puzzle-grid td {
-  min-width: 14mm;
-  min-height: 14mm;
-  font-size: 18pt;
+.large-print-mode .puzzle-grid td,
+.large-print-mode .sudoku-grid td,
+.large-print-mode .wordsearch-grid td,
+.large-print-mode .numbersearch-grid td,
+.large-print-mode .kenken-grid td,
+.large-print-mode .killer-grid td {
+  min-width: 18mm;
+  min-height: 18mm;
+  font-size: 20pt;
+  font-weight: 700;
 }
 
-.large-print-mode .puzzle-grid {
+.large-print-mode .puzzle-grid,
+.large-print-mode .sudoku-grid,
+.large-print-mode .wordsearch-grid,
+.large-print-mode .numbersearch-grid,
+.large-print-mode .kenken-grid,
+.large-print-mode .killer-grid {
   max-width: 100%;
+}
+
+/* Extra large cells for large print */
+.large-print-mode .sudoku-grid td {
+  width: 60px;
+  height: 60px;
+  font-size: 26pt;
+}
+
+.large-print-mode .wordsearch-grid td {
+  width: 52px;
+  height: 52px;
+  font-size: 22pt;
+}
+
+.large-print-mode .numbersearch-grid td {
+  width: 56px;
+  height: 56px;
+  font-size: 22pt;
+}
+
+.large-print-mode .kenken-grid td {
+  width: 64px;
+  height: 64px;
+  font-size: 26pt;
+}
+
+.large-print-mode .killer-grid td {
+  width: 68px;
+  height: 68px;
+  font-size: 26pt;
+}
+
+/* Large print word lists and labels */
+.large-print-mode .word-list-item,
+.large-print-mode .number-list-item,
+.large-print-mode .puzzle-label {
+  font-size: 14pt;
+  font-weight: 600;
+}
+
+.large-print-mode .word-list,
+.large-print-mode .number-list {
+  padding: 16px;
+  gap: 12px 20px;
 }
 
 /* Print Styles */
@@ -591,6 +647,10 @@ body {
   .bulk-section,
   .bulk-progress,
   .btn {
+    display: none !important;
+  }
+  
+  .page-title {
     display: none !important;
   }
   
@@ -613,6 +673,18 @@ body {
   .puzzle-grid-wrapper {
     box-shadow: none;
     border: 1px solid #000;
+  }
+  
+  /* Print footer with site URL */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10pt;
+    color: #666;
+    padding: 8px 0;
   }
 }
 

@@ -76,15 +76,21 @@
       background: #f0f0f0;
     }
     
-    /* Large print mode */
+    /* Improved Large print mode */
     .large-print-mode .kenken-grid td {
-      width: 56px;
-      height: 56px;
-      font-size: 28px;
+      width: 60px;
+      height: 60px;
+      font-size: 26pt;
+      font-weight: 700;
+    }
+    
+    .large-print-mode .kenken-grid {
+      max-width: 100%;
     }
     
     .large-print-mode .cage-label {
-      font-size: 14px;
+      font-size: 12pt;
+      font-weight: 600;
     }
     
     /* Multi-puzzle layout */
@@ -169,7 +175,6 @@
     <div class="container">
       <div class="page-title">
         <h1>KenKen Generator</h1>
-        <p>Generate printable KenKen puzzles in 7 grid sizes with 3 difficulty levels. Each cage shows its target number and operation.</p>
       </div>
       
       <div class="controls">
@@ -246,6 +251,28 @@
                 <option value="50" selected>50 puzzles</option>
                 <option value="100">100 puzzles</option>
               </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-difficulty">Difficulty:</label>
+              <select id="bulk-difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-font-size">Font Size:</label>
+              <select id="bulk-font-size">
+                <option value="12">12pt</option>
+                <option value="14" selected>14pt</option>
+                <option value="16">16pt</option>
+                <option value="18">18pt</option>
+                <option value="20">20pt</option>
+              </select>
+            </div>
+            <div class="control-group control-group--checkbox">
+              <input type="checkbox" id="bulk-large-print">
+              <label for="bulk-large-print">Large Print</label>
             </div>
             <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
             <div class="progress-container" id="bulk-progress" style="display: none;">
@@ -847,13 +874,13 @@
     /**
      * Create canvas with KenKen grid for PNG export
      */
-    function createKenKenCanvas(solution, cages, size, showSolution = false, dpi = 300) {
-      const isLargePrint = document.getElementById('large-print').checked;
+    function createKenKenCanvas(solution, cages, size, showSolution = false, dpi = 300, fontSizeOverride = 20, isLargePrintOverride = null) {
+      const isLargePrint = isLargePrintOverride !== null ? isLargePrintOverride : document.getElementById('large-print').checked;
       const borders = getCageBorders(cages, size);
       
       // Base dimensions
-      const baseCellSize = isLargePrint ? 60 : 50;
-      const fontSize = isLargePrint ? 26 : 20;
+      const baseCellSize = isLargePrint ? Math.max(60, fontSizeOverride * 2.5) : 50;
+      const fontSize = isLargePrint ? Math.max(fontSizeOverride, 26) : fontSizeOverride;
       const labelFontSize = isLargePrint ? 14 : 11;
       const margin = 30;
       
@@ -861,7 +888,7 @@
       const cellSize = baseCellSize * scale;
       
       const width = margin * 2 + size * cellSize;
-      const height = margin * 2 + size * cellSize;
+      const height = margin * 2 + size * cellSize + 30 * scale;
       
       const canvas = createHiDPICanvas(width / scale, height / scale, dpi);
       const ctx = canvas.getContext('2d');
@@ -984,6 +1011,12 @@
         }
       }
       
+      // Add footer with site URL
+      ctx.font = `${10 * scale}px Arial`;
+      ctx.fillStyle = '#666666';
+      ctx.textAlign = 'center';
+      ctx.fillText('puzzle-engine.com', width / 2, height - 15 * scale);
+      
       return canvas;
     }
     
@@ -998,11 +1031,12 @@
       
       const size = parseInt(document.getElementById('size').value);
       const difficulty = document.getElementById('difficulty').value;
+      const isLargePrint = document.getElementById('large-print').checked;
       const ts = timestamp();
       
       for (let i = 0; i < currentSolutions.length; i++) {
         // Export puzzle
-        const puzzleCanvas = createKenKenCanvas(currentSolutions[i], currentCages[i], size, false);
+        const puzzleCanvas = createKenKenCanvas(currentSolutions[i], currentCages[i], size, false, 300, 20, isLargePrint);
         const filename = `kenken-${size}x${size}-${difficulty}-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
         await downloadCanvas(puzzleCanvas, filename);
         await delay(100);
@@ -1012,7 +1046,7 @@
       const showSolutions = document.getElementById('solutions').value === 'separate';
       if (showSolutions && currentSolutions.length > 0) {
         for (let i = 0; i < currentSolutions.length; i++) {
-          const solutionCanvas = createKenKenCanvas(currentSolutions[i], currentCages[i], size, true);
+          const solutionCanvas = createKenKenCanvas(currentSolutions[i], currentCages[i], size, true, 300, 20, isLargePrint);
           const filename = `kenken-${size}x${size}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
           await downloadCanvas(solutionCanvas, filename);
           await delay(100);
@@ -1029,8 +1063,10 @@
      */
     async function generateBulkPuzzles() {
       const size = parseInt(document.getElementById('size').value);
-      const difficulty = document.getElementById('difficulty').value;
+      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
+      const fontSize = parseInt(document.getElementById('bulk-font-size').value);
+      const isLargePrint = document.getElementById('bulk-large-print').checked;
       
       const progressContainer = document.getElementById('bulk-progress');
       progressContainer.style.display = 'block';
@@ -1047,13 +1083,13 @@
         const { puzzle, solution, cages } = generateKenKen(size, difficulty);
         
         // Create puzzle canvas
-        const puzzleCanvas = createKenKenCanvas(solution, cages, size, false);
+        const puzzleCanvas = createKenKenCanvas(solution, cages, size, false, 300, fontSize, isLargePrint);
         const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
         const puzzleBase64 = puzzleDataUrl.split(',')[1];
         puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
         
         // Create solution canvas
-        const solutionCanvas = createKenKenCanvas(solution, cages, size, true);
+        const solutionCanvas = createKenKenCanvas(solution, cages, size, true, 300, fontSize, isLargePrint);
         const solutionDataUrl = solutionCanvas.toDataURL('image/png');
         const solutionBase64 = solutionDataUrl.split(',')[1];
         solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });

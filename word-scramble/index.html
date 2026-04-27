@@ -173,23 +173,31 @@
       margin-top: 12px;
     }
     
-    /* Large print mode */
+    /* Improved Large print mode */
     .large-print-mode .scramble-item {
       padding: var(--spacing-md) var(--spacing-lg);
+      gap: var(--spacing-lg);
+    }
+    
+    .large-print-mode .scramble-item__number {
+      font-size: 18pt;
+      font-weight: 700;
     }
     
     .large-print-mode .scramble-item__scrambled {
-      font-size: 1.4rem;
-      letter-spacing: 4px;
+      font-size: 18pt;
+      font-weight: 700;
+      letter-spacing: 6px;
     }
     
     .large-print-mode .scramble-item__hint {
-      font-size: 1rem;
+      font-size: 14pt;
+      font-weight: 600;
     }
     
     .large-print-mode .scramble-item__blank {
-      min-width: 150px;
-      border-bottom-width: 3px;
+      min-width: 180px;
+      border-bottom-width: 4px;
     }
     
     /* Theme selector */
@@ -330,7 +338,6 @@
     <div class="container">
       <div class="page-title">
         <h1>Word Scramble Generator</h1>
-        <p>Generate printable word scramble puzzles with 3 difficulty levels. Perfect for KDP books and seniors.</p>
       </div>
       
       <div class="controls">
@@ -496,6 +503,28 @@
                 <option value="50" selected>50 puzzles</option>
                 <option value="100">100 puzzles</option>
               </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-difficulty">Difficulty:</label>
+              <select id="bulk-difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="bulk-font-size">Font Size:</label>
+              <select id="bulk-font-size">
+                <option value="12">12pt</option>
+                <option value="14" selected>14pt</option>
+                <option value="16">16pt</option>
+                <option value="18">18pt</option>
+                <option value="20">20pt</option>
+              </select>
+            </div>
+            <div class="control-group control-group--checkbox">
+              <input type="checkbox" id="bulk-large-print">
+              <label for="bulk-large-print">Large Print</label>
             </div>
             <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
             <div class="progress-container" id="bulk-progress" style="display: none;">
@@ -858,11 +887,11 @@
     /**
      * Create canvas with scramble puzzle for PNG export
      */
-    function createScrambleCanvas(puzzleData, dpi = 300) {
-      const isLargePrint = document.getElementById('large-print').checked;
+    function createScrambleCanvas(puzzleData, dpi = 300, fontSizeOverride = 18, isLargePrintOverride = null) {
+      const isLargePrint = isLargePrintOverride !== null ? isLargePrintOverride : document.getElementById('large-print').checked;
       
-      // Base sizes
-      const baseFontSize = isLargePrint ? 24 : 18;
+      // Base sizes - use overrides if provided (for bulk generation)
+      const baseFontSize = isLargePrint ? Math.max(fontSizeOverride, 24) : fontSizeOverride;
       const baseLineHeight = isLargePrint ? 50 : 40;
       const margin = 60;
       const itemSpacing = isLargePrint ? 20 : 15;
@@ -888,7 +917,7 @@
       });
       
       const width = margin * 2 + Math.max(400 * scale, maxScrambledWidth + 200 * scale);
-      let height = margin * 2 + itemsCount * (lineHeight + itemSpacing);
+      let height = margin * 2 + itemsCount * (lineHeight + itemSpacing) + 30 * scale;
       
       // Add space for hidden message
       if (puzzleData.hiddenMessage) {
@@ -1027,8 +1056,10 @@
      */
     async function generateBulkPuzzles() {
       const wordCount = parseInt(document.getElementById('word-count').value);
-      const difficulty = document.getElementById('difficulty').value;
+      const difficulty = document.getElementById('bulk-difficulty').value;
       const count = parseInt(document.getElementById('bulk-count').value);
+      const fontSize = parseInt(document.getElementById('bulk-font-size').value);
+      const isLargePrint = document.getElementById('bulk-large-print').checked;
       const theme = getSelectedTheme();
       const useCustom = document.getElementById('use-custom-words').checked;
       const customWords = useCustom ? getCustomWords() : null;
@@ -1053,8 +1084,8 @@
         // Generate puzzle
         const puzzleData = generateWordScramble(words, difficulty, wordCount, hiddenMessage);
         
-        // Create canvas and add to ZIP
-        const puzzleCanvas = createScrambleCanvas(puzzleData);
+        // Create canvas and add to ZIP - pass fontSize and isLargePrint
+        const puzzleCanvas = createScrambleCanvas(puzzleData, 300, fontSize, isLargePrint);
         const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
         const puzzleBase64 = puzzleDataUrl.split(',')[1];
         puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });

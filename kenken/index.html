@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KenKen Generator — Free Printable KenKen Puzzles | Puzzle Engine</title>
+  <meta name="description" content="Generate free printable KenKen (Calcudoku) puzzles in 7 grid sizes (3x3 to 9x9) with 3 difficulty levels. Perfect for KDP books, worksheets, and seniors. 300 DPI PNG export, bulk generation, no watermarks.">
+  <meta name="keywords" content="kenken generator, calcudoku, mathdoku, printable kenken, kenken puzzles, KDP kenken, free kenken">
+  <link rel="canonical" href="https://puzzle-engine.com/kenken/">
+  
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script src="../assets/puzzle-core.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <style>
+    /* KenKen-specific styles */
+    .kenken-grid {
+      border-collapse: collapse;
+      margin: 0 auto;
+      background: white;
+    }
+    
+    .kenken-grid td {
+      width: 44px;
+      height: 44px;
+      text-align: center;
+      vertical-align: middle;
+      border: 1px solid #999;
+      font-size: 22px;
+      font-weight: 600;
+      padding: 0;
+      position: relative;
+    }
+    
+    /* Cage borders - thick borders between cages */
+    .kenken-grid td.cage-top {
+      border-top-width: 3px;
+      border-top-color: #000;
+    }
+    
+    .kenken-grid td.cage-bottom {
+      border-bottom-width: 3px;
+      border-bottom-color: #000;
+    }
+    
+    .kenken-grid td.cage-left {
+      border-left-width: 3px;
+      border-left-color: #000;
+    }
+    
+    .kenken-grid td.cage-right {
+      border-right-width: 3px;
+      border-right-color: #000;
+    }
+    
+    /* Cage target/operation label in top-left corner */
+    .cage-label {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #333;
+      line-height: 1.1;
+      text-align: left;
+    }
+    
+    /* Empty cells for player to fill */
+    .kenken-grid td.empty {
+      background: white;
+      cursor: default;
+    }
+    
+    /* Filled solution cells */
+    .kenken-grid td.filled {
+      background: #f0f0f0;
+    }
+    
+    /* Large print mode */
+    .large-print-mode .kenken-grid td {
+      width: 56px;
+      height: 56px;
+      font-size: 28px;
+    }
+    
+    .large-print-mode .cage-label {
+      font-size: 14px;
+    }
+    
+    /* Multi-puzzle layout */
+    .puzzles-page {
+      display: grid;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    
+    .puzzles-page[data-count="2"] {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .puzzles-page[data-count="4"] {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+    
+    .single-puzzle-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    
+    .puzzle-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    
+    /* Solution display */
+    .solution-container {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px dashed var(--color-border);
+      width: 100%;
+    }
+    
+    .solution-container h2 {
+      text-align: center;
+      color: var(--color-text-light);
+      margin-bottom: 20px;
+    }
+    
+    /* Size options info */
+    .size-info {
+      font-size: 0.875rem;
+      color: var(--color-text-light);
+      margin-top: var(--spacing-xs);
+    }
+    
+    /* Operations info */
+    .operations-info {
+      font-size: 0.875rem;
+      color: var(--color-text-light);
+      margin-top: var(--spacing-xs);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__content">
+      <a href="../index.html" class="header__logo">
+        <span class="header__logo-icon">🧩</span>
+        <span>Puzzle Engine</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../sudoku/index.html" class="header__nav-link">Sudoku</a>
+        <a href="../word-search/index.html" class="header__nav-link">Word Search</a>
+        <a href="../mazes/index.html" class="header__nav-link">Mazes</a>
+        <a href="../number-search/index.html" class="header__nav-link">Number Search</a>
+        <a href="../word-scramble/index.html" class="header__nav-link">Word Scramble</a>
+        <a href="../kenken/index.html" class="header__nav-link active">KenKen</a>
+        <a href="../killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
+      </nav>
+    </div>
+  </header>
+  
+  <main class="main-content">
+    <div class="container">
+      <div class="page-title">
+        <h1>KenKen Generator</h1>
+        <p>Generate printable KenKen puzzles in 7 grid sizes with 3 difficulty levels. Each cage shows its target number and operation.</p>
+      </div>
+      
+      <div class="controls">
+        <!-- Row 1: Core Settings -->
+        <div class="controls-row">
+          <div class="control-group">
+            <label for="size">Grid Size:</label>
+            <select id="size">
+              <option value="3">3×3</option>
+              <option value="4" selected>4×4</option>
+              <option value="5">5×5</option>
+              <option value="6">6×6</option>
+              <option value="7">7×7</option>
+              <option value="8">8×8</option>
+              <option value="9">9×9</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <label for="per-page">Per Page:</label>
+            <select id="per-page">
+              <option value="1" selected>1 puzzle</option>
+              <option value="2">2 puzzles</option>
+              <option value="4">4 puzzles</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <label for="solutions">Solutions:</label>
+            <select id="solutions">
+              <option value="none">None</option>
+              <option value="separate" selected>Separate page</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Row 2: Large Print Toggle -->
+        <div class="controls-row">
+          <div class="control-group control-group--checkbox">
+            <input type="checkbox" id="large-print">
+            <label for="large-print">Large Print Mode</label>
+          </div>
+          
+          <div class="operations-info" id="operations-info">
+            Operations: +, −, ×, ÷
+          </div>
+        </div>
+        
+        <!-- Row 3: Actions -->
+        <div class="controls-row controls-row--actions">
+          <button id="generate" class="btn btn--primary">Generate</button>
+          <button id="print" class="btn btn--secondary">Print</button>
+          <button id="export-png" class="btn btn--secondary">Export PNG</button>
+        </div>
+        
+        <!-- Row 4: Bulk Generation -->
+        <details class="bulk-section">
+          <summary>Bulk Generation (KDP)</summary>
+          <div class="bulk-controls">
+            <div class="control-group">
+              <label for="bulk-count">Count:</label>
+              <select id="bulk-count">
+                <option value="10">10 puzzles</option>
+                <option value="25">25 puzzles</option>
+                <option value="50" selected>50 puzzles</option>
+                <option value="100">100 puzzles</option>
+              </select>
+            </div>
+            <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
+            <div class="progress-container" id="bulk-progress" style="display: none;">
+              <div class="progress-bar"><div class="progress-fill"></div></div>
+              <span class="progress-text">0%</span>
+            </div>
+          </div>
+        </details>
+      </div>
+      
+      <div class="puzzle-display">
+        <div class="puzzle-container" id="puzzle-container">
+          <!-- Puzzle(s) will be rendered here -->
+          <p style="color: var(--color-text-light);">Click "Generate" to create a puzzle</p>
+        </div>
+        
+        <div class="solution-section" id="solution-section" style="display: none;">
+          <h2>Solution</h2>
+          <div id="solution-container"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer class="footer">
+    <div class="container footer__content">
+      <div class="footer__links">
+        <a href="../privacy.html">Privacy Policy</a>
+        <a href="../terms.html">Terms of Service</a>
+      </div>
+      <p class="footer__license">Commercial license included for KDP creators.</p>
+    </div>
+  </footer>
+  
+  <script>
+    // ============================================
+    // KenKen Generator - V2
+    // ============================================
+    
+    // Difficulty configuration
+    const DIFFICULTY_PARAMS = {
+      easy: {
+        minCageSize: 2,
+        maxCageSize: 4,
+        singletonChance: 0.08,
+        operations: ['+', '−'],
+        operationBias: { '+': 0.6, '−': 0.4 }
+      },
+      medium: {
+        minCageSize: 2,
+        maxCageSize: 3,
+        singletonChance: 0.03,
+        operations: ['+', '−', '×'],
+        operationBias: { '+': 0.4, '−': 0.3, '×': 0.3 }
+      },
+      hard: {
+        minCageSize: 1,
+        maxCageSize: 2,
+        singletonChance: 0,
+        operations: ['+', '−', '×', '÷'],
+        operationBias: { '+': 0.25, '−': 0.25, '×': 0.25, '÷': 0.25 }
+      }
+    };
+    
+    let currentPuzzles = [];
+    let currentSolutions = [];
+    let currentCages = [];
+    let currentSettings = {};
+    
+    // ============================================
+    // Latin Square Generation
+    // ============================================
+    
+    /**
+     * Generate a valid Latin square (each number 1-N appears once per row and column)
+     */
+    function generateLatinSquare(size) {
+      // Start with base row
+      const baseRow = Array.from({ length: size }, (_, i) => i + 1);
+      const firstRow = shuffleArray([...baseRow]);
+      
+      // Try to build valid grid
+      const grid = [firstRow];
+      
+      for (let row = 1; row < size; row++) {
+        let attempts = 0;
+        let validRow = null;
+        
+        while (!validRow && attempts < 100) {
+          const candidateRow = shuffleArray([...baseRow]);
+          let isValid = true;
+          
+          // Check against all previous rows
+          for (let col = 0; col < size; col++) {
+            for (let prevRow = 0; prevRow < row; prevRow++) {
+              if (grid[prevRow][col] === candidateRow[col]) {
+                isValid = false;
+                break;
+              }
+            }
+            if (!isValid) break;
+          }
+          
+          if (isValid) {
+            validRow = candidateRow;
+          }
+          attempts++;
+        }
+        
+        if (!validRow) {
+          // Restart from scratch if we can't find valid row
+          return generateLatinSquare(size);
+        }
+        
+        grid.push(validRow);
+      }
+      
+      // Verify validity
+      if (!isValidLatinSquare(grid, size)) {
+        return generateLatinSquare(size);
+      }
+      
+      // Shuffle rows and columns for more variety
+      const shuffled = shuffleRowsAndColumns(grid, size);
+      return shuffled;
+    }
+    
+    /**
+     * Verify Latin square validity
+     */
+    function isValidLatinSquare(grid, size) {
+      // Check rows
+      for (let row = 0; row < size; row++) {
+        const seen = new Set();
+        for (let col = 0; col < size; col++) {
+          const val = grid[row][col];
+          if (val < 1 || val > size || seen.has(val)) return false;
+          seen.add(val);
+        }
+      }
+      
+      // Check columns
+      for (let col = 0; col < size; col++) {
+        const seen = new Set();
+        for (let row = 0; row < size; row++) {
+          const val = grid[row][col];
+          if (seen.has(val)) return false;
+          seen.add(val);
+        }
+      }
+      
+      return true;
+    }
+    
+    /**
+     * Shuffle rows and columns for variety
+     */
+    function shuffleRowsAndColumns(grid, size) {
+      const result = grid.map(row => [...row]);
+      
+      // Shuffle rows
+      for (let i = size - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      
+      // Shuffle columns
+      for (let i = size - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        for (let row = 0; row < size; row++) {
+          [result[row][i], result[row][j]] = [result[row][j], result[row][i]];
+        }
+      }
+      
+      return result;
+    }
+    
+    // ============================================
+    // Cage Partitioning
+    // ============================================
+    
+    /**
+     * Partition grid into cages
+     */
+    function partitionIntoCages(solution, difficulty) {
+      const size = solution.length;
+      const params = DIFFICULTY_PARAMS[difficulty];
+      const cages = [];
+      const assigned = Array(size).fill(null).map(() => Array(size).fill(false));
+      
+      // Get all cells in random order
+      const allCells = [];
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          allCells.push({ r, c });
+        }
+      }
+      shuffleArrayInPlace(allCells);
+      
+      for (const cell of allCells) {
+        if (assigned[cell.r][cell.c]) continue;
+        
+        // Maybe create singleton cage (only for easy/medium, very rare)
+        if (Math.random() < params.singletonChance) {
+          cages.push({
+            cells: [cell],
+            values: [solution[cell.r][cell.c]],
+            target: solution[cell.r][cell.c],
+            operation: null // No operation for singletons
+          });
+          assigned[cell.r][cell.c] = true;
+          continue;
+        }
+        
+        // Grow a cage from this cell
+        const cage = growCage(solution, assigned, cell, params.minCageSize, params.maxCageSize);
+        
+        for (const c of cage.cells) {
+          assigned[c.r][c.c] = true;
+        }
+        
+        cages.push(cage);
+      }
+      
+      return cages;
+    }
+    
+    /**
+     * Grow a cage from a starting cell
+     */
+    function growCage(solution, assigned, startCell, minSize, maxSize) {
+      const size = solution.length;
+      const targetSize = minSize + Math.floor(Math.random() * (maxSize - minSize + 1));
+      const cage = {
+        cells: [startCell],
+        values: [solution[startCell.r][startCell.c]]
+      };
+      
+      while (cage.cells.length < targetSize) {
+        // Find all unassigned neighbors
+        const neighbors = [];
+        
+        for (const cell of cage.cells) {
+          const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+          for (const [dr, dc] of dirs) {
+            const nr = cell.r + dr;
+            const nc = cell.c + dc;
+            
+            if (nr >= 0 && nr < size && nc >= 0 && nc < size && !assigned[nr][nc]) {
+              const alreadyInCage = cage.cells.some(c => c.r === nr && c.c === nc);
+              if (!alreadyInCage && !neighbors.some(n => n.r === nr && n.c === nc)) {
+                neighbors.push({ r: nr, c: nc });
+              }
+            }
+          }
+        }
+        
+        if (neighbors.length === 0) break;
+        
+        // Pick random neighbor
+        const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+        cage.cells.push(next);
+        cage.values.push(solution[next.r][next.c]);
+      }
+      
+      return cage;
+    }
+    
+    /**
+     * Shuffle array in place
+     */
+    function shuffleArrayInPlace(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+    
+    // ============================================
+    // Operation Assignment
+    // ============================================
+    
+    /**
+     * Assign operations and targets to cages
+     */
+    function assignOperations(cages, difficulty) {
+      const params = DIFFICULTY_PARAMS[difficulty];
+      const result = [];
+      
+      for (const cage of cages) {
+        if (cage.cells.length === 1) {
+          // Singleton cage - no operation, just the value
+          result.push({
+            cells: cage.cells,
+            values: cage.values,
+            target: cage.values[0],
+            operation: null
+          });
+        } else if (cage.cells.length === 2) {
+          // Two-cell cage - any operation valid
+          const [a, b] = [...cage.values].sort((x, y) => x - y);
+          const op = pickOperation(a, b, params.operations, params.operationBias);
+          const target = calculateTarget(a, b, op);
+          
+          result.push({
+            cells: cage.cells,
+            values: cage.values,
+            target: target,
+            operation: op
+          });
+        } else {
+          // Three+ cells - only + or ×
+          const op = pickOperationMulti(cage.values.length, params.operationBias);
+          const target = op === '+'
+            ? cage.values.reduce((sum, v) => sum + v, 0)
+            : cage.values.reduce((prod, v) => prod * v, 1);
+          
+          result.push({
+            cells: cage.cells,
+            values: cage.values,
+            target: target,
+            operation: op
+          });
+        }
+      }
+      
+      return result;
+    }
+    
+    /**
+     * Pick operation for 2-cell cage
+     */
+    function pickOperation(a, b, allowedOps, bias) {
+      // Filter to valid operations
+      const validOps = [];
+      
+      if (allowedOps.includes('+')) validOps.push('+');
+      if (allowedOps.includes('−')) validOps.push('−');
+      if (allowedOps.includes('×')) validOps.push('×');
+      if (allowedOps.includes('÷') && b > 0 && b % a === 0) validOps.push('÷');
+      
+      if (validOps.length === 0) return '+';
+      if (validOps.length === 1) return validOps[0];
+      
+      // Use weighted random based on bias
+      const weights = validOps.map(op => bias[op] || 0.25);
+      const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+      let random = Math.random() * totalWeight;
+      
+      for (let i = 0; i < validOps.length; i++) {
+        random -= weights[i];
+        if (random <= 0) return validOps[i];
+      }
+      
+      return validOps[0];
+    }
+    
+    /**
+     * Pick operation for multi-cell cage (only + or ×)
+     */
+    function pickOperationMulti(cellCount, bias) {
+      const addWeight = bias['+'] || 0.4;
+      const multWeight = bias['×'] || 0.3;
+      const total = addWeight + multWeight;
+      
+      return Math.random() * total < addWeight ? '+' : '×';
+    }
+    
+    /**
+     * Calculate target value
+     */
+    function calculateTarget(a, b, op) {
+      switch (op) {
+        case '+': return a + b;
+        case '−': return b - a; // b >= a after sort
+        case '×': return a * b;
+        case '÷': return Math.floor(b / a); // b >= a after sort, should divide evenly
+        default: return a + b;
+      }
+    }
+    
+    // ============================================
+    // Puzzle Generation
+    // ============================================
+    
+    /**
+     * Generate complete KenKen puzzle
+     */
+    function generateKenKen(size, difficulty) {
+      // Generate solution (Latin square)
+      const solution = generateLatinSquare(size);
+      
+      // Partition into cages
+      let cages = partitionIntoCages(solution, difficulty);
+      
+      // Assign operations
+      cages = assignOperations(cages, difficulty);
+      
+      // Create puzzle (empty grid with cage info)
+      const puzzle = Array(size).fill(null).map(() => Array(size).fill(0));
+      
+      return { puzzle, solution, cages };
+    }
+    
+    // ============================================
+    // Rendering
+    // ============================================
+    
+    /**
+     * Determine which cage borders to apply
+     */
+    function getCageBorders(cages, size) {
+      const borders = Array(size).fill(null).map(() => 
+        Array(size).fill(null).map(() => ({ top: false, bottom: false, left: false, right: false }))
+      );
+      
+      // Build cell-to-cage map
+      const cellToCage = new Map();
+      for (let i = 0; i < cages.length; i++) {
+        for (const cell of cages[i].cells) {
+          cellToCage.set(`${cell.r},${cell.c}`, i);
+        }
+      }
+      
+      // Check each cell for cage boundaries
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const currentCage = cellToCage.get(`${r},${c}`);
+          
+          // Top
+          if (r === 0 || cellToCage.get(`${r-1},${c}`) !== currentCage) {
+            borders[r][c].top = true;
+          }
+          
+          // Bottom
+          if (r === size - 1 || cellToCage.get(`${r+1},${c}`) !== currentCage) {
+            borders[r][c].bottom = true;
+          }
+          
+          // Left
+          if (c === 0 || cellToCage.get(`${r},${c-1}`) !== currentCage) {
+            borders[r][c].left = true;
+          }
+          
+          // Right
+          if (c === size - 1 || cellToCage.get(`${r},${c+1}`) !== currentCage) {
+            borders[r][c].right = true;
+          }
+        }
+      }
+      
+      return borders;
+    }
+    
+    /**
+     * Render KenKen grid
+     */
+    function renderKenKenGrid(solution, cages, size, showSolution = false) {
+      const borders = getCageBorders(cages, size);
+      
+      // Build cell-to-cage map
+      const cellToCage = new Map();
+      const cellToLabel = new Map();
+      
+      for (const cage of cages) {
+        // Find top-left cell for label
+        let minR = Infinity, minC = Infinity;
+        for (const cell of cage.cells) {
+          if (cell.r < minR || (cell.r === minR && cell.c < minC)) {
+            minR = cell.r;
+            minC = cell.c;
+          }
+        }
+        
+        for (const cell of cage.cells) {
+          cellToCage.set(`${cell.r},${cell.c}`, cage);
+          
+          if (cell.r === minR && cell.c === minC) {
+            // Format label
+            const opSymbol = cage.operation || '';
+            const label = cage.target + opSymbol;
+            cellToLabel.set(`${cell.r},${cell.c}`, label);
+          }
+        }
+      }
+      
+      const table = document.createElement('table');
+      table.className = 'kenken-grid';
+      table.dataset.size = size;
+      
+      for (let r = 0; r < size; r++) {
+        const tr = document.createElement('tr');
+        
+        for (let c = 0; c < size; c++) {
+          const td = document.createElement('td');
+          
+          // Add value (solution or empty)
+          if (showSolution) {
+            td.textContent = solution[r][c];
+            td.classList.add('filled');
+          } else {
+            td.textContent = '';
+            td.classList.add('empty');
+          }
+          
+          // Add cage borders
+          const cellBorders = borders[r][c];
+          if (cellBorders.top) td.classList.add('cage-top');
+          if (cellBorders.bottom) td.classList.add('cage-bottom');
+          if (cellBorders.left) td.classList.add('cage-left');
+          if (cellBorders.right) td.classList.add('cage-right');
+          
+          // Add cage label (only for puzzle, not solution)
+          if (!showSolution) {
+            const label = cellToLabel.get(`${r},${c}`);
+            if (label) {
+              const labelSpan = document.createElement('span');
+              labelSpan.className = 'cage-label';
+              labelSpan.textContent = label;
+              td.appendChild(labelSpan);
+            }
+          }
+          
+          tr.appendChild(td);
+        }
+        
+        table.appendChild(tr);
+      }
+      
+      return table;
+    }
+    
+    /**
+     * Render multiple puzzles
+     */
+    function renderPuzzles(puzzles, solutions, cagesList, perPage, showSolutions) {
+      const container = document.getElementById('puzzle-container');
+      const solutionSection = document.getElementById('solution-section');
+      const solutionContainer = document.getElementById('solution-container');
+      
+      container.innerHTML = '';
+      solutionContainer.innerHTML = '';
+      
+      // Render puzzles
+      const puzzlesWrapper = document.createElement('div');
+      puzzlesWrapper.className = 'puzzles-page';
+      puzzlesWrapper.dataset.count = perPage;
+      
+      puzzles.forEach((puzzle, i) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'single-puzzle-wrapper';
+        
+        const size = puzzle.length;
+        wrapper.appendChild(renderKenKenGrid(solutions[i], cagesList[i], size, false));
+        
+        const label = document.createElement('div');
+        label.className = 'puzzle-label';
+        label.textContent = `Puzzle ${i + 1}`;
+        wrapper.appendChild(label);
+        
+        puzzlesWrapper.appendChild(wrapper);
+      });
+      
+      container.appendChild(puzzlesWrapper);
+      
+      // Render solutions if enabled
+      if (showSolutions && solutions.length > 0) {
+        solutionSection.style.display = 'flex';
+        
+        const solutionsWrapper = document.createElement('div');
+        solutionsWrapper.className = 'puzzles-page';
+        solutionsWrapper.dataset.count = perPage;
+        
+        solutions.forEach((solution, i) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'single-puzzle-wrapper';
+          
+          const size = solution.length;
+          wrapper.appendChild(renderKenKenGrid(solution, cagesList[i], size, true));
+          
+          const label = document.createElement('div');
+          label.className = 'puzzle-label';
+          label.textContent = `Solution ${i + 1}`;
+          wrapper.appendChild(label);
+          
+          solutionsWrapper.appendChild(wrapper);
+        });
+        
+        solutionContainer.appendChild(solutionsWrapper);
+      } else {
+        solutionSection.style.display = 'none';
+      }
+    }
+    
+    // ============================================
+    // PNG Export
+    // ============================================
+    
+    /**
+     * Create canvas with KenKen grid for PNG export
+     */
+    function createKenKenCanvas(solution, cages, size, showSolution = false, dpi = 300) {
+      const isLargePrint = document.getElementById('large-print').checked;
+      const borders = getCageBorders(cages, size);
+      
+      // Base dimensions
+      const baseCellSize = isLargePrint ? 60 : 50;
+      const fontSize = isLargePrint ? 26 : 20;
+      const labelFontSize = isLargePrint ? 14 : 11;
+      const margin = 30;
+      
+      const scale = dpi / 96;
+      const cellSize = baseCellSize * scale;
+      
+      const width = margin * 2 + size * cellSize;
+      const height = margin * 2 + size * cellSize;
+      
+      const canvas = createHiDPICanvas(width / scale, height / scale, dpi);
+      const ctx = canvas.getContext('2d');
+      
+      // Background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Build cell-to-cage and label maps
+      const cellToCage = new Map();
+      const cellToLabel = new Map();
+      
+      for (const cage of cages) {
+        let minR = Infinity, minC = Infinity;
+        for (const cell of cage.cells) {
+          if (cell.r < minR || (cell.r === minR && cell.c < minC)) {
+            minR = cell.r;
+            minC = cell.c;
+          }
+        }
+        
+        for (const cell of cage.cells) {
+          cellToCage.set(`${cell.r},${cell.c}`, cage);
+          if (cell.r === minR && cell.c === minC) {
+            const label = cage.target + (cage.operation || '');
+            cellToLabel.set(`${cell.r},${cell.c}`, label);
+          }
+        }
+      }
+      
+      // Draw cells
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const x = margin + c * cellSize;
+          const y = margin + r * cellSize;
+          
+          // Cell background
+          ctx.fillStyle = showSolution ? '#f0f0f0' : '#ffffff';
+          ctx.fillRect(x, y, cellSize, cellSize);
+          
+          // Draw value (solution)
+          if (showSolution) {
+            ctx.font = `bold ${fontSize * scale}px Arial`;
+            ctx.fillStyle = '#333333';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(solution[r][c].toString(), x + cellSize / 2, y + cellSize / 2);
+          }
+          
+          // Draw cage label (only for puzzle)
+          if (!showSolution) {
+            const label = cellToLabel.get(`${r},${c}`);
+            if (label) {
+              ctx.font = `bold ${labelFontSize * scale}px Arial`;
+              ctx.fillStyle = '#333333';
+              ctx.textAlign = 'left';
+              ctx.textBaseline = 'top';
+              ctx.fillText(label, x + 3 * scale, y + 2 * scale);
+            }
+          }
+        }
+      }
+      
+      // Draw thin grid lines
+      ctx.strokeStyle = '#999999';
+      ctx.lineWidth = 1 * scale;
+      
+      for (let i = 0; i <= size; i++) {
+        const x = margin + i * cellSize;
+        const y = margin + i * cellSize;
+        
+        ctx.beginPath();
+        ctx.moveTo(x, margin);
+        ctx.lineTo(x, margin + size * cellSize);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(margin, y);
+        ctx.lineTo(margin + size * cellSize, y);
+        ctx.stroke();
+      }
+      
+      // Draw thick cage borders
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 3 * scale;
+      
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const x = margin + c * cellSize;
+          const y = margin + r * cellSize;
+          const cellBorders = borders[r][c];
+          
+          if (cellBorders.top) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + cellSize, y);
+            ctx.stroke();
+          }
+          
+          if (cellBorders.bottom) {
+            ctx.beginPath();
+            ctx.moveTo(x, y + cellSize);
+            ctx.lineTo(x + cellSize, y + cellSize);
+            ctx.stroke();
+          }
+          
+          if (cellBorders.left) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + cellSize);
+            ctx.stroke();
+          }
+          
+          if (cellBorders.right) {
+            ctx.beginPath();
+            ctx.moveTo(x + cellSize, y);
+            ctx.lineTo(x + cellSize, y + cellSize);
+            ctx.stroke();
+          }
+        }
+      }
+      
+      return canvas;
+    }
+    
+    /**
+     * Export current puzzle as PNG
+     */
+    async function exportPuzzlePNG() {
+      if (currentPuzzles.length === 0) {
+        alert('Please generate a puzzle first.');
+        return;
+      }
+      
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const ts = timestamp();
+      
+      for (let i = 0; i < currentSolutions.length; i++) {
+        // Export puzzle
+        const puzzleCanvas = createKenKenCanvas(currentSolutions[i], currentCages[i], size, false);
+        const filename = `kenken-${size}x${size}-${difficulty}-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
+        await downloadCanvas(puzzleCanvas, filename);
+        await delay(100);
+      }
+      
+      // Export solutions if enabled
+      const showSolutions = document.getElementById('solutions').value === 'separate';
+      if (showSolutions && currentSolutions.length > 0) {
+        for (let i = 0; i < currentSolutions.length; i++) {
+          const solutionCanvas = createKenKenCanvas(currentSolutions[i], currentCages[i], size, true);
+          const filename = `kenken-${size}x${size}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
+          await downloadCanvas(solutionCanvas, filename);
+          await delay(100);
+        }
+      }
+    }
+    
+    // ============================================
+    // Bulk Generation
+    // ============================================
+    
+    /**
+     * Generate bulk puzzles and download as ZIP
+     */
+    async function generateBulkPuzzles() {
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const count = parseInt(document.getElementById('bulk-count').value);
+      
+      const progressContainer = document.getElementById('bulk-progress');
+      progressContainer.style.display = 'block';
+      
+      const zip = new JSZip();
+      const puzzlesFolder = zip.folder('puzzles');
+      const solutionsFolder = zip.folder('solutions');
+      
+      for (let i = 0; i < count; i++) {
+        // Update progress
+        updateProgress(i + 1, count, progressContainer);
+        
+        // Generate puzzle
+        const { puzzle, solution, cages } = generateKenKen(size, difficulty);
+        
+        // Create puzzle canvas
+        const puzzleCanvas = createKenKenCanvas(solution, cages, size, false);
+        const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
+        const puzzleBase64 = puzzleDataUrl.split(',')[1];
+        puzzlesFolder.file(`puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
+        
+        // Create solution canvas
+        const solutionCanvas = createKenKenCanvas(solution, cages, size, true);
+        const solutionDataUrl = solutionCanvas.toDataURL('image/png');
+        const solutionBase64 = solutionDataUrl.split(',')[1];
+        solutionsFolder.file(`solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
+        
+        // Yield to UI
+        await delay(1);
+      }
+      
+      // Generate ZIP
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipUrl = URL.createObjectURL(zipBlob);
+      
+      const link = document.createElement('a');
+      link.download = `kenken-${size}x${size}-${difficulty}-${count}-puzzles.zip`;
+      link.href = zipUrl;
+      link.click();
+      
+      URL.revokeObjectURL(zipUrl);
+      progressContainer.style.display = 'none';
+    }
+    
+    // ============================================
+    // Event Handlers
+    // ============================================
+    
+    document.getElementById('generate').addEventListener('click', () => {
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const perPage = parseInt(document.getElementById('per-page').value);
+      const showSolutions = document.getElementById('solutions').value === 'separate';
+      
+      currentPuzzles = [];
+      currentSolutions = [];
+      currentCages = [];
+      
+      for (let i = 0; i < perPage; i++) {
+        const { puzzle, solution, cages } = generateKenKen(size, difficulty);
+        currentPuzzles.push(puzzle);
+        currentSolutions.push(solution);
+        currentCages.push(cages);
+      }
+      
+      currentSettings = { size, difficulty, perPage };
+      renderPuzzles(currentPuzzles, currentSolutions, currentCages, perPage, showSolutions);
+    });
+    
+    document.getElementById('print').addEventListener('click', () => {
+      if (currentPuzzles.length === 0) {
+        alert('Please generate a puzzle first.');
+        return;
+      }
+      window.print();
+    });
+    
+    document.getElementById('export-png').addEventListener('click', exportPuzzlePNG);
+    document.getElementById('generate-bulk').addEventListener('click', generateBulkPuzzles);
+    
+    // Large Print toggle - force 1 per page
+    document.getElementById('large-print').addEventListener('change', function() {
+      const perPageSelect = document.getElementById('per-page');
+      if (this.checked) {
+        perPageSelect.value = '1';
+        perPageSelect.disabled = true;
+        document.body.classList.add('large-print-mode');
+      } else {
+        perPageSelect.disabled = false;
+        document.body.classList.remove('large-print-mode');
+      }
+    });
+    
+    // Update operations info based on difficulty
+    document.getElementById('difficulty').addEventListener('change', function() {
+      const opsInfo = document.getElementById('operations-info');
+      switch (this.value) {
+        case 'easy':
+          opsInfo.textContent = 'Operations: +, − (addition and subtraction only)';
+          break;
+        case 'medium':
+          opsInfo.textContent = 'Operations: +, −, × (addition, subtraction, multiplication)';
+          break;
+        case 'hard':
+          opsInfo.textContent = 'Operations: +, −, ×, ÷ (all operations)';
+          break;
+      }
+    });
+    
+    // Update solutions display when changed
+    document.getElementById('solutions').addEventListener('change', function() {
+      if (currentPuzzles.length > 0) {
+        const perPage = parseInt(document.getElementById('per-page').value);
+        const showSolutions = this.value === 'separate';
+        renderPuzzles(currentPuzzles, currentSolutions, currentCages, perPage, showSolutions);
+      }
+    });
+    
+    // Auto-generate on page load for immediate preview
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('generate').click();
+    });
+  </script>
+</body>
+</html>

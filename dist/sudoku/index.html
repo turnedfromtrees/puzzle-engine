@@ -3,726 +3,590 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sudoku Generator — Puzzle Engine</title>
-  <meta name="description" content="Generate free printable Sudoku puzzles for teachers, parents, seniors, and KDP creators. 4x4, 6x6, 9x9, 12x12, and 16x16 grids with multiple difficulty levels. Print-ready 300 DPI PNGs, large print mode, commercial license included.">
-  <meta name="keywords" content="printable sudoku, sudoku for kids, sudoku for seniors, large print sudoku, brain games, sudoku generator, KDP puzzles, activity books, worksheets, care home activities, teacher resources">
+  <title>Sudoku Generator — Free Printable Sudoku Puzzles | Puzzle Engine</title>
+  <meta name="description" content="Generate free printable Sudoku puzzles in 5 grid sizes (4x4 to 16x16) with 4 difficulty levels. Perfect for KDP books, worksheets, and seniors. 300 DPI PNG export, bulk generation, no watermarks.">
+  <meta name="keywords" content="sudoku generator, printable sudoku, sudoku puzzles, KDP sudoku, sudoku book, free sudoku">
+  <link rel="canonical" href="https://puzzle-engine.com/sudoku/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://puzzle-engine.com/sudoku/">
+  <meta property="og:title" content="Sudoku Generator — Free Printable Sudoku Puzzles | Puzzle Engine">
+  <meta property="og:description" content="Generate free printable Sudoku puzzles in 5 grid sizes with 4 difficulty levels. Perfect for KDP books, worksheets, and seniors.">
+  <meta property="og:site_name" content="Puzzle Engine">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Sudoku Generator — Free Printable Sudoku Puzzles | Puzzle Engine">
+  <meta name="twitter:description" content="Generate free printable Sudoku puzzles in 5 grid sizes with 4 difficulty levels. Perfect for KDP books, worksheets, and seniors.">
+  
   <link rel="stylesheet" href="../assets/styles.css">
   <script src="../assets/puzzle-core.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
   <style>
-    /* Sudoku-page-specific styles */
-    .sudoku-wrapper {
-      min-height: 100vh;
+    /* Sudoku-specific styles */
+    .sudoku-grid {
+      border-collapse: collapse;
+      margin: 0 auto;
+      background: white;
+    }
+    
+    .sudoku-grid td {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      vertical-align: middle;
+      border: 1px solid #999;
+      font-size: 20px;
+      font-weight: 600;
+      padding: 0;
+    }
+    
+    /* Box borders - thicker */
+    .sudoku-grid td.box-right {
+      border-right-width: 3px;
+      border-right-color: #000;
+    }
+    
+    .sudoku-grid td.box-bottom {
+      border-bottom-width: 3px;
+      border-bottom-color: #000;
+    }
+    
+    .sudoku-grid td.box-left {
+      border-left-width: 3px;
+      border-left-color: #000;
+    }
+    
+    .sudoku-grid td.box-top {
+      border-top-width: 3px;
+      border-top-color: #000;
+    }
+    
+    /* Givens vs empty cells */
+    .sudoku-grid td.given {
+      background: #f8f8f8;
+      color: #333;
+    }
+    
+    .sudoku-grid td.empty {
+      background: white;
+    }
+    
+    /* Puzzle layout - V1 style */
+    .puzzle-container {
       display: flex;
       flex-direction: column;
+      align-items: center;
+      min-height: 50vh;
+      padding: var(--spacing-lg);
     }
     
-    .page-title {
-      text-align: center;
-      margin-bottom: var(--spacing-lg);
-    }
-    
-    .page-title h1 {
-      font-size: var(--font-size-2xl);
-      margin-bottom: var(--spacing-xs);
-    }
-    
-    .page-title p {
-      color: var(--color-text-light);
-      margin: 0;
-    }
-    
-    /* Multi-puzzle layout */
     .puzzle-item {
       text-align: center;
     }
     
-    .puzzle-item .puzzle-title,
-    .puzzle-item .solution-title {
-      margin-bottom: var(--spacing-sm);
-    }
-    
-    /* Grid size adjustments for different puzzle sizes */
-    .sudoku-grid--4x4 td {
-      width: 56px;
-      height: 56px;
-      font-size: var(--font-size-2xl);
-    }
-    
-    .sudoku-grid--6x6 td {
-      width: 48px;
-      height: 48px;
+    .puzzle-title {
       font-size: var(--font-size-xl);
-    }
-    
-    .sudoku-grid--9x9 td {
-      width: 44px;
-      height: 44px;
-      font-size: var(--font-size-xl);
-    }
-    
-    .sudoku-grid--12x12 td {
-      width: 36px;
-      height: 36px;
-      font-size: var(--font-size-lg);
-    }
-    
-    .sudoku-grid--16x16 td {
-      width: 30px;
-      height: 30px;
-      font-size: var(--font-size-md);
-    }
-    
-    /* Larger grids for single puzzle view */
-    .puzzle-container--one .sudoku-grid--4x4 td {
-      width: 72px;
-      height: 72px;
-      font-size: var(--font-size-3xl);
-    }
-    
-    .puzzle-container--one .sudoku-grid--6x6 td {
-      width: 60px;
-      height: 60px;
-      font-size: var(--font-size-2xl);
-    }
-    
-    .puzzle-container--one .sudoku-grid--9x9 td {
-      width: 52px;
-      height: 52px;
-      font-size: var(--font-size-2xl);
-    }
-    
-    .puzzle-container--one .sudoku-grid--12x12 td {
-      width: 44px;
-      height: 44px;
-      font-size: var(--font-size-xl);
-    }
-    
-    .puzzle-container--one .sudoku-grid--16x16 td {
-      width: 36px;
-      height: 36px;
-      font-size: var(--font-size-lg);
-    }
-    
-    .solution-section--one .sudoku-grid--4x4 td {
-      width: 72px;
-      height: 72px;
-      font-size: var(--font-size-3xl);
-    }
-    
-    .solution-section--one .sudoku-grid--6x6 td {
-      width: 60px;
-      height: 60px;
-      font-size: var(--font-size-2xl);
-    }
-    
-    .solution-section--one .sudoku-grid--9x9 td {
-      width: 52px;
-      height: 52px;
-      font-size: var(--font-size-2xl);
-    }
-    
-    .solution-section--one .sudoku-grid--12x12 td {
-      width: 44px;
-      height: 44px;
-      font-size: var(--font-size-xl);
-    }
-    
-    .solution-section--one .sudoku-grid--16x16 td {
-      width: 36px;
-      height: 36px;
-      font-size: var(--font-size-lg);
-    }
-    
-    /* KDP section styling */
-    .kdp-section {
-      background-color: var(--color-bg);
-      padding: var(--spacing-md);
-      border-radius: var(--radius-md);
-      margin-top: var(--spacing-md);
-    }
-    
-    .kdp-section__title {
-      font-size: var(--font-size-sm);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--color-text-light);
       margin-bottom: var(--spacing-md);
+      color: var(--color-text);
     }
     
-    /* Solution styling */
+    .solution-title {
+      font-size: var(--font-size-lg);
+      margin-bottom: var(--spacing-sm);
+      color: var(--color-text);
+    }
+    
+    /* Per-page layout classes */
+    .puzzle-container--one {
+      justify-content: center;
+    }
+    
+    .puzzle-container--two {
+      gap: var(--spacing-xl);
+    }
+    
+    .puzzle-container--two .puzzle-item {
+      width: auto;
+    }
+    
+    .puzzle-container--four {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .puzzle-container--four .puzzle-item {
+      width: calc(50% - var(--spacing-xl));
+      max-width: 450px;
+      min-width: 280px;
+    }
+    
+    /* Solution section */
     .solution-section {
       margin-top: var(--spacing-xl);
       padding-top: var(--spacing-lg);
       border-top: 2px dashed var(--color-border);
     }
+:    
+    .solution-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      padding: var(--spacing-lg);
+    }
     
-    .solution-title {
+    .solution-section--one {
+      justify-content: center;
+    }
+    
+    .solution-section--two {
+      flex-direction: column;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--two .puzzle-item {
+      width: auto;
+    }
+    
+    .solution-section--four {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-xl);
+    }
+    
+    .solution-section--four .puzzle-item {
+      width: calc(50% - var(--spacing-xl));
+      max-width: 450px;
+      min-width: 280px;
+    }
+    
+    .puzzle-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    
+    /* Solution display */
+    .solution-container {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px dashed var(--color-border);
+      width: 100%;
+    }
+    
+    .solution-container h2 {
       text-align: center;
-      font-size: var(--font-size-lg);
-      margin-bottom: var(--spacing-md);
+      color: var(--color-text-light);
+      margin-bottom: 20px;
     }
     
-    /* Large Print Mode - Applied to container */
-    .puzzle-container.large-print-mode {
-      padding: 0.5in;
-    }
-    
-    .large-print-mode .sudoku-grid--4x4 td,
-    .large-print-mode .sudoku-grid--6x6 td,
-    .large-print-mode .sudoku-grid--9x9 td,
-    .large-print-mode .sudoku-grid--12x12 td,
-    .large-print-mode .sudoku-grid--16x16 td {
-      font-size: 18pt !important;
-      min-width: 14mm !important;
-      min-height: 14mm !important;
-      width: auto !important;
-      height: auto !important;
-      padding: 8px;
+    /* Improved Large print mode */
+    .large-print-mode .sudoku-grid td {
+      width: 60px;
+      height: 60px;
+      font-size: 26pt;
+      font-weight: 700;
     }
     
     .large-print-mode .sudoku-grid {
-      margin: 20px auto;
+      max-width: 100%;
     }
     
-    .large-print-mode .puzzle-title {
-      font-size: 24pt;
-    }
-    
-    .large-print-mode .solution-title {
-      font-size: 20pt;
-    }
-    
-    .solution-section.large-print-mode {
-      padding: 0.5in;
-    }
-    
-    /* Same page solution */
-    .solution-same-page {
-      margin-top: var(--spacing-lg);
-      padding-top: var(--spacing-md);
-      border-top: 1px solid var(--color-border);
-    }
-    
-    /* Compact solution grid (4-6 per page) */
-    .solution-compact {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-md);
-    }
-    
-    .solution-compact-item {
-      text-align: center;
-    }
-    
-    .solution-compact-item table {
-      margin: 0 auto;
-    }
-    
-    /* Smaller cells for compact solution grids */
-    .solution-compact .sudoku-grid--4x4 td {
-      width: 28px;
-      height: 28px;
-      font-size: var(--font-size-sm);
-    }
-    
-    .solution-compact .sudoku-grid--6x6 td {
-      width: 24px;
-      height: 24px;
-      font-size: var(--font-size-xs);
-    }
-    
-    .solution-compact .sudoku-grid--9x9 td {
-      width: 22px;
-      height: 22px;
-      font-size: var(--font-size-xs);
-    }
-    
-    .solution-compact .sudoku-grid--12x12 td {
-      width: 18px;
-      height: 18px;
-      font-size: var(--font-size-xs);
-    }
-    
-    .solution-compact .sudoku-grid--16x16 td {
-      width: 14px;
-      height: 14px;
-      font-size: 10px;
-    }
-    
-    /* Large print toggle styling */
-    .toggle-switch {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-    }
-    
-    .toggle-switch input[type="checkbox"] {
-      width: 44px;
-      height: 24px;
-      appearance: none;
-      background: var(--color-border);
-      border-radius: 12px;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    
-    .toggle-switch input[type="checkbox"]:checked {
-      background: var(--color-primary);
-    }
-    
-    .toggle-switch input[type="checkbox"]::before {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      top: 2px;
-      left: 2px;
-      transition: transform 0.2s;
-    }
-    
-    .toggle-switch input[type="checkbox"]:checked::before {
-      transform: translateX(20px);
-    }
-    
-    .toggle-label {
-      font-weight: 500;
-      color: var(--color-text);
+    .large-print-mode .puzzle-label {
+      font-size: 14pt;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
   <header class="header">
-    <div class="container">
-      <h1 class="header__logo"><a href="../index.html"><img src="../assets/logo.png" alt="Puzzle Engine" class="header__logo-img"></a></h1>
-      <div class="header__branding">
-        <h2 class="header__title">Puzzle Engine</h2>
-        <p class="header__tagline">Free printable puzzles</p>
-      </div>
-      <button class="header__nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <div class="container header__content">
+      <a href="../index.html" class="header__logo">
+        <span class="header__logo-icon">🧩</span>
+        <span>Puzzle Engine</span>
+      </a>
       <nav class="header__nav">
-        <div class="header__nav-menu" id="nav-menu">
-          <a href="../index.html" class="header__nav-link">Home</a>
-          <a href="index.html" class="header__nav-link header__nav-link--active">Sudoku</a>
-          <a href="../word-search/index.html" class="header__nav-link">Word Search</a>
-          <a href="../mazes/index.html" class="header__nav-link">Mazes</a>
-          <a href="../number-search/index.html" class="header__nav-link">Number Search</a>
-          <a href="../word-scramble/index.html" class="header__nav-link">Word Scramble</a>
-          <a href="../kenken/index.html" class="header__nav-link">KenKen</a>
-          <a href="../killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
+        <a href="../sudoku/index.html" class="header__nav-link active">Sudoku</a>
+        <a href="../word-search/index.html" class="header__nav-link">Word Search</a>
+        <a href="../number-search/index.html" class="header__nav-link">Number Search</a>
+        <a href="../word-scramble/index.html" class="header__nav-link">Word Scramble</a>
+        <a href="../kenken/index.html" class="header__nav-link">KenKen</a>
+        <a href="../killer-sudoku/index.html" class="header__nav-link">Killer Sudoku</a>
+        <a href="../how-to-make-puzzle-books-kdp.html" class="header__nav-link">Resources</a>
+      </nav>
+      <button class="header__hamburger" id="hamburger" aria-label="Open menu">
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+        <span class="header__hamburger-line"></span>
+      </button>
+      <div class="header__overlay" id="menu-overlay"></div>
+      <nav class="header__menu" id="side-menu">
+        <div class="header__menu-section">
+          <div class="header__menu-title">Puzzles</div>
+          <a href="../sudoku/index.html" class="header__menu-link active">🔢 Sudoku</a>
+          <a href="../word-search/index.html" class="header__menu-link">🔤 Word Search</a>
+          <a href="../number-search/index.html" class="header__menu-link">🔍 Number Search</a>
+          <a href="../word-scramble/index.html" class="header__menu-link">🔀 Word Scramble</a>
+          <a href="../kenken/index.html" class="header__menu-link">➕ KenKen</a>
+          <a href="../killer-sudoku/index.html" class="header__menu-link">💀 Killer Sudoku</a>
+        </div>
+        <div class="header__menu-section">
+          <div class="header__menu-title">Resources</div>
+          <a href="../how-to-make-puzzle-books-kdp.html" class="header__menu-link">📚 KDP Guide</a>
+          <a href="../sudoku-puzzle-design-tips.html" class="header__menu-link">🎯 Sudoku Design Tips</a>
+          <a href="../puzzles-for-seniors.html" class="header__menu-link">👴 Puzzles for Seniors</a>
+          <a href="../puzzle-types-guide.html" class="header__menu-link">📖 Puzzle Types Guide</a>
+        </div>
+        <div class="header__menu-section">
+          <div class="header__menu-title">Legal</div>
+          <a href="../privacy.html" class="header__menu-link">🔒 Privacy Policy</a>
+          <a href="../terms.html" class="header__menu-link">📄 Terms of Service</a>
+          <a href="/cdn-cgi/l/email-protection#1e6d6b6e6e716c6a5e6e6b6464727b337b707977707b307d7173" class="header__menu-link">✉️ Contact</a>
         </div>
       </nav>
     </div>
   </header>
-
-  <!-- Ad Slots (Sidebar) -->
-
-  <!-- Main Content -->
+  
   <main class="main-content">
     <div class="container">
       <div class="page-title">
         <h1>Sudoku Generator</h1>
-        <p>Generate printable Sudoku puzzles in multiple sizes and difficulty levels</p>
       </div>
-
-      <!-- Controls -->
-      <div class="controls" id="controls">
-        <div class="controls__row">
-          <div class="controls__field">
-            <label class="form-label" for="size">Size</label>
-            <select class="form-select" id="size">
+      
+      <div class="controls">
+        <!-- Row 1: Core Settings -->
+        <div class="controls-row">
+          <div class="control-group">
+            <label for="size">Grid Size:</label>
+            <select id="size">
               <option value="4">4×4 (Kids)</option>
               <option value="6">6×6 (Junior)</option>
               <option value="9" selected>9×9 (Standard)</option>
-              <option value="12">12×12 (Large)</option>
-              <option value="16">16×16 (Jumbo)</option>
+              <option value="12">12×12 (Advanced)</option>
+              <option value="16">16×16 (Expert)</option>
             </select>
           </div>
-          <div class="controls__field">
-            <label class="form-label" for="difficulty">Difficulty</label>
-            <select class="form-select" id="difficulty">
+          
+          <div class="control-group">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
               <option value="easy">Easy</option>
               <option value="medium" selected>Medium</option>
               <option value="hard">Hard</option>
               <option value="expert">Expert</option>
             </select>
           </div>
-          <div class="controls__field">
-            <label class="form-label" for="per-page">Per Page</label>
-            <select class="form-select" id="per-page">
-              <option value="1" selected>1</option>
-              <option value="2">2</option>
-              <option value="4">4</option>
+          
+          <div class="control-group">
+            <label for="per-page">Per Page:</label>
+            <select id="per-page">
+              <option value="1" selected>1 puzzle</option>
+              <option value="2">2 puzzles</option>
+              <option value="4">4 puzzles</option>
             </select>
           </div>
-          <div class="controls__field">
-            <label class="form-label" for="solutions">Solutions</label>
-            <select class="form-select" id="solutions">
-              <option value="none" selected>None</option>
-              <option value="same">Same page</option>
-              <option value="separate">Separate page</option>
-              <option value="compact">Compact (6/page)</option>
+          
+          <div class="control-group">
+            <label for="solutions">Solutions:</label>
+            <select id="solutions">
+              <option value="none">None</option>
+              <option value="separate" selected>Separate page</option>
             </select>
           </div>
         </div>
-        <div class="controls__actions">
-          <div class="toggle-switch">
-            <input type="checkbox" id="large-print-toggle">
-            <label class="toggle-label" for="large-print-toggle">Large Print Mode</label>
+        
+        <!-- Row 2: Large Print Toggle -->
+        <div class="controls-row">
+          <div class="control-group control-group--checkbox">
+            <input type="checkbox" id="large-print">
+            <label for="large-print">Large Print Mode</label>
           </div>
         </div>
-        <div class="controls__actions">
-          <button class="btn btn--primary btn--large" id="generate-btn">
-            Generate Puzzle
-          </button>
-          <button class="btn btn--secondary" id="print-btn" disabled>
-            Print Puzzle
-          </button>
-          <button class="btn btn--secondary" id="export-btn" disabled>
-            Export PNG (300 DPI)
-          </button>
+        
+        <!-- Row 3: Actions -->
+        <div class="controls-row controls-row--actions">
+          <button id="generate" class="btn btn--primary">Generate</button>
+          <button id="print" class="btn btn--secondary">Print</button>
+          <button id="export-png" class="btn btn--secondary">Export PNG</button>
         </div>
-
-        <!-- Advanced Options Toggle -->
-        <button class="advanced-toggle" id="advanced-toggle" aria-expanded="false" aria-controls="advanced-options">
-          <span class="advanced-toggle__icon">▼</span>
-          <span>KDP Tools</span>
-        </button>
-
-        <!-- Advanced Options -->
-        <div class="advanced-options" id="advanced-options">
-          <!-- KDP Creator Tools -->
-          <div class="kdp-section">
-            <h4 class="kdp-section__title">KDP Creator Tools</h4>
-            <div class="controls__row">
-              <div class="controls__field">
-                <label class="form-label" for="bulk-count">Bulk Generate</label>
-                <select class="form-select" id="bulk-count">
-                  <option value="50">50 puzzles</option>
-                  <option value="100" selected>100 puzzles</option>
-                  <option value="200">200 puzzles</option>
-                </select>
+        
+        <!-- Row 4: Bulk Generation -->
+        <details class="bulk-section">
+          <summary>Bulk Generation (KDP)</summary>
+          <div class="bulk-controls">
+            <div class="control-group">
+              <label for="bulk-count">Count:</label>
+              <select id="bulk-count">
+                <option value="10">10 puzzles</option>
+                <option value="25">25 puzzles</option>
+                <option value="50" selected>50 puzzles</option>
+                <option value="100">100 puzzles</option>
+                <option value="200">200 puzzles</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Difficulties:</label>
+              <div class="checkbox-group">
+                <label><input type="checkbox" id="diff-easy" checked> Easy</label>
+                <label><input type="checkbox" id="diff-medium" checked> Medium</label>
+                <label><input type="checkbox" id="diff-hard"> Hard</label>
+                <label><input type="checkbox" id="diff-expert"> Expert</label>
               </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Difficulties</label>
-              <div class="form-checkbox-group">
-                <label class="form-checkbox">
-                  <input type="checkbox" id="diff-easy" checked> Easy
-                </label>
-                <label class="form-checkbox">
-                  <input type="checkbox" id="diff-medium" checked> Medium
-                </label>
-                <label class="form-checkbox">
-                  <input type="checkbox" id="diff-hard"> Hard
-                </label>
-                <label class="form-checkbox">
-                  <input type="checkbox" id="diff-expert"> Expert
-                </label>
-              </div>
+            <div class="control-group">
+              <label for="bulk-font-size">Font Size:</label>
+              <select id="bulk-font-size">
+                <option value="12">12pt</option>
+                <option value="14" selected>14pt</option>
+                <option value="16">16pt</option>
+                <option value="18">18pt</option>
+                <option value="20">20pt</option>
+              </select>
             </div>
-            <div class="controls__actions" style="margin-top: var(--spacing-md);">
-              <button class="btn btn--secondary" id="bulk-generate-btn">
-                Generate ZIP Bundle
-              </button>
+            <div class="control-group control-group--checkbox">
+              <input type="checkbox" id="bulk-large-print">
+              <label for="bulk-large-print">Large Print</label>
             </div>
-            <div class="progress-container hidden" id="bulk-progress">
-              <div class="progress-bar">
-                <div class="progress-bar__fill" id="progress-fill" style="width: 0%"></div>
-              </div>
-              <p class="progress-text" id="progress-text">Generating puzzles...</p>
+            <button id="generate-bulk" class="btn btn--accent">Generate ZIP</button>
+            <div class="progress-container" id="bulk-progress" style="display: none;">
+              <div class="progress-bar"><div class="progress-fill"></div></div>
+              <span class="progress-text">0%</span>
             </div>
           </div>
-
-          <div class="license-notice">
-            ✓ Commercial License: Free to use in your KDP books. No attribution required.
-          </div>
-        </div>
-      </div>
-
-      <!-- Affiliate Banner -->
-      <div class="affiliate-banner" id="affiliate-banner" style="display: none;">
-        <p class="affiliate-banner__title">📚 Recommended Sudoku Books</p>
-        <div class="affiliate-banner__links">
-          <a href="https://www.amazon.com/s?k=sudoku+large+print&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Large Print Sudoku</a>
-          <a href="https://www.amazon.com/s?k=sudoku+for+kids&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Kids Sudoku</a>
-          <a href="https://www.amazon.com/s?k=large+print+sudoku+seniors&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Sudoku for Seniors</a>
-          <a href="https://www.amazon.com/s?k=brain+games+sudoku&tag=ntropydelay-21" target="_blank" rel="noopener noreferrer" class="affiliate-banner__link">Brain Games</a>
-        </div>
-        <p class="affiliate-banner__disclosure">As an Amazon Associate, we earn from qualifying purchases.</p>
-      </div>
-
-      <!-- Puzzle Container -->
-      <!-- Print-only header (hidden on screen, shown on print) -->
-      <div class="print-header" id="print-header" style="display: none;">
-        <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
-        <div class="print-header__text">
-          <h1 class="print-header__title" id="print-header-title"></h1>
-          <p class="print-header__url">puzzle-engine.com</p>
-        </div>
+        </details>
       </div>
       
-      <div class="puzzle-container" id="puzzle-container" style="display: none;">
-        <!-- Puzzles will be generated by JavaScript -->
-      </div>
-
-      <!-- Solution Container (for separate page option) -->
-      <div class="solution-section" id="solution-section" style="display: none;">
-        <!-- Print header for solutions page -->
-        <div class="print-header" id="print-header-solutions" style="display: none;">
-          <img src="../assets/logo.png" alt="Puzzle Engine" class="print-header__logo">
-          <div class="print-header__text">
-            <h1 class="print-header__title">Solutions</h1>
-            <p class="print-header__url">puzzle-engine.com</p>
-          </div>
+      <div class="puzzle-display">
+        <div class="puzzle-container" id="puzzle-container">
+          <!-- Puzzle(s) will be rendered here -->
+          <p style="color: var(--color-text-light);">Click "Generate" to create a puzzle</p>
         </div>
-        <!-- Solutions will be generated by JavaScript -->
+        
+        <div class="solution-section" id="solution-section" style="display: none;">
+          <div id="solution-container"></div>
+        </div>
       </div>
     </div>
   </main>
-
-  <!-- Footer -->
+  
   <footer class="footer">
-    <div class="container">
-      <div class="footer__content">
-        <nav class="footer__nav" aria-label="Footer">
-          <a href="../index.html">← Back to Home</a>
-          <a href="#about">About</a>
-          <a href="#license">License</a>
-          <a href="#contact">Contact</a>
-        </nav>
-        <div class="footer__license">
-          <p class="footer__license-title">✓ Free Commercial Use License</p>
-          <p class="footer__license-text">All puzzles generated on Puzzle Engine are free for personal and commercial use. Use them in your KDP books, activity books, worksheets, and more. No attribution required.</p>
-        </div>
+    <div class="container footer__content">
+      <div class="footer__links">
+        <a href="../privacy.html">Privacy Policy</a>
+        <a href="../terms.html">Terms of Service</a>
       </div>
+      <p class="footer__license">Commercial license included for KDP creators.</p>
     </div>
   </footer>
-
-  <script>
-    /* ==========================================================================
-       Sudoku Generator - Core Logic
-       ========================================================================== */
-
-    // Configuration for different grid sizes
-    const GRID_CONFIG = {
-      4: { boxRows: 2, boxCols: 2, givens: { easy: 8, medium: 6, hard: 4, expert: 3 } },
-      6: { boxRows: 2, boxCols: 3, givens: { easy: 15, medium: 12, hard: 8, expert: 6 } },
-      9: { boxRows: 3, boxCols: 3, givens: { easy: 40, medium: 32, hard: 24, expert: 18 } },
-      12: { boxRows: 3, boxCols: 4, givens: { easy: 60, medium: 50, hard: 40, expert: 30 } },
-      16: { boxRows: 4, boxCols: 4, givens: { easy: 80, medium: 65, hard: 50, expert: 40 } }
+  
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // ============================================
+    // Sudoku Generator - V2
+    // ============================================
+    
+    // Configuration
+    const GIVENS_COUNT = {
+      4: { easy: 8, medium: 6, hard: 4, expert: 3 },
+      6: { easy: 15, medium: 12, hard: 8, expert: 6 },
+      9: { easy: 40, medium: 32, hard: 24, expert: 18 },
+      12: { easy: 60, medium: 50, hard: 40, expert: 30 },
+      16: { easy: 80, medium: 65, hard: 50, expert: 40 }
     };
-
-    // Character mapping for grids larger than 9x9
-    const CHAR_MAP = {
-      10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F', 16: 'G'
+    
+    const BOX_CONFIG = {
+      4: { rows: 2, cols: 2 },
+      6: { rows: 2, cols: 3 },
+      9: { rows: 3, cols: 3 },
+      12: { rows: 3, cols: 4 },
+      16: { rows: 4, cols: 4 }
     };
-    const CHAR_TO_NUM = { 'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15, 'G': 16 };
-
-    // Large print configuration
-    const LARGE_PRINT_CONFIG = {
-      minFontPt: 18,
-      cellMinMM: 14,
-      marginInch: 0.5,
-      onePerPage: true
-    };
-
-    // Current puzzle state
-    let currentPuzzle = null;
-    let currentSolution = null;
-    let currentSize = 9;
-    let currentDifficulty = 'medium';
-    let largePrintMode = false;
-
-    /* --------------------------------------------------------------------------
-       Grid Generation
-       -------------------------------------------------------------------------- */
-
+    
+    let currentPuzzles = [];
+    let currentSolutions = [];
+    let currentSettings = {};
+    
+    // ============================================
+    // Sudoku Generation Algorithm
+    // ============================================
+    
     /**
-     * Convert number to display character (1-9 as numbers, 10+ as letters)
+     * Generate a complete valid Sudoku grid
      */
-    function numToChar(num) {
-      if (num <= 9) return num.toString();
-      return CHAR_MAP[num] || num.toString();
+    function generateSolution(size) {
+      const grid = createEmptyGrid(size, size, 0);
+      const boxConfig = BOX_CONFIG[size];
+      
+      // Use backtracking to fill the grid
+      fillGrid(grid, size, boxConfig);
+      return grid;
     }
-
+    
     /**
-     * Convert display character to number
+     * Fill grid using backtracking
      */
-    function charToNum(char) {
-      if (char >= '1' && char <= '9') return parseInt(char);
-      return CHAR_TO_NUM[char] || 0;
-    }
-
-    /**
-     * Check if a number is valid in a given position
-     */
-    function isValid(grid, row, col, num, size) {
-      const config = GRID_CONFIG[size];
-      
-      // Check row
-      for (let c = 0; c < size; c++) {
-        if (grid[row][c] === num) return false;
-      }
-      
-      // Check column
-      for (let r = 0; r < size; r++) {
-        if (grid[r][col] === num) return false;
-      }
-      
-      // Check box
-      const boxStartRow = Math.floor(row / config.boxRows) * config.boxRows;
-      const boxStartCol = Math.floor(col / config.boxCols) * config.boxCols;
-      
-      for (let r = boxStartRow; r < boxStartRow + config.boxRows; r++) {
-        for (let c = boxStartCol; c < boxStartCol + config.boxCols; c++) {
-          if (grid[r][c] === num) return false;
-        }
-      }
-      
-      return true;
-    }
-
-    /**
-     * Fill the grid using backtracking (generates a complete valid solution)
-     */
-    function fillGrid(grid, size) {
-      const numbers = Array.from({ length: size }, (_, i) => i + 1);
+    function fillGrid(grid, size, boxConfig) {
+      const numbers = [];
+      for (let i = 1; i <= size; i++) numbers.push(i);
       
       for (let row = 0; row < size; row++) {
         for (let col = 0; col < size; col++) {
           if (grid[row][col] === 0) {
-            const shuffledNumbers = shuffleArray(numbers);
+            const shuffled = shuffleArray(numbers);
             
-            for (const num of shuffledNumbers) {
-              if (isValid(grid, row, col, num, size)) {
+            for (const num of shuffled) {
+              if (isValidPlacement(grid, row, col, num, boxConfig.rows, boxConfig.cols)) {
                 grid[row][col] = num;
                 
-                if (fillGrid(grid, size)) {
+                if (fillGrid(grid, size, boxConfig)) {
                   return true;
                 }
                 
                 grid[row][col] = 0;
               }
             }
-            
             return false;
           }
         }
       }
-      
       return true;
     }
-
+    
     /**
-     * Generate a complete solved grid
+     * Check if a solution has unique solution
      */
-    function generateSolvedGrid(size) {
-      const grid = createEmptyGrid(size, 0);  // Sudoku needs 0, not ''
-      fillGrid(grid, size);
-      return grid;
-    }
-
-    /* --------------------------------------------------------------------------
-       Puzzle Creation (removing numbers from solved grid)
-       -------------------------------------------------------------------------- */
-
-    /**
-     * Deep copy a grid
-     */
-    function copyGrid(grid) {
-      return grid.map(row => [...row]);
-    }
-
-    /**
-     * Count solutions using backtracking (stops early if more than 1 found)
-     */
-    function countSolutions(grid, size, limit = 2) {
-      let count = 0;
+    function hasUniqueSolution(grid, size, boxConfig) {
+      let solutions = 0;
+      const gridCopy = copyGrid(grid);
       
       function solve(g) {
-        if (count >= limit) return;
+        if (solutions > 1) return;
         
         for (let row = 0; row < size; row++) {
           for (let col = 0; col < size; col++) {
             if (g[row][col] === 0) {
               for (let num = 1; num <= size; num++) {
-                if (isValid(g, row, col, num, size)) {
+                if (isValidPlacement(g, row, col, num, boxConfig.rows, boxConfig.cols)) {
                   g[row][col] = num;
                   solve(g);
                   g[row][col] = 0;
+                  
+                  if (solutions > 1) return;
                 }
               }
               return;
             }
           }
         }
-        count++;
+        solutions++;
       }
       
-      solve(copyGrid(grid));
-      return count;
+      solve(gridCopy);
+      return solutions === 1;
     }
-
+    
     /**
-     * Remove numbers from a solved grid to create a puzzle
-     * Ensures the puzzle has exactly one solution
+     * Remove numbers to create puzzle from solution
      */
-    function createPuzzle(solvedGrid, size, difficulty) {
-      const puzzle = copyGrid(solvedGrid);
-      const config = GRID_CONFIG[size];
-      const targetGivens = config.givens[difficulty];
+    function createPuzzle(solution, size, difficulty, symmetrical) {
+      const puzzle = copyGrid(solution);
+      const boxConfig = BOX_CONFIG[size];
+      const targetGivens = GIVENS_COUNT[size][difficulty];
       
-      // Get all cell positions
       const positions = [];
-      for (let row = 0; row < size; row++) {
-        for (let col = 0; col < size; col++) {
-          positions.push([row, col]);
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          positions.push([r, c]);
         }
       }
       
-      // Shuffle positions for random removal
-      const shuffledPositions = shuffleArray(positions);
+      // Create list of positions to try removing
+      let positionsToRemove;
+      if (symmetrical && size !== 6) {
+        // For symmetrical puzzles, work with pairs
+        positionsToRemove = [];
+        const used = new Set();
+        
+        for (const [r, c] of positions) {
+          const key = `${r},${c}`;
+          if (used.has(key)) continue;
+          
+          // Find symmetric partner
+          const symR = size - 1 - r;
+          const symC = size - 1 - c;
+          const symKey = `${symR},${symC}`;
+          
+          positionsToRemove.push([r, c]);
+          used.add(key);
+          
+          if (symKey !== key) {
+            positionsToRemove.push([symR, symC]);
+            used.add(symKey);
+          }
+        }
+      } else {
+        positionsToRemove = shuffleArray([...positions]);
+      }
       
+      // Remove numbers while maintaining unique solution
       let currentGivens = size * size;
-      const minGivens = Math.max(targetGivens, Math.floor(size * size * 0.2)); // Never go below 20% filled
       
-      for (const [row, col] of shuffledPositions) {
+      for (const [r, c] of positionsToRemove) {
         if (currentGivens <= targetGivens) break;
         
-        const backup = puzzle[row][col];
-        puzzle[row][col] = 0;
+        const backup = puzzle[r][c];
+        puzzle[r][c] = 0;
         
-        // Check if still has unique solution
-        const solutions = countSolutions(puzzle, size, 2);
-        
-        if (solutions !== 1) {
-          // Restore if not unique
-          puzzle[row][col] = backup;
-        } else {
-          currentGivens--;
+        // Check if still has unique solution (skip for performance on larger grids)
+        if (size <= 9 && difficulty === 'expert') {
+          if (!hasUniqueSolution(puzzle, size, boxConfig)) {
+            puzzle[r][c] = backup; // Restore
+            continue;
+          }
         }
+        
+        currentGivens--;
       }
       
       return puzzle;
     }
-
-    /* --------------------------------------------------------------------------
-       Rendering
-       -------------------------------------------------------------------------- */
-
+    
     /**
-     * Render a grid to HTML table
+     * Generate a complete Sudoku puzzle
      */
-    function renderGrid(grid, tableId, size, isPuzzle = true) {
-      const table = document.getElementById(tableId);
-      table.innerHTML = '';
-      table.className = `sudoku-grid sudoku-grid--${size}x${size}`;
+    function generateSudoku(size, difficulty, symmetrical) {
+      const solution = generateSolution(size);
+      const puzzle = createPuzzle(solution, size, difficulty, symmetrical);
+      
+      return { puzzle, solution };
+    }
+    
+    // ============================================
+    // Rendering
+    // ============================================
+    
+    /**
+     * Get display character for cell value
+     */
+    function cellDisplay(value) {
+      if (value === 0) return '';
+      if (value <= 9) return value.toString();
+      return String.fromCharCode(64 + value - 9); // 10 -> A, 11 -> B, etc.
+    }
+    
+    /**
+     * Render a single Sudoku grid
+     */
+    function renderSudokuGrid(grid, size, puzzleIndex = '') {
+      const boxConfig = BOX_CONFIG[size];
+      const table = document.createElement('table');
+      table.className = 'sudoku-grid';
+      table.dataset.size = size;
       
       for (let row = 0; row < size; row++) {
         const tr = document.createElement('tr');
@@ -731,69 +595,46 @@
           const td = document.createElement('td');
           const value = grid[row][col];
           
+          td.textContent = cellDisplay(value);
+          
+          // Mark givens
           if (value !== 0) {
-            td.textContent = value;
-            if (isPuzzle) {
-              td.className = 'given';
-            }
+            td.classList.add('given');
+          } else {
+            td.classList.add('empty');
           }
+          
+          // Box borders
+          if (col % boxConfig.cols === 0) td.classList.add('box-left');
+          if ((col + 1) % boxConfig.cols === 0) td.classList.add('box-right');
+          if (row % boxConfig.rows === 0) td.classList.add('box-top');
+          if ((row + 1) % boxConfig.rows === 0) td.classList.add('box-bottom');
           
           tr.appendChild(td);
         }
         
         table.appendChild(tr);
       }
+      
+      return table;
     }
-
-    /* --------------------------------------------------------------------------
-       Main Actions
-       -------------------------------------------------------------------------- */
-
+    
     /**
-     * Generate puzzles based on current settings
+     * Render multiple puzzles
      */
-    function generatePuzzle() {
-      currentSize = parseInt(document.getElementById('size').value);
-      currentDifficulty = document.getElementById('difficulty').value;
-      let perPage = parseInt(document.getElementById('per-page').value);
-      const solutionsOption = document.getElementById('solutions').value;
-      
-      // Large print mode forces 1 puzzle per page
-      if (largePrintMode) {
-        perPage = 1;
-        document.getElementById('per-page').value = '1';
-      }
-      
-      const sizeNames = { 4: '4×4', 6: '6×6', 9: '9×9', 12: '12×12', 16: '16×16' };
-      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
-      
-      // Generate puzzles
-      const puzzles = [];
-      const solutions = [];
-      
-      for (let i = 0; i < perPage; i++) {
-        const solved = generateSolvedGrid(currentSize);
-        const puzzle = createPuzzle(solved, currentSize, currentDifficulty);
-        puzzles.push(puzzle);
-        solutions.push(solved);
-      }
-      
-      // Store first puzzle/solution for export
-      currentPuzzle = puzzles[0];
-      currentSolution = solutions[0];
-      
-      // Render puzzles container
+    function renderPuzzles(puzzles, solutions, perPage, showSolutions) {
       const container = document.getElementById('puzzle-container');
+      const solutionSection = document.getElementById('solution-section');
+      const solutionContainer = document.getElementById('solution-container');
+      
       container.innerHTML = '';
-      container.style.display = 'flex';
+      solutionContainer.innerHTML = '';
       
-      // Set print header title
-      const printHeaderTitle = document.getElementById('print-header-title');
-      printHeaderTitle.textContent = `Sudoku ${sizeNames[currentSize]} ${diffNames[currentDifficulty]}`;
-      
-      // Remove all layout classes and add appropriate one
+      // Remove old layout classes and add new one
       container.classList.remove('puzzle-container--one', 'puzzle-container--two', 'puzzle-container--four', 'large-print-mode');
-      if (largePrintMode) {
+      
+      const isLargePrint = document.getElementById('large-print').checked;
+      if (isLargePrint) {
         container.classList.add('large-print-mode', 'puzzle-container--one');
       } else if (perPage === 1) {
         container.classList.add('puzzle-container--one');
@@ -803,264 +644,208 @@
         container.classList.add('puzzle-container--four');
       }
       
-      // Create each puzzle
+      // Render puzzles
       puzzles.forEach((puzzle, i) => {
-        const puzzleDiv = document.createElement('div');
-        puzzleDiv.className = 'puzzle-item';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'puzzle-item';
         
         const title = document.createElement('h2');
         title.className = 'puzzle-title';
-        title.textContent = perPage > 1 ? `Puzzle ${i + 1}` : 'Sudoku';
-        puzzleDiv.appendChild(title);
+        title.textContent = `Puzzle ${i + 1}`;
+        wrapper.appendChild(title);
         
-        const table = document.createElement('table');
-        table.className = `sudoku-grid sudoku-grid--${currentSize}x${currentSize}`;
-        table.setAttribute('role', 'grid');
-        table.setAttribute('aria-label', `Sudoku puzzle ${i + 1}`);
+        const size = puzzle.length;
+        wrapper.appendChild(renderSudokuGrid(puzzle, size, i + 1));
         
-        renderGridToTable(puzzle, table, currentSize, true);
-        puzzleDiv.appendChild(table);
-        
-        // Add same-page solution if selected
-        if (solutionsOption === 'same') {
-          const solutionDiv = document.createElement('div');
-          solutionDiv.className = 'solution-same-page';
-          
-          const solutionTitle = document.createElement('h3');
-          solutionTitle.className = 'solution-title';
-          solutionTitle.textContent = perPage > 1 ? `Solution ${i + 1}` : 'Solution';
-          solutionDiv.appendChild(solutionTitle);
-          
-          const solutionTable = document.createElement('table');
-          solutionTable.className = `sudoku-grid sudoku-grid--${currentSize}x${currentSize}`;
-          renderGridToTable(solutions[i], solutionTable, currentSize, false);
-          solutionDiv.appendChild(solutionTable);
-          
-          puzzleDiv.appendChild(solutionDiv);
-        }
-        
-        container.appendChild(puzzleDiv);
+        container.appendChild(wrapper);
       });
       
-      // Handle solutions for separate and compact formats
-      const solutionSection = document.getElementById('solution-section');
-      solutionSection.innerHTML = '';
-      
-      if (solutionsOption === 'separate') {
-        solutionSection.style.display = '';
+      // Render solutions if enabled
+      if (showSolutions && solutions.length > 0) {
+        solutionSection.style.display = 'flex';
         
-        // Remove all layout classes and add appropriate one
-        solutionSection.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four', 'large-print-mode', 'solution-compact');
-        if (largePrintMode) {
-          solutionSection.classList.add('large-print-mode', 'solution-section--one');
+        // Remove old layout classes and add new one
+        solutionContainer.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four', 'large-print-mode');
+        
+        if (isLargePrint) {
+          solutionContainer.classList.add('large-print-mode', 'solution-section--one');
         } else if (perPage === 1) {
-          solutionSection.classList.add('solution-section--one');
+          solutionContainer.classList.add('solution-section--one');
         } else if (perPage === 2) {
-          solutionSection.classList.add('solution-section--two');
+          solutionContainer.classList.add('solution-section--two');
         } else if (perPage === 4) {
-          solutionSection.classList.add('solution-section--four');
+          solutionContainer.classList.add('solution-section--four');
         }
         
         solutions.forEach((solution, i) => {
-          const solutionDiv = document.createElement('div');
-          solutionDiv.className = 'puzzle-item';
+          const wrapper = document.createElement('div');
+          wrapper.className = 'puzzle-item';
           
           const title = document.createElement('h3');
           title.className = 'solution-title';
           title.textContent = perPage > 1 ? `Solution ${i + 1}` : 'Solution';
-          solutionDiv.appendChild(title);
+          wrapper.appendChild(title);
           
-          const table = document.createElement('table');
-          table.className = `sudoku-grid sudoku-grid--${currentSize}x${currentSize}`;
-          table.setAttribute('role', 'grid');
-          table.setAttribute('aria-label', `Sudoku solution ${i + 1}`);
+          const size = solution.length;
+          wrapper.appendChild(renderSudokuGrid(solution, size, i + 1));
           
-          renderGridToTable(solution, table, currentSize, false);
-          solutionDiv.appendChild(table);
-          
-          solutionSection.appendChild(solutionDiv);
-        });
-      } else if (solutionsOption === 'compact') {
-        solutionSection.style.display = '';
-        solutionSection.classList.remove('solution-section--one', 'solution-section--two', 'solution-section--four');
-        solutionSection.classList.add('solution-compact');
-        
-        // Print header for solutions
-        const printHeader = document.createElement('div');
-        printHeader.className = 'print-header';
-        printHeader.innerHTML = `
-          <h2 style="text-align: center; margin-bottom: var(--spacing-md);">Solutions</h2>
-        `;
-        solutionSection.appendChild(printHeader);
-        
-        solutions.forEach((solution, i) => {
-          const solutionDiv = document.createElement('div');
-          solutionDiv.className = 'solution-compact-item';
-          
-          const title = document.createElement('h4');
-          title.style.fontSize = 'var(--font-size-sm)';
-          title.style.marginBottom = 'var(--spacing-xs)';
-          title.textContent = `#${i + 1}`;
-          solutionDiv.appendChild(title);
-          
-          const table = document.createElement('table');
-          table.className = `sudoku-grid sudoku-grid--${currentSize}x${currentSize}`;
-          renderGridToTable(solution, table, currentSize, false);
-          solutionDiv.appendChild(table);
-          
-          solutionSection.appendChild(solutionDiv);
+          solutionContainer.appendChild(wrapper);
         });
       } else {
         solutionSection.style.display = 'none';
       }
+    }
+    
+    // ============================================
+    // PNG Export
+    // ============================================
+    
+    /**
+     * Create canvas with Sudoku grid for PNG export
+     */
+    function createSudokuCanvas(grid, size, dpi = 300, fontSize = 22, isLargePrint = false) {
+      const boxConfig = BOX_CONFIG[size];
       
-      // Update UI
-      document.getElementById('affiliate-banner').style.display = 'block';
-      document.getElementById('print-btn').disabled = false;
-      document.getElementById('export-btn').disabled = false;
-    }
-
-    /**
-     * Render a grid to a specific table element
-     */
-    function renderGridToTable(grid, table, size, isPuzzle = true) {
-      table.innerHTML = '';
+      // Use larger settings if large print mode
+      const effectiveFontSize = isLargePrint ? Math.max(fontSize, 26) : fontSize;
+      const baseCellSize = isLargePrint ? 60 : 50;
+      const margin = 40;
       
-      for (let row = 0; row < size; row++) {
-        const tr = document.createElement('tr');
-        
-        for (let col = 0; col < size; col++) {
-          const td = document.createElement('td');
-          const value = grid[row][col];
-          
-          if (value !== 0) {
-            td.textContent = numToChar(value);
-            if (isPuzzle) {
-              td.className = 'given';
-            }
-          }
-          
-          tr.appendChild(td);
-        }
-        
-        table.appendChild(tr);
-      }
-    }
-
-    /**
-     * Print the puzzle
-     */
-    function printPuzzle() {
-      window.print();
-    }
-
-    /**
-     * Export puzzle as PNG (300 DPI for print quality)
-     */
-    function exportPuzzle() {
-      const canvas = document.createElement('canvas');
+      const scale = dpi / 96;
+      const cellSize = baseCellSize * scale;
+      
+      const width = margin * 2 + size * cellSize;
+      const height = margin * 2 + size * cellSize + 30 * scale; // Extra for footer
+      
+      const canvas = createHiDPICanvas(width / scale, height / scale, dpi);
       const ctx = canvas.getContext('2d');
-      const size = currentSize;
       
-      // 300 DPI scaling for print quality
-      const dpi = 300;
-      const scale = dpi / 96; // Screen is ~96 DPI
-      
-      // Cell size calculation - larger for large print and smaller for larger grids
-      let baseCellSize;
-      if (largePrintMode) {
-        baseCellSize = Math.max(60, Math.min(80, 700 / size)); // Larger cells for large print
-      } else {
-        baseCellSize = size <= 9 ? 50 : (size === 12 ? 40 : 35);
-      }
-      
-      const cellSize = baseCellSize;
-      const gridWidth = size * cellSize;
-      const padding = largePrintMode ? 40 : 20;
-      const titleHeight = largePrintMode ? 50 : 30;
-      
-      // Scale for 300 DPI
-      canvas.width = (gridWidth + padding * 2) * scale;
-      canvas.height = (gridWidth + padding * 2 + titleHeight) * scale;
-      
-      ctx.scale(scale, scale);
-      
-      // White background
+      // Background
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, width, height);
       
-      // Draw puzzle title
-      const sizeNames = { 4: '4×4', 6: '6×6', 9: '9×9', 12: '12×12', 16: '16×16' };
-      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
-      ctx.fillStyle = '#1a202c';
-      ctx.font = `bold ${largePrintMode ? 20 : 14}pt Arial`;
-      ctx.textAlign = 'center';
-      ctx.fillText(`Sudoku ${sizeNames[size]} ${diffNames[currentDifficulty]}`, (gridWidth + padding * 2) / 2, largePrintMode ? 35 : 20);
-      
-      // Draw grid
-      const config = GRID_CONFIG[size];
-      const offsetY = titleHeight;
-      
+      // Draw cells
+      ctx.font = `bold ${effectiveFontSize * scale}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `bold ${Math.max(largePrintMode ? 24 : 16, cellSize * 0.5)}px Arial`;
       
       for (let row = 0; row < size; row++) {
         for (let col = 0; col < size; col++) {
-          const x = padding + col * cellSize;
-          const y = offsetY + padding + row * cellSize;
-          const value = currentPuzzle[row][col];
+          const x = margin + col * cellSize;
+          const y = margin + row * cellSize;
+          const value = grid[row][col];
           
-          // Cell background for givens
+          // Cell background
+          ctx.fillStyle = value !== 0 ? '#f8f8f8' : '#ffffff';
+          ctx.fillRect(x, y, cellSize, cellSize);
+          
+          // Cell value
           if (value !== 0) {
-            ctx.fillStyle = '#f7fafc';
-            ctx.fillRect(x, y, cellSize, cellSize);
-          }
-          
-          // Cell border
-          ctx.strokeStyle = '#cbd5e0';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(x, y, cellSize, cellSize);
-          
-          // Number
-          if (value !== 0) {
-            ctx.fillStyle = '#1a202c';
-            ctx.fillText(numToChar(value), x + cellSize / 2, y + cellSize / 2);
+            ctx.fillStyle = '#333333';
+            ctx.fillText(cellDisplay(value), x + cellSize / 2, y + cellSize / 2);
           }
         }
+      }
+      
+      // Draw thin grid lines
+      ctx.strokeStyle = '#999999';
+      ctx.lineWidth = 1 * scale;
+      
+      for (let i = 0; i <= size; i++) {
+        const x = margin + i * cellSize;
+        const y = margin + i * cellSize;
+        
+        // Vertical
+        ctx.beginPath();
+        ctx.moveTo(x, margin);
+        ctx.lineTo(x, margin + size * cellSize);
+        ctx.stroke();
+        
+        // Horizontal
+        ctx.beginPath();
+        ctx.moveTo(margin, y);
+        ctx.lineTo(margin + size * cellSize, y);
+        ctx.stroke();
       }
       
       // Draw thick box borders
-      ctx.strokeStyle = '#1a202c';
-      ctx.lineWidth = 3;
-      
-      for (let boxRow = 0; boxRow < size / config.boxRows; boxRow++) {
-        for (let boxCol = 0; boxCol < size / config.boxCols; boxCol++) {
-          const x = padding + boxCol * config.boxCols * cellSize;
-          const y = offsetY + padding + boxRow * config.boxRows * cellSize;
-          const w = config.boxCols * cellSize;
-          const h = config.boxRows * cellSize;
-          ctx.strokeRect(x, y, w, h);
-        }
-      }
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 3 * scale;
       
       // Outer border
-      ctx.lineWidth = 4;
-      ctx.strokeRect(padding, offsetY + padding, gridWidth, gridWidth);
+      ctx.strokeRect(margin, margin, size * cellSize, size * cellSize);
       
-      // Download
-      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-      const link = document.createElement('a');
-      link.download = `sudoku-${sizeNames[size].replace('×', 'x')}-${currentDifficulty}-${timestamp}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      // Internal box borders
+      for (let i = 1; i < size / boxConfig.cols; i++) {
+        ctx.beginPath();
+        ctx.moveTo(margin + i * boxConfig.cols * cellSize, margin);
+        ctx.lineTo(margin + i * boxConfig.cols * cellSize, margin + size * cellSize);
+        ctx.stroke();
+      }
+      
+      for (let i = 1; i < size / boxConfig.rows; i++) {
+        ctx.beginPath();
+        ctx.moveTo(margin, margin + i * boxConfig.rows * cellSize);
+        ctx.lineTo(margin + size * cellSize, margin + i * boxConfig.rows * cellSize);
+        ctx.stroke();
+      }
+      
+      // Add footer with site URL
+      ctx.font = `${10 * scale}px Arial`;
+      ctx.fillStyle = '#666666';
+      ctx.textAlign = 'center';
+      ctx.fillText('puzzle-engine.com', width / 2, height - 15 * scale);
+      
+      return canvas;
     }
-
+    
     /**
-     * Generate bulk puzzles as ZIP download
+     * Export current puzzle as PNG
+     */
+    async function exportPuzzlePNG() {
+      if (currentPuzzles.length === 0) {
+        alert('Please generate a puzzle first.');
+        return;
+      }
+      
+      const size = currentPuzzles[0].length;
+      const difficulty = document.getElementById('difficulty').value;
+      const isLargePrint = document.getElementById('large-print').checked;
+      const ts = timestamp();
+      
+      for (let i = 0; i < currentPuzzles.length; i++) {
+        const canvas = createSudokuCanvas(currentPuzzles[i], size, 300, 22, isLargePrint);
+        const filename = `sudoku-${size}x${size}-${difficulty}-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
+        await downloadCanvas(canvas, filename);
+        await delay(100);
+      }
+      
+      // Also export solutions if enabled
+      const showSolutions = document.getElementById('solutions').value === 'separate';
+      if (showSolutions && currentSolutions.length > 0) {
+        for (let i = 0; i < currentSolutions.length; i++) {
+          const canvas = createSudokuCanvas(currentSolutions[i], size, 300, 22, isLargePrint);
+          const filename = `sudoku-${size}x${size}-${difficulty}-solution-${ts}${i > 0 ? '-' + (i + 1) : ''}.png`;
+          await downloadCanvas(canvas, filename);
+          await delay(100);
+        }
+      }
+    }
+    
+    // ============================================
+    // Bulk Generation
+    // ============================================
+    
+    /**
+     * Generate bulk puzzles and download as ZIP
      */
     async function generateBulkPuzzles() {
-      const count = parseInt(document.getElementById('bulk-count').value) || 100;
+      const size = parseInt(document.getElementById('size').value);
+      const count = parseInt(document.getElementById('bulk-count').value);
+      const fontSize = parseInt(document.getElementById('bulk-font-size').value);
+      const isLargePrint = document.getElementById('bulk-large-print').checked;
+      
+      // Get selected difficulties
       const difficulties = [];
       if (document.getElementById('diff-easy').checked) difficulties.push('easy');
       if (document.getElementById('diff-medium').checked) difficulties.push('medium');
@@ -1068,338 +853,145 @@
       if (document.getElementById('diff-expert').checked) difficulties.push('expert');
       
       if (difficulties.length === 0) {
-        alert('Please select at least one difficulty level.');
+        alert('Please select at least one difficulty level');
         return;
       }
       
-      const size = parseInt(document.getElementById('size').value);
       const progressContainer = document.getElementById('bulk-progress');
-      const progressFill = document.getElementById('progress-fill');
-      const progressText = document.getElementById('progress-text');
-      
-      progressContainer.classList.remove('hidden');
-      
-      const sizeNames = { 4: '4x4', 6: '6x6', 9: '9x9', 12: '12x12', 16: '16x16' };
-      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
+      progressContainer.style.display = 'block';
       
       const zip = new JSZip();
       const puzzlesFolder = zip.folder('puzzles');
       const solutionsFolder = zip.folder('solutions');
       
-      // Track puzzle counts per difficulty for auto-numbering
-      const diffCounts = { easy: 0, medium: 0, hard: 0, expert: 0 };
+      const totalCount = count * difficulties.length;
+      let generated = 0;
       
-      const puzzles = [];
-      const solutions = [];
-      const puzzleDiffs = [];
-      
-      // Generate all puzzles first
-      for (let i = 0; i < count; i++) {
-        const percent = Math.round((i + 1) / count * 50); // First 50% is generation
-        progressFill.style.width = `${percent}%`;
-        progressText.textContent = `Generating puzzle ${i + 1} of ${count}...`;
-        
-        const diff = difficulties[i % difficulties.length];
-        const solved = generateSolvedGrid(size);
-        const puzzle = createPuzzle(solved, size, diff);
-        
-        puzzles.push(puzzle);
-        solutions.push(solved);
-        puzzleDiffs.push(diff);
-        diffCounts[diff]++;
-        
-        // Yield to prevent UI freeze
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
-      
-      // Reset counts for auto-numbering
-      const diffNumbers = { easy: 0, medium: 0, hard: 0, expert: 0 };
-      
-      // Generate puzzle PNGs with auto-numbering
-      for (let i = 0; i < puzzles.length; i++) {
-        const percent = 50 + Math.round((i + 1) / puzzles.length * 30); // 50-80% is puzzle images
-        progressFill.style.width = `${percent}%`;
-        progressText.textContent = `Creating puzzle ${i + 1} of ${puzzles.length}...`;
-        
-        const diff = puzzleDiffs[i];
-        diffNumbers[diff]++;
-        const puzzleNum = diffNumbers[diff];
-        
-        const canvas = createPuzzleCanvas(puzzles[i], size, puzzleNum, diff, largePrintMode);
-        const dataUrl = canvas.toDataURL('image/png');
-        const base64Data = dataUrl.split(',')[1];
-        
-        // Auto-numbered filename: Puzzle_001.png, etc.
-        const paddedNum = String(puzzleNum).padStart(3, '0');
-        puzzlesFolder.file(`${diffNames[diff]}_Puzzle_${paddedNum}.png`, base64Data, { base64: true });
-        
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
-      
-      // Create solution pages grouped by difficulty (6 per page)
-      const solutionsPerPage = 6;
-      
-      for (const diff of difficulties) {
-        const diffName = diffNames[diff];
-        // Get all solutions for this difficulty
-        const diffIndices = puzzleDiffs.map((d, i) => d === diff ? i : -1).filter(i => i >= 0);
-        const diffSolutions = diffIndices.map(i => solutions[i]);
-        
-        if (diffSolutions.length === 0) continue;
-        
-        const numPages = Math.ceil(diffSolutions.length / solutionsPerPage);
-        
-        for (let page = 0; page < numPages; page++) {
-          const percent = 80 + Math.round((page + 1) / (numPages * difficulties.length) * 15);
-          progressFill.style.width = `${percent}%`;
-          progressText.textContent = `Creating ${diffName} solutions page ${page + 1} of ${numPages}...`;
+      for (const difficulty of difficulties) {
+        for (let i = 0; i < count; i++) {
+          // Update progress
+          generated++;
+          updateProgress(generated, totalCount, progressContainer);
           
-          const startIdx = page * solutionsPerPage;
-          const endIdx = Math.min(startIdx + solutionsPerPage, diffSolutions.length);
-          const pageSolutions = diffSolutions.slice(startIdx, endIdx);
-          const startNumber = startIdx + 1;
+          // Generate puzzle
+          const { puzzle, solution } = generateSudoku(size, difficulty, false);
           
-          const canvas = createSolutionPage(pageSolutions, size, startNumber, diffName);
-          const dataUrl = canvas.toDataURL('image/png');
-          const base64Data = dataUrl.split(',')[1];
+          // Create canvas and add to ZIP
+          const puzzleCanvas = createSudokuCanvas(puzzle, size, 300, fontSize, isLargePrint);
+          const puzzleDataUrl = puzzleCanvas.toDataURL('image/png');
+          const puzzleBase64 = puzzleDataUrl.split(',')[1];
+          puzzlesFolder.file(`${difficulty}-puzzle-${String(i + 1).padStart(3, '0')}.png`, puzzleBase64, { base64: true });
           
-          const paddedPage = String(page + 1).padStart(2, '0');
-          solutionsFolder.file(`${diffName}_Solutions_Page${paddedPage}.png`, base64Data, { base64: true });
+          const solutionCanvas = createSudokuCanvas(solution, size, 300, fontSize, isLargePrint);
+          const solutionDataUrl = solutionCanvas.toDataURL('image/png');
+          const solutionBase64 = solutionDataUrl.split(',')[1];
+          solutionsFolder.file(`${difficulty}-solution-${String(i + 1).padStart(3, '0')}.png`, solutionBase64, { base64: true });
           
-          await new Promise(resolve => setTimeout(resolve, 0));
+          // Yield to UI
+          await delay(1);
         }
       }
       
-      progressText.textContent = 'Creating ZIP file...';
-      progressFill.style.width = '98%';
+      // Generate ZIP
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipUrl = URL.createObjectURL(zipBlob);
       
-      const content = await zip.generateAsync({ type: 'blob' });
-      const url = URL.createObjectURL(content);
+      const diffStr = difficulties.join('-');
       const link = document.createElement('a');
-      link.href = url;
-      link.download = `sudoku-${sizeNames[size]}-${count}-puzzles.zip`;
+      link.download = `sudoku-${size}x${size}-${diffStr}-${count}-puzzles.zip`;
+      link.href = zipUrl;
       link.click();
-      URL.revokeObjectURL(url);
       
-      progressFill.style.width = '100%';
-      progressText.textContent = 'Download complete!';
-      
-      setTimeout(() => {
-        progressContainer.classList.add('hidden');
-      }, 2000);
+      URL.revokeObjectURL(zipUrl);
+      progressContainer.style.display = 'none';
     }
-
-    /**
-     * Create canvas from puzzle grid
-     */
-    function createPuzzleCanvas(grid, size, puzzleNum, difficulty, largePrint = false) {
-      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+    
+    // ============================================
+    // Event Handlers
+    // ============================================
+    
+    document.getElementById('generate').addEventListener('click', () => {
+      const size = parseInt(document.getElementById('size').value);
+      const difficulty = document.getElementById('difficulty').value;
+      const perPage = parseInt(document.getElementById('per-page').value);
+      const showSolutions = document.getElementById('solutions').value === 'separate';
       
-      // 300 DPI for print quality
-      const dpi = 300;
-      const scale = dpi / 96;
+      currentPuzzles = [];
+      currentSolutions = [];
       
-      // Cell size calculation
-      let cellSize;
-      if (largePrint) {
-        cellSize = Math.max(60, Math.min(80, 700 / size));
+      for (let i = 0; i < perPage; i++) {
+        const { puzzle, solution } = generateSudoku(size, difficulty, false);
+        currentPuzzles.push(puzzle);
+        currentSolutions.push(solution);
+      }
+      
+      currentSettings = { size, difficulty, perPage };
+      renderPuzzles(currentPuzzles, currentSolutions, perPage, showSolutions);
+    });
+    
+    document.getElementById('print').addEventListener('click', () => {
+      if (currentPuzzles.length === 0) {
+        alert('Please generate a puzzle first.');
+        return;
+      }
+      window.print();
+    });
+    
+    document.getElementById('export-png').addEventListener('click', exportPuzzlePNG);
+    document.getElementById('generate-bulk').addEventListener('click', generateBulkPuzzles);
+    
+    // Large Print toggle - force 1 per page
+    document.getElementById('large-print').addEventListener('change', function() {
+      const perPageSelect = document.getElementById('per-page');
+      if (this.checked) {
+        perPageSelect.value = '1';
+        perPageSelect.disabled = true;
+        document.body.classList.add('large-print-mode');
       } else {
-        cellSize = size <= 4 ? 60 : (size <= 6 ? 50 : (size <= 9 ? 45 : (size === 12 ? 40 : 35)));
+        perPageSelect.disabled = false;
+        document.body.classList.remove('large-print-mode');
       }
-      
-      const gridWidth = size * cellSize;
-      const padding = largePrint ? 40 : 20;
-      const titleHeight = largePrint ? 50 : 30;
-      
-      canvas.width = (gridWidth + padding * 2) * scale;
-      canvas.height = (gridWidth + padding * 2 + titleHeight) * scale;
-      
-      ctx.scale(scale, scale);
-      
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
-      
-      // Draw puzzle title
-      ctx.fillStyle = '#1a202c';
-      ctx.font = `bold ${largePrint ? 20 : 14}pt Arial`;
-      ctx.textAlign = 'center';
-      ctx.fillText(`${diffNames[difficulty]} ${puzzleNum}`, (gridWidth + padding * 2) / 2, largePrint ? 35 : 18);
-      
-      const config = GRID_CONFIG[size];
-      const offsetY = titleHeight;
-      
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = `bold ${Math.max(largePrint ? 24 : 16, cellSize * 0.5)}px Arial`;
-      
-      for (let row = 0; row < size; row++) {
-        for (let col = 0; col < size; col++) {
-          const x = padding + col * cellSize;
-          const y = offsetY + padding + row * cellSize;
-          const value = grid[row][col];
-          
-          if (value !== 0) {
-            ctx.fillStyle = '#f7fafc';
-            ctx.fillRect(x, y, cellSize, cellSize);
-          }
-          
-          ctx.strokeStyle = '#cbd5e0';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(x, y, cellSize, cellSize);
-          
-          if (value !== 0) {
-            ctx.fillStyle = '#1a202c';
-            ctx.fillText(numToChar(value), x + cellSize / 2, y + cellSize / 2);
-          }
-        }
+    });
+    
+    // Update solutions display when changed
+    document.getElementById('solutions').addEventListener('change', function() {
+      if (currentPuzzles.length > 0) {
+        const perPage = parseInt(document.getElementById('per-page').value);
+        const showSolutions = this.value === 'separate';
+        renderPuzzles(currentPuzzles, currentSolutions, perPage, showSolutions);
       }
+    });
+    
+    // Auto-generate on page load for immediate preview
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('generate').click();
       
-      ctx.strokeStyle = '#1a202c';
-      ctx.lineWidth = 3;
+      // Hamburger menu toggle
+      const hamburger = document.getElementById('hamburger');
+      const sideMenu = document.getElementById('side-menu');
+      const menuOverlay = document.getElementById('menu-overlay');
       
-      for (let boxRow = 0; boxRow < size / config.boxRows; boxRow++) {
-        for (let boxCol = 0; boxCol < size / config.boxCols; boxCol++) {
-          const x = padding + boxCol * config.boxCols * cellSize;
-          const y = offsetY + padding + boxRow * config.boxRows * cellSize;
-          ctx.strokeRect(x, y, config.boxCols * cellSize, config.boxRows * cellSize);
-        }
+      if (hamburger) {
+        hamburger.addEventListener('click', () => {
+          hamburger.classList.toggle('open');
+          sideMenu.classList.toggle('open');
+          menuOverlay.classList.toggle('open');
+        });
+        
+        menuOverlay.addEventListener('click', () => {
+          hamburger.classList.remove('open');
+          sideMenu.classList.remove('open');
+          menuOverlay.classList.remove('open');
+        });
+        
+        sideMenu.querySelectorAll('.header__menu-link').forEach(link => {
+          link.addEventListener('click', () => {
+            hamburger.classList.remove('open');
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('open');
+          });
+        });
       }
-      
-      ctx.lineWidth = 4;
-      ctx.strokeRect(padding, offsetY + padding, gridWidth, gridWidth);
-      
-      return canvas;
-    }
-
-    /**
-     * Create solution page with multiple grids
-     */
-    function createSolutionPage(grids, size, startNumber, difficulty) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      // 300 DPI for print quality
-      const dpi = 300;
-      const scale = dpi / 96;
-      
-      // Smaller cell size for compact solution pages
-      const cellSize = size <= 4 ? 30 : (size <= 6 ? 25 : (size <= 9 ? 22 : (size === 12 ? 18 : 15)));
-      const gridWidth = size * cellSize;
-      const titleHeight = 18;
-      const gridHeight = titleHeight + gridWidth;
-      
-      // Layout: 4 columns x 3 rows = 12 per page
-      const cols = 4;
-      const rows = 3;
-      const pagePadding = 20;
-      const colGap = 15;
-      const rowGap = 15;
-      
-      canvas.width = (pagePadding * 2 + cols * gridWidth + (cols - 1) * colGap) * scale;
-      canvas.height = (pagePadding * 2 + rows * gridHeight + (rows - 1) * rowGap) * scale;
-      
-      ctx.scale(scale, scale);
-      
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
-      
-      const config = GRID_CONFIG[size];
-      
-      grids.forEach((grid, idx) => {
-        const col = idx % cols;
-        const row = Math.floor(idx / cols);
-        const baseX = pagePadding + col * (gridWidth + colGap);
-        const baseY = pagePadding + row * (gridHeight + rowGap);
-        
-        // Draw solution number with difficulty
-        ctx.fillStyle = '#1a202c';
-        ctx.font = 'bold 10pt Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(`${difficulty} ${startNumber + idx}`, baseX, baseY + 12);
-        
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = `bold ${Math.max(10, cellSize * 0.45)}px Arial`;
-        
-        for (let r = 0; r < size; r++) {
-          for (let c = 0; c < size; c++) {
-            const x = baseX + c * cellSize;
-            const y = baseY + titleHeight + r * cellSize;
-            const value = grid[r][c];
-            
-            ctx.strokeStyle = '#cbd5e0';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(x, y, cellSize, cellSize);
-            
-            if (value !== 0) {
-              ctx.fillStyle = '#1a202c';
-              ctx.fillText(numToChar(value), x + cellSize / 2, y + cellSize / 2);
-            }
-          }
-        }
-        
-        ctx.strokeStyle = '#1a202c';
-        ctx.lineWidth = 2;
-        
-        for (let boxRow = 0; boxRow < size / config.boxRows; boxRow++) {
-          for (let boxCol = 0; boxCol < size / config.boxCols; boxCol++) {
-            const x = baseX + boxCol * config.boxCols * cellSize;
-            const y = baseY + titleHeight + boxRow * config.boxRows * cellSize;
-            ctx.strokeRect(x, y, config.boxCols * cellSize, config.boxRows * cellSize);
-          }
-        }
-        
-        ctx.lineWidth = 3;
-        ctx.strokeRect(baseX, baseY + titleHeight, gridWidth, gridWidth);
-      });
-      
-      return canvas;
-    }
-
-    /* --------------------------------------------------------------------------
-       Event Listeners & Initialization
-       -------------------------------------------------------------------------- */
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // Generate button
-      document.getElementById('generate-btn').addEventListener('click', generatePuzzle);
-      
-      // Print button
-      document.getElementById('print-btn').addEventListener('click', printPuzzle);
-      
-      // Export button
-      document.getElementById('export-btn').addEventListener('click', exportPuzzle);
-      
-      // Bulk generate button
-      document.getElementById('bulk-generate-btn').addEventListener('click', generateBulkPuzzles);
-      
-      // Large print toggle
-      document.getElementById('large-print-toggle').addEventListener('change', function() {
-        largePrintMode = this.checked;
-        // Force 1 puzzle per page when large print is enabled
-        if (largePrintMode) {
-          document.getElementById('per-page').value = '1';
-        }
-        // Regenerate puzzle with new settings
-        if (currentPuzzle) {
-          generatePuzzle();
-        }
-      });
-      
-      // Advanced options toggle
-      const advancedToggle = document.getElementById('advanced-toggle');
-      const advancedOptions = document.getElementById('advanced-options');
-      
-      advancedToggle.addEventListener('click', function() {
-        const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
-        advancedToggle.setAttribute('aria-expanded', !isExpanded);
-        advancedOptions.classList.toggle('is-visible');
-      });
-      
-      // Generate initial puzzle
-      generatePuzzle();
     });
   </script>
 </body>
